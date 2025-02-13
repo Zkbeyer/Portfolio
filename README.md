@@ -1,2 +1,2 @@
 # Portfolio
-This is a collection of projects I have worked on.
+This is my personal website
