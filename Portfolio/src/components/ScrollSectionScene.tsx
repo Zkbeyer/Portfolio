@@ -2,11 +2,12 @@ import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
-import Clouds from '../components/3dModels/Clouds';
+import Clouds from "../components/3dModels/Clouds";
 import Home from "../pages/Home";
+import { SectionWidgets3D } from "../components/SectionWidgets3D";
+import { useAudio } from "../components/Audio/useAuidio";
 
 type SectionPose = {
-  // camera position and "look at" target per section
   camPos: [number, number, number];
   lookAt: [number, number, number];
 };
@@ -15,27 +16,43 @@ function wrapIndex(i: number, n: number) {
   return ((i % n) + n) % n;
 }
 
-function Scene({ activeIndex }: { activeIndex: number }) {
+function Scene({
+  activeIndex,
+  onHoverPrompt,
+  onOpenSection,
+}: {
+  activeIndex: number;
+  onHoverPrompt?: (prompt: string | null) => void;
+  onOpenSection?: (index: number) => void;
+}) {
   const camRef = useRef<THREE.PerspectiveCamera | null>(null);
 
-  // Define 3 “locked” camera poses (tune these)
   const poses: SectionPose[] = useMemo(
     () => [
-      { camPos: [0.8, -0.1, -1], lookAt: [0, .2, -5] },     // Section 0
-      { camPos: [1.2, 0, -2.5], lookAt: [-5, 0, -10] }, // Section 1
-      { camPos: [-.2, -.1, -1], lookAt: [2, -.1, -10] }, // Section 2
+      { camPos: [0.8, -0.1, -1], lookAt: [0, 0.2, -5] },
+      { camPos: [1.5, 0, -2.2], lookAt: [-2, 0, -10] },
+      { camPos: [-0.2, 0.1, -1], lookAt: [2, -0.9, -10] },
     ],
     []
   );
 
-  //targets
   const targetPos = useRef(new THREE.Vector3(...poses[0].camPos));
   const targetLook = useRef(new THREE.Vector3(...poses[0].lookAt));
-
-  //smoothed look
   const smoothedLook = useRef(new THREE.Vector3(...poses[0].lookAt));
 
-  // Update targets whenever active section changes
+  const mouseRef = useRef(new THREE.Vector2(0, 0));
+  const desiredLookRef = useRef(new THREE.Vector3()); // avoids alloc
+
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      const x = (e.clientX / window.innerWidth) * 2 - 1;
+      const y = -(e.clientY / window.innerHeight) * 2 + 1;
+      mouseRef.current.set(x, y);
+    };
+    window.addEventListener("pointermove", onMove);
+    return () => window.removeEventListener("pointermove", onMove);
+  }, []);
+
   useEffect(() => {
     const p = poses[activeIndex];
     targetPos.current.set(...p.camPos);
@@ -46,54 +63,80 @@ function Scene({ activeIndex }: { activeIndex: number }) {
     const cam = camRef.current;
     if (!cam) return;
 
-    // Smoothly move camera to target
-    cam.position.lerp(targetPos.current, .05);
+    cam.position.lerp(targetPos.current, 0.05);
 
-    smoothedLook.current.lerp(targetLook.current, 0.08);
+    const PARALLAX_X = 0.35;
+    const PARALLAX_Y = 0.22;
 
+    desiredLookRef.current.copy(targetLook.current);
+    desiredLookRef.current.x += mouseRef.current.x * PARALLAX_X;
+    desiredLookRef.current.y += mouseRef.current.y * PARALLAX_Y;
+
+    smoothedLook.current.lerp(desiredLookRef.current, 0.08);
     cam.lookAt(smoothedLook.current);
-
-    cam.updateProjectionMatrix();
   });
 
   return (
     <>
-      <PerspectiveCamera ref={camRef} makeDefault position={[0, .1, 0]} fov={50} />
+      <PerspectiveCamera ref={camRef} makeDefault position={[0, 0.1, 0]} fov={50} />
       <ambientLight intensity={1} />
       <pointLight position={[10, 10, 10]} />
 
       <Suspense fallback={null}>
         <Clouds />
       </Suspense>
+
+      <SectionWidgets3D
+        activeIndex={activeIndex}
+        onHoverPrompt={onHoverPrompt}
+        onOpenSection={onOpenSection}
+      />
     </>
   );
 }
 
 export default function ScrollSectionScene() {
   const NUM_SECTIONS = 3;
-
   const [activeIndex, setActiveIndex] = useState(0);
+  const [audioReady, setAudioReady] = useState(false);
 
-  // lock so trackpads don’t blast through multiple sections
+  const enableAudio = async () => {
+  setAudioReady(true);
+  await startMusic(); // will succeed because this is inside a user click
+};
+
+  // ✅ hook is now inside component
+  const { muted, toggleMute, playWhoosh, startMusic, unlocked } = useAudio({
+    whooshUrl: "/audio/whoosh.mp3",
+    musicUrl: "/audio/ambient.mp3",
+    whooshVolume: 0.18,
+    musicVolume: 0.14,
+  });
+
+  // whoosh on channel switch
+  useEffect(() => {
+    playWhoosh();
+  }, [activeIndex, playWhoosh]);
+
+  // start music after first user interaction unlocks audio
+  useEffect(() => {
+    if (unlocked && !muted) void startMusic();
+  }, [unlocked, muted, startMusic]);
+
   const lockedRef = useRef(false);
   const wheelAccumRef = useRef(0);
-
-  const LOCK_MS = 650;       // how long it “snaps/locks”
-  const THRESHOLD = 100;      // how much wheel delta before we advance a section
+  const LOCK_MS = 650;
+  const THRESHOLD = 100;
 
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
-      // Prevent the page from scrolling
       e.preventDefault();
-
       if (lockedRef.current) return;
 
-      // Accumulate wheel movement (trackpads send many small deltas)
       wheelAccumRef.current += e.deltaY;
-
       if (Math.abs(wheelAccumRef.current) < THRESHOLD) return;
 
-      const dir = wheelAccumRef.current > 0 ? 1 : -1; // down = next, up = prev
+      const dir = wheelAccumRef.current > 0 ? 1 : -1;
       wheelAccumRef.current = 0;
 
       lockedRef.current = true;
@@ -104,13 +147,10 @@ export default function ScrollSectionScene() {
       }, LOCK_MS);
     };
 
-    // Use { passive:false } so preventDefault works
     window.addEventListener("wheel", onWheel, { passive: false });
-
     return () => window.removeEventListener("wheel", onWheel as any);
   }, []);
 
-  // Optional: keyboard navigation feels great for “channels”
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (lockedRef.current) return;
@@ -133,7 +173,13 @@ export default function ScrollSectionScene() {
 
   return (
     <div style={{ width: "100vw", height: "100vh", background: "#000" }}>
-        <Home activeIndex={activeIndex} numSections={NUM_SECTIONS} onSelectIndex={setActiveIndex}/>
+      <Home
+        activeIndex={activeIndex}
+        numSections={NUM_SECTIONS}
+        onSelectIndex={setActiveIndex}
+        onToggleMusic={toggleMute}
+        musicMuted={muted}
+      />
       <Canvas style={{ width: "100%", height: "100%" }}>
         <Scene activeIndex={activeIndex} />
       </Canvas>
