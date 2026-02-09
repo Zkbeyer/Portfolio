@@ -185,7 +185,7 @@ function ProjectsWidget3D({
 
       {/* Small metadata block */}
       <Text position={[0, -0.24, 0]} fontSize={0.055} color="rgba(88, 64, 64, 0.6)" anchorX="left">
-        STACK: React • Node • API
+        STACK: React • Node • Express • Spotify API
       </Text>
     </BasePanel>
   );
@@ -247,7 +247,7 @@ function ContactWidget3D({
 
       {/* Skill readout block */}
       <Text position={[0, -0.20, 0]} fontSize={0.065} color="rgba(88, 64, 64, 0.6)" anchorX="left">
-        GITHUB • LINKEDIN • EMAIL
+        GITHUB • LINKEDIN • INSTAGRAM
       </Text>
 
     </BasePanel>

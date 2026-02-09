@@ -1,0 +1,22 @@
+.projects-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden; /* IMPORTANT: disable independent scroll */
+  background: #000;
+}
+
+.projects-canvas {
+  position: fixed;
+  inset: 0;
+}
+
+/* Your overlay can stay mostly the same */
+.projects-overlay {
+  position: relative;
+  min-height: 200vh; /* keep this so ScrollControls has content height */
+  padding: 120px 6vw 140px;
+  color: rgba(255,255,255,0.88);
+  font-family: ui-sans-serif, system-ui;
+  pointer-events: auto;
+}
