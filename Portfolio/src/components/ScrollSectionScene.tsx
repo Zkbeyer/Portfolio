@@ -854,10 +854,21 @@ export default function ScrollSectionScene() {
         }}
         style={{
           position: "fixed",
+          top: 0,
           inset: 0,
           zIndex: 5,
           overflowY: transition.active || uiLocked ? "hidden" : "auto",
           overflowX: "hidden",
+          // Strong fade ONLY within header/footer zones (content becomes unreadable there)
+          // Tune HEADER_H / FOOTER_H if you adjust overlay heights.
+          WebkitMaskImage:
+            "linear-gradient(to bottom, transparent 0px, transparent 150px, rgba(0,0,0,1) 175px, rgba(0,0,0,1) calc(100% - 170px), transparent calc(100% - 120px), transparent 100%)",
+          maskImage:
+            "linear-gradient(to bottom, transparent 0px, transparent 120px, rgba(0,0,0,1) 170px, rgba(0,0,0,1) calc(100% - 170px), transparent calc(100% - 120px), transparent 100%)",
+          WebkitMaskRepeat: "no-repeat",
+          maskRepeat: "no-repeat",
+          WebkitMaskSize: "100% 100%",
+          maskSize: "100% 100%",
           padding: "150px 4vw 150px",
           boxSizing: "border-box",
           color: "rgba(255,255,255,0.88)",
