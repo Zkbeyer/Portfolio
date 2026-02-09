@@ -3,7 +3,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 
-import Clouds from "../components/3dModels/Clouds";
+import SpaceBoi from "../components/3dModels/SpaceBoi";
 import Home from "../pages/Home";
 import { useAudio } from "./Audio/useAudio";
 
@@ -13,13 +13,12 @@ type Pose = {
 };
 
 const POSES: Pose[] = [
-  { camPos: [0.8, -0.1, -1], lookAt: [0, 0.2, -5] },
-  { camPos: [1.5, 0, -2.2], lookAt: [-2, 0, -10] },
-  { camPos: [-0.2, 0.1, -1], lookAt: [2, -0.9, -10] },
+  { camPos: [10, 6, 12], lookAt: [7, 3, 1] },
+  { camPos: [5, 10, 5], lookAt: [0, 1, 0] },
+  { camPos: [12, 3, 5], lookAt: [3, 2, 5.5] },
 ];
 
 function easeInOut(t: number) {
-  // smoothstep
   return t * t * (3 - 2 * t);
 }
 
@@ -29,46 +28,6 @@ function clamp01(x: number) {
 
 function wrapIndex(i: number, n: number) {
   return ((i % n) + n) % n;
-}
-
-/**
- * A simple 3D transition “wipe” object that crosses the camera.
- * Replace this with your own transition object if you want.
- */
-function TransitionWipe({ active, progress }: { active: boolean; progress: number }) {
-  // progress 0..1
-  if (!active) return null;
-
-  // Move from far right to far left in camera space-ish
-  const x = THREE.MathUtils.lerp(3.5, -3.5, easeInOut(progress));
-  const z = THREE.MathUtils.lerp(-1.5, -0.6, easeInOut(progress));
-
-  return (
-    <group position={[x, 0, z]}>
-      <mesh>
-        <boxGeometry args={[2.2, 2.2, 0.15]} />
-        <meshStandardMaterial
-          color={"#0b0c10"}
-          metalness={0.15}
-          roughness={0.2}
-          emissive={new THREE.Color("#111")}
-          emissiveIntensity={0.35}
-          transparent
-          opacity={0.92}
-        />
-      </mesh>
-
-      {/* “checker” hint */}
-      <mesh position={[0, 0, 0.09]}>
-        <planeGeometry args={[2.15, 2.15]} />
-        <meshBasicMaterial
-          transparent
-          opacity={0.55}
-          color={"#ffffff"}
-        />
-      </mesh>
-    </group>
-  );
 }
 
 function Scene({
@@ -85,14 +44,15 @@ function Scene({
 }) {
   const camRef = useRef<THREE.PerspectiveCamera | null>(null);
 
-  // mouse parallax
   const mouseRef = useRef(new THREE.Vector2(0, 0));
   const desiredLookRef = useRef(new THREE.Vector3());
   const smoothedLookRef = useRef(new THREE.Vector3(0, 0, -5));
 
-  // reuse vectors
+  // Reuse vectors (avoid allocations each frame)
   const tmpPos = useRef(new THREE.Vector3());
   const tmpLook = useRef(new THREE.Vector3());
+  const tmpToPos = useRef(new THREE.Vector3());
+  const tmpToLook = useRef(new THREE.Vector3());
 
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
@@ -110,22 +70,16 @@ function Scene({
 
     const fromPose = POSES[transition.active ? transition.from : section];
     const toPose = POSES[transition.active ? transition.to : section];
-
     const k = transition.active ? easeInOut(clamp01(transition.t)) : 1;
 
-    // Base pose (interpolated during transition)
-    tmpPos.current
-      .set(...fromPose.camPos)
-      .lerp(new THREE.Vector3(...toPose.camPos), k);
+    tmpToPos.current.set(...toPose.camPos);
+    tmpToLook.current.set(...toPose.lookAt);
 
-    tmpLook.current
-      .set(...fromPose.lookAt)
-      .lerp(new THREE.Vector3(...toPose.lookAt), k);
+    tmpPos.current.set(...fromPose.camPos).lerp(tmpToPos.current, k);
+    tmpLook.current.set(...fromPose.lookAt).lerp(tmpToLook.current, k);
 
-    // Smooth camera movement a bit (keeps things premium)
     cam.position.lerp(tmpPos.current, 0.10);
 
-    // Parallax on top of look
     const PARALLAX_X = 0.30;
     const PARALLAX_Y = 0.20;
 
@@ -142,12 +96,9 @@ function Scene({
       <PerspectiveCamera ref={camRef} makeDefault position={POSES[0].camPos} fov={50} />
       <ambientLight intensity={1} />
       <pointLight position={[10, 10, 10]} />
-
       <Suspense fallback={null}>
-        <Clouds />
+        <SpaceBoi />
       </Suspense>
-
-      <TransitionWipe active={transition.active} progress={transition.t} />
     </>
   );
 }
@@ -174,131 +125,486 @@ function BottomChecker({ label }: { label: string }) {
       >
         {label}
       </div>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(12, 1fr)",
-          gap: 6,
-        }}
-      >
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gap: 6 }}>
         {Array.from({ length: 24 }).map((_, i) => (
           <div
             key={i}
             style={{
               height: 10,
               borderRadius: 2,
-              background:
-                i % 2 === 0
-                  ? "rgba(255,255,255,0.18)"
-                  : "rgba(255,255,255,0.06)",
+              background: i % 2 === 0 ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.06)",
             }}
           />
         ))}
       </div>
-      <div style={{ marginTop: 10, fontSize: 12, opacity: 0.75 }}>
-        Scroll past this checker to transition.
-      </div>
+      <div style={{ marginTop: 10, fontSize: 12, opacity: 0.75 }}>Next Section ↓</div>
     </div>
   );
 }
 
 function PageProjects() {
+  const [hovered, setHovered] = React.useState(false);
+
   return (
-    <div>
-      <div style={{ letterSpacing: "0.18em", fontSize: 12, opacity: 0.7 }}>
-        V-001 • INDEX • PROJECTS
-      </div>
-      <div style={{ fontSize: 44, letterSpacing: "0.06em", marginTop: 10 }}>
-        PROJECTS
-      </div>
-      <div style={{ maxWidth: 820, lineHeight: 1.6, opacity: 0.85, marginTop: 10 }}>
-        Scroll this page to the bottom. When you pass the checker, the camera
-        transitions to ABOUT and the ABOUT page starts at the top.
+    <>
+      <div style={{ letterSpacing: "0.18em", fontSize: 12, opacity: 0.7, marginBottom: 10, marginTop: 20 }}>
+        Contact ↑
       </div>
 
-      <div style={{ height: 520 }} />
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onClick={(e) => {
+          e.preventDefault();
+          console.log("Projects page clicked (stub)");
+        }}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            console.log("Projects page clicked (stub)");
+          }
+        }}
+        style={{
+          borderRadius: 18,
+          padding: "22px 20px",
+          background: hovered ? "rgba(10,12,16,0.62)" : "rgba(10,12,16,0.52)",
+          border: hovered ? "1px solid rgba(255,255,255,0.16)" : "1px solid rgba(255,255,255,0.10)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          cursor: "pointer",
+          transition: "background 180ms ease, border-color 180ms ease, transform 180ms ease",
+          transform: hovered ? "translateY(-1px)" : "translateY(0)",
+          outline: "none",
+        }}
+        aria-label="Open Projects page"
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "baseline",
+            gap: 12,
+            flexWrap: "wrap",
+          }}
+        >
+          <div style={{ fontSize: 44, letterSpacing: "0.06em" }}>PROJECTS</div>
 
-      <div style={{ fontSize: 18, letterSpacing: "0.12em" }}>FEATURED</div>
-      <div style={{ maxWidth: 820, lineHeight: 1.6, opacity: 0.85, marginTop: 10 }}>
-        • Spotify Rewind — description, tech stack, repo link<br />
-        • RecipeHub — description, tech stack, repo link
+          <div
+            style={{
+              fontSize: 12,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              opacity: hovered ? 0.95 : 0.78,
+              border: "1px solid rgba(255,255,255,0.16)",
+              padding: "10px 12px",
+              borderRadius: 14,
+              userSelect: "none",
+            }}
+          >
+            Click to open Projects →
+          </div>
+        </div>
+
+        <div style={{ maxWidth: 820, lineHeight: 1.6, opacity: 0.85, marginTop: 10 }}>
+          See what I’ve built, how I build, and what I’m building next.
+          Scroll down to see featured projects, or click the headers to jump around.
+        </div>
+
+        <div style={{ height: 100 }} />
+
+        <div style={{ fontSize: 22, letterSpacing: "0.12em" }}>HIGHLIGHTED PROJECT:</div>
+
+        <div
+          style={{
+            marginTop: 14,
+            borderRadius: 16,
+            padding: 18,
+            background: "rgba(10,12,16,0.55)",
+            border: "1px solid rgba(255,255,255,0.10)",
+            backdropFilter: "blur(8px)",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+            <div>
+              <div style={{ fontSize: 18, letterSpacing: "0.12em" }}>SPOTIFY REWIND</div>
+              <div style={{ opacity: 0.65, marginTop: 6 }}>
+                Your personal music year-in-review with AI-style insights
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 12, opacity: 0.78, lineHeight: 1.55 }}>
+            A full-stack web app that analyzes listening history to generate a personalized “Wrapped”-style report,
+            with shareable insights and clean, fast UX.
+          </div>
+
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+            {["React", "Node", "Express", "TypeScript", "API"].map((t) => (
+              <div
+                key={t}
+                style={{
+                  fontSize: 12,
+                  letterSpacing: "0.08em",
+                  opacity: 0.85,
+                  padding: "6px 10px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  background: "rgba(255,255,255,0.04)",
+                }}
+              >
+                {t}
+              </div>
+            ))}
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+              gap: 10,
+              marginTop: 14,
+            }}
+          >
+            {["/assets/project-placeholder-1.jpg", "/assets/project-placeholder-2.jpg"].map((src) => (
+              <div
+                key={src}
+                style={{
+                  borderRadius: 14,
+                  overflow: "hidden",
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  background: "rgba(0,0,0,0.35)",
+                }}
+              >
+                <img
+                  src={src}
+                  alt=""
+                  style={{ width: "100%", height: 180, objectFit: "cover", display: "block" }}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: 12, opacity: 0.6, fontSize: 12, letterSpacing: "0.12em" }}>
+            HOVER/CLICK INTERACTIONS COMING NEXT
+          </div>
+        </div>
+
+        <div style={{ height: 150 }} />
+
+        <div
+          style={{
+            marginTop: 14,
+            opacity: 0.65,
+            letterSpacing: "0.16em",
+            fontSize: 12,
+            textTransform: "uppercase",
+            borderTop: "1px dashed rgba(255,255,255,0.10)",
+            paddingTop: 14,
+          }}
+        >
+          Tip: click anywhere on this panel to open the full Projects page
+        </div>
+
+        <BottomChecker label="END OF PROJECTS" />
       </div>
 
-      <div style={{ height: 800 }} />
-
-      <BottomChecker label="END OF PROJECTS" />
-
-      {/* A little extra padding so the checker can be fully passed */}
       <div style={{ height: 220 }} />
-    </div>
+    </>
   );
 }
 
 function PageAbout() {
+  const [hovered, setHovered] = React.useState(false);
+
   return (
-    <div>
-      <div style={{ letterSpacing: "0.18em", fontSize: 12, opacity: 0.7 }}>
-        V-001 • INDEX • ABOUT
-      </div>
-      <div style={{ fontSize: 44, letterSpacing: "0.06em", marginTop: 10 }}>
-        ABOUT
-      </div>
-      <div style={{ maxWidth: 820, lineHeight: 1.6, opacity: 0.85, marginTop: 10 }}>
-        Scroll this page to the bottom to transition to CONTACT.
+    <>
+      <div style={{ letterSpacing: "0.18em", fontSize: 12, opacity: 0.7, marginBottom: 10, marginTop: 20 }}>
+        Projects ↑
       </div>
 
-      <div style={{ height: 520 }} />
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onClick={(e) => {
+          e.preventDefault();
+          console.log("About page clicked (stub)");
+        }}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            console.log("About page clicked (stub)");
+          }
+        }}
+        style={{
+          borderRadius: 18,
+          padding: "22px 20px",
+          background: hovered ? "rgba(10,12,16,0.62)" : "rgba(10,12,16,0.52)",
+          border: hovered ? "1px solid rgba(255,255,255,0.16)" : "1px solid rgba(255,255,255,0.10)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          cursor: "pointer",
+          transition: "background 180ms ease, border-color 180ms ease, transform 180ms ease",
+          transform: hovered ? "translateY(-1px)" : "translateY(0)",
+          outline: "none",
+        }}
+        aria-label="Open About page"
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "baseline",
+            gap: 12,
+            flexWrap: "wrap",
+          }}
+        >
+          <div style={{ fontSize: 44, letterSpacing: "0.06em" }}>ABOUT</div>
 
-      <div style={{ fontSize: 18, letterSpacing: "0.12em" }}>HOW I BUILD</div>
-      <div style={{ maxWidth: 820, lineHeight: 1.6, opacity: 0.85, marginTop: 10 }}>
-        Put your “systems mindset / aviation / tooling” story here.
+          <div
+            style={{
+              fontSize: 12,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              opacity: hovered ? 0.95 : 0.78,
+              border: "1px solid rgba(255,255,255,0.16)",
+              padding: "10px 12px",
+              borderRadius: 14,
+              userSelect: "none",
+            }}
+          >
+            Click to open About →
+          </div>
+        </div>
+
+        <div style={{ maxWidth: 820, lineHeight: 1.6, opacity: 0.85, marginTop: 10 }}>
+          A quick snapshot of who I am and how I build.
+        </div>
+
+        <div style={{ height: 22 }} />
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 14 }}>
+          <div
+            style={{
+              borderRadius: 16,
+              padding: 16,
+              background: "rgba(10,12,16,0.45)",
+              border: "1px solid rgba(255,255,255,0.10)",
+            }}
+          >
+            <div style={{ fontSize: 18, letterSpacing: "0.12em" }}>ZACKERY BEYER</div>
+            <div style={{ opacity: 0.7, marginTop: 6 }}>
+              CS @ Mizzou • software + systems • building useful, fun stuff
+            </div>
+            <div style={{ marginTop: 10, opacity: 0.82, lineHeight: 1.55 }}>
+              I love problem solving and building fun stuff with code. I’m aiming to become a software engineer post
+              graduation, with a focus on systems and embedded-adjacent work.
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10 }}>
+            {[
+              { k: "FOCUS", v: "SWE + Systems" },
+              { k: "BEST", v: "C/C++ • Python • TS" },
+              { k: "STYLE", v: "Creative + Intentional" },
+            ].map((item) => (
+              <div
+                key={item.k}
+                style={{
+                  borderRadius: 16,
+                  padding: 14,
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.10)",
+                }}
+              >
+                <div style={{ fontSize: 12, letterSpacing: "0.18em", opacity: 0.7 }}>{item.k}</div>
+                <div style={{ marginTop: 8, letterSpacing: "0.08em", opacity: 0.9 }}>{item.v}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ height: 26 }} />
+
+        <div style={{ fontSize: 18, letterSpacing: "0.12em" }}>HOW I BUILD</div>
+        <div style={{ maxWidth: 820, lineHeight: 1.6, opacity: 0.85, marginTop: 10 }}>
+          I love constantly learning and trying new things to find what works. I thrive on problem solving and love
+          seeing the final product come to fruition.
+        </div>
+
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+          {["Learning", "Maintainable", "Efficient", "Collaborative", "Fun"].map((t) => (
+            <div
+              key={t}
+              style={{
+                fontSize: 12,
+                letterSpacing: "0.08em",
+                opacity: 0.85,
+                padding: "6px 10px",
+                borderRadius: 999,
+                border: "1px solid rgba(255,255,255,0.12)",
+                background: "rgba(255,255,255,0.04)",
+              }}
+            >
+              {t}
+            </div>
+          ))}
+        </div>
+
+        <div style={{ height: 26 }} />
+
+        <div style={{ fontSize: 18, letterSpacing: "0.12em" }}>RIGHT NOW</div>
+        <div style={{ maxWidth: 820, lineHeight: 1.6, opacity: 0.85, marginTop: 10 }}>
+          Building this interactive portfolio experience, shipping personal tools, and leveling up in systems +
+          embedded-adjacent work.
+        </div>
+
+        <div
+          style={{
+            marginTop: 14,
+            opacity: 0.65,
+            letterSpacing: "0.16em",
+            fontSize: 12,
+            textTransform: "uppercase",
+            borderTop: "1px dashed rgba(255,255,255,0.10)",
+            paddingTop: 14,
+          }}
+        >
+          Tip: click anywhere on this panel to open the full About page
+        </div>
+
+        <BottomChecker label="END OF ABOUT" />
       </div>
 
-      <div style={{ height: 900 }} />
-
-      <BottomChecker label="END OF ABOUT" />
       <div style={{ height: 220 }} />
-    </div>
+    </>
   );
 }
 
 function PageContact() {
+  const [hovered, setHovered] = React.useState(false);
+
   return (
-    <div>
-      <div style={{ letterSpacing: "0.18em", fontSize: 12, opacity: 0.7 }}>
-        V-001 • INDEX • CONTACT
-      </div>
-      <div style={{ fontSize: 44, letterSpacing: "0.06em", marginTop: 10 }}>
-        CONTACT
-      </div>
-      <div style={{ maxWidth: 820, lineHeight: 1.6, opacity: 0.85, marginTop: 10 }}>
-        Scroll to the bottom to loop back to PROJECTS (direct 2 → 0 transition).
+    <>
+      <div style={{ letterSpacing: "0.18em", fontSize: 12, opacity: 0.7, marginBottom: 10, marginTop: 20 }}>
+        About ↑
       </div>
 
-      <div style={{ height: 520 }} />
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          borderRadius: 18,
+          padding: "22px 20px",
+          background: hovered ? "rgba(10,12,16,0.62)" : "rgba(10,12,16,0.52)",
+          border: hovered ? "1px solid rgba(255,255,255,0.16)" : "1px solid rgba(255,255,255,0.10)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          transition: "background 180ms ease, border-color 180ms ease, transform 180ms ease",
+          transform: hovered ? "translateY(-1px)" : "translateY(0)",
+        }}
+        aria-label="Contact section"
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+          <div style={{ fontSize: 44, letterSpacing: "0.06em" }}>CONTACT</div>
+        </div>
 
-      <div style={{ fontSize: 18, letterSpacing: "0.12em" }}>LINKS</div>
-      <div style={{ maxWidth: 820, lineHeight: 1.6, opacity: 0.85, marginTop: 10 }}>
-        • Email<br />
-        • GitHub<br />
-        • LinkedIn
+        <div style={{ maxWidth: 820, lineHeight: 1.6, opacity: 0.85, marginTop: 10 }}>
+          Lets connect! I’m always open to chatting about new opportunities, collaborations, or just random tech talk.
+        </div>
+
+        <div style={{ height: 22 }} />
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 14 }}>
+          <div style={{ borderRadius: 16, padding: 16 }}>
+            <div style={{ fontSize: 18, letterSpacing: "0.12em" }}>LINKS</div>
+            <div style={{ opacity: 0.7, marginTop: 6 }}>Click to open.</div>
+
+            <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
+              <a href="https://github.com/Zkbeyer" target="_blank" rel="noreferrer" style={linkButtonStyle(hovered)}>
+                <span>GitHub</span>
+                <span style={{ opacity: 0.75 }}>github.com/Zkbeyer →</span>
+              </a>
+
+              <a
+                href="https://www.linkedin.com/in/zackery-beyer/"
+                target="_blank"
+                rel="noreferrer"
+                style={linkButtonStyle(hovered)}
+              >
+                <span>LinkedIn</span>
+                <span style={{ opacity: 0.75 }}>linkedin.com/in/zackery-beyer →</span>
+              </a>
+
+              <a
+                href="/resume.pdf"
+                target="_blank"
+                rel="noreferrer"
+                style={linkButtonStyle(hovered)}
+                title="Place your resume at public/resume.pdf"
+              >
+                <span>Resume</span>
+                <span style={{ opacity: 0.75 }}>open PDF →</span>
+              </a>
+            </div>
+
+            <div
+              style={{
+                marginTop: 14,
+                opacity: 0.65,
+                letterSpacing: "0.16em",
+                fontSize: 12,
+                textTransform: "uppercase",
+                borderTop: "1px dashed rgba(255,255,255,0.10)",
+                paddingTop: 14,
+              }}
+            >
+              Tip: put your resume at <span style={{ opacity: 0.9 }}>/public/resume.pdf</span>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ height: 16 }} />
+
+        <BottomChecker label="END OF CONTACT" />
       </div>
 
-      <div style={{ height: 900 }} />
-
-      <BottomChecker label="END OF CONTACT" />
       <div style={{ height: 220 }} />
-    </div>
+    </>
   );
+}
+
+function linkButtonStyle(hovered: boolean): React.CSSProperties {
+  return {
+    textDecoration: "none",
+    color: "white",
+    borderRadius: 14,
+    padding: "12px 14px",
+    border: hovered ? "1px solid rgba(255,255,255,0.18)" : "1px solid rgba(255,255,255,0.14)",
+    background: "rgba(255,255,255,0.04)",
+    letterSpacing: "0.12em",
+    textTransform: "uppercase",
+    fontSize: 12,
+    display: "inline-flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+  };
 }
 
 export default function ScrollSectionScene() {
   const NUM = 3;
 
-  const { muted, toggleMute, playWhoosh, startMusic, enableAudio: hookEnableAudio } = useAudio({
+  const { muted, toggleMute, playWhoosh, enableAudio: hookEnableAudio } = useAudio({
     whooshUrl: "/audio/whoosh.mp3",
     musicUrl: "/audio/ambient.mp3",
-    whooshVolume: 0.18,
+    whooshVolume: 0.05,
     musicVolume: 0.14,
   });
 
@@ -309,29 +615,30 @@ export default function ScrollSectionScene() {
   };
 
   const [section, setSection] = useState(0);
-  const [transition, setTransition] = useState({
-    active: false,
-    from: 0,
-    to: 0,
-    t: 0,
-  });
+  const [transition, setTransition] = useState({ active: false, from: 0, to: 0, t: 0 });
 
-  // --- HTML page fade control (during transition) ---
   const [pageOpacity, setPageOpacity] = useState(1);
   const [uiLocked, setUiLocked] = useState(false);
 
   const scrollHostRef = useRef<HTMLDivElement | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const [scrollTop, setScrollTop] = useState(0);
+  const [scrollMax, setScrollMax] = useState(0);
+  const rafScrollRef = useRef(0);
 
-  // Immediate (sync) locks to prevent double-trigger from wheel/IO bursts
+  useEffect(() => {
+    const host = scrollHostRef.current;
+    if (!host) return;
+    setScrollTop(host.scrollTop);
+    setScrollMax(Math.max(0, host.scrollHeight - host.clientHeight));
+  }, [section]);
+
   const transitioningRef = useRef(false);
   const wheelBlockUntilRef = useRef(0);
-    // Swap page/headers once at transition midpoint
   const swappedMidRef = useRef(false);
 
   const TRANSITION_SEC = 0.95;
 
-  // drive transition time
   useEffect(() => {
     if (!transition.active) return;
 
@@ -344,9 +651,7 @@ export default function ScrollSectionScene() {
 
       setTransition((prev) => {
         const nextT = prev.t + dt / TRANSITION_SEC;
-        if (nextT >= 1) {
-          return { ...prev, t: 1 };
-        }
+        if (nextT >= 1) return { ...prev, t: 1 };
         return { ...prev, t: nextT };
       });
 
@@ -354,56 +659,41 @@ export default function ScrollSectionScene() {
     };
 
     raf = requestAnimationFrame(tick);
-
     return () => cancelAnimationFrame(raf);
   }, [transition.active]);
 
-  // Fade the HTML page out/in DURING the camera transition (1 → 0 → 1)
   useEffect(() => {
     if (!transition.active) {
       setPageOpacity(1);
       return;
     }
-
     const t = clamp01(transition.t);
-    // 1 at start/end, 0 at midpoint
-    const opacity = 1 - Math.sin(Math.PI * t);
-    setPageOpacity(opacity);
+    setPageOpacity(1 - Math.sin(Math.PI * t));
   }, [transition.active, transition.t]);
 
-    // ✅ Swap the HTML page + Home highlights at the midpoint (when opacity is ~0)
   useEffect(() => {
     if (!transition.active) return;
     if (swappedMidRef.current) return;
 
     if (transition.t >= 0.5) {
       swappedMidRef.current = true;
-
       const nextSection = transition.to;
 
-      // Swap content/headers
       setSection(nextSection);
 
-      // Reset scroll to top of the NEW page while hidden
       const host = scrollHostRef.current;
-      if (host) {
-        host.scrollTo({ top: 0, behavior: "auto" });
-      }
+      if (host) host.scrollTo({ top: 0, behavior: "auto" });
     }
   }, [transition.active, transition.t, transition.to]);
 
-    // when transition completes: end camera transition + unlock UI
   useEffect(() => {
     if (!transition.active) return;
     if (transition.t < 1) return;
 
     const finalSection = transition.to;
-
-    // End the camera transition + unlock UI
     setTransition({ active: false, from: finalSection, to: finalSection, t: 0 });
     setUiLocked(false);
 
-    // Post-transition wheel block to prevent rapid retrigger
     wheelBlockUntilRef.current = performance.now() + 450;
     transitioningRef.current = false;
   }, [transition.active, transition.t, transition.to]);
@@ -416,16 +706,14 @@ export default function ScrollSectionScene() {
     const next = wrapIndex(to, NUM);
 
     if (next === from) {
-      // just scroll to top
       scrollHostRef.current?.scrollTo({ top: 0, behavior: "smooth" });
       transitioningRef.current = false;
       return;
     }
 
     transitioningRef.current = true;
-    swappedMidRef.current = false;   // ✅ reset midpoint swap
+    swappedMidRef.current = false;
     setUiLocked(true);
-    // Wheel block for duration of transition (covers 0.95s transition, add buffer)
     wheelBlockUntilRef.current = performance.now() + 900;
     playWhoosh?.();
     setTransition({ active: true, from, to: next, t: 0 });
@@ -434,7 +722,7 @@ export default function ScrollSectionScene() {
   const goNext = () => startTransitionTo(section + 1);
   const goPrev = () => startTransitionTo(section - 1);
 
-  // Sentinel logic: when the bottom checker is passed, transition forward.
+  // Transition when the bottom sentinel enters view (near bottom).
   useEffect(() => {
     const host = scrollHostRef.current;
     const sentinel = sentinelRef.current;
@@ -445,34 +733,26 @@ export default function ScrollSectionScene() {
         if (transition.active) return;
         for (const e of entries) {
           if (e.isIntersecting) {
-            // When the sentinel enters view near the bottom, allow user to "pass" it.
-            // If they're at/near bottom, transition.
             const nearBottom = host.scrollTop + host.clientHeight >= host.scrollHeight - 8;
-            if (nearBottom) {
-              goNext();
-            }
+            if (nearBottom) goNext();
           }
         }
       },
-      {
-        root: host,
-        threshold: 0.65,
-      }
+      { root: host, threshold: 0.65 }
     );
 
     io.observe(sentinel);
     return () => io.disconnect();
   }, [section, transition.active]);
 
-  // Edge wheel navigation:
-  // - scroll down at bottom => next section
-  // - scroll up at top => previous section
+  // At top/bottom, wheel can move to prev/next section.
   useEffect(() => {
     const host = scrollHostRef.current;
     if (!host) return;
 
     const onWheel = (e: WheelEvent) => {
       if (transition.active || uiLocked) return;
+
       const now = performance.now();
       if (now < wheelBlockUntilRef.current) return;
 
@@ -489,9 +769,7 @@ export default function ScrollSectionScene() {
         goPrev();
       }
 
-      // Keep your 'checker' concept: only advance if the sentinel is in view near the bottom
       if (e.deltaY > 0 && atBottom) {
-        // Let IntersectionObserver decide; but if sentinel is already visible, go next.
         const sentinel = sentinelRef.current;
         if (sentinel) {
           const r = sentinel.getBoundingClientRect();
@@ -509,15 +787,21 @@ export default function ScrollSectionScene() {
     return () => host.removeEventListener("wheel", onWheel as any);
   }, [section, transition.active, uiLocked]);
 
-
   const Page = useMemo(() => {
     if (section === 0) return <PageProjects />;
     if (section === 1) return <PageAbout />;
     return <PageContact />;
   }, [section]);
 
+  const contentWrapStyle = useMemo<React.CSSProperties>(() => {
+    const base: React.CSSProperties = { maxWidth: 820, width: "min(820px, 92%)" };
+
+    if (section === 0) return { ...base, marginLeft: "auto", marginRight: 14 }; // right
+    if (section === 1) return { ...base, marginLeft: "auto", marginRight: "auto" }; // center
+    return { ...base, marginLeft: 14, marginRight: "auto" }; // left
+  }, [section]);
+
   const onSelectSection = (i: number) => {
-    // direct jump; ignore wheel cooldown
     wheelBlockUntilRef.current = 0;
     startTransitionTo(i);
   };
@@ -545,15 +829,7 @@ export default function ScrollSectionScene() {
         </div>
       )}
 
-      {/* Overlay UI (header/footer) */}
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 200,
-          pointerEvents: "none",
-        }}
-      >
+      <div style={{ position: "fixed", inset: 0, zIndex: 200, pointerEvents: "none" }}>
         <div style={{ pointerEvents: "auto" }}>
           <Home
             activeIndex={section}
@@ -565,16 +841,24 @@ export default function ScrollSectionScene() {
         </div>
       </div>
 
-      {/* HTML page host */}
       <div
         ref={scrollHostRef}
+        onScroll={(e) => {
+          const el = e.currentTarget;
+          if (rafScrollRef.current) return;
+          rafScrollRef.current = requestAnimationFrame(() => {
+            rafScrollRef.current = 0;
+            setScrollTop(el.scrollTop);
+            setScrollMax(Math.max(0, el.scrollHeight - el.clientHeight));
+          });
+        }}
         style={{
           position: "fixed",
           inset: 0,
           zIndex: 5,
-          overflowY: (transition.active || uiLocked) ? "hidden" : "auto",
+          overflowY: transition.active || uiLocked ? "hidden" : "auto",
           overflowX: "hidden",
-          padding: "140px 6vw 140px",
+          padding: "150px 4vw 150px",
           boxSizing: "border-box",
           color: "rgba(255,255,255,0.88)",
           fontFamily: "ui-sans-serif, system-ui",
@@ -582,19 +866,14 @@ export default function ScrollSectionScene() {
           pointerEvents: pageOpacity < 0.02 ? "none" : "auto",
         }}
       >
-        {/* Page content */}
-        {Page}
-
-        {/* Sentinel AFTER the checker + extra pad: when it reaches view and you are at bottom, we transition */}
+        <div style={contentWrapStyle}>{Page}</div>
         <div ref={sentinelRef} style={{ height: 2 }} />
       </div>
 
-      {/* 3D background */}
       <Canvas style={{ width: "100%", height: "100%" }}>
         <Scene section={section} transition={transition} />
       </Canvas>
 
-      {/* During transition, keep the HTML visible but disable scrolling; optional subtle overlay */}
       {(transition.active || uiLocked) && (
         <div
           style={{
