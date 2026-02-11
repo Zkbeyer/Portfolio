@@ -1,150 +1,178 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-type AudioOptions = {
-  whooshUrl: string;
-  musicUrl: string;
-  whooshVolume?: number; // 0..1
-  musicVolume?: number;  // 0..1
+export type AmbienceKey = "HOME" | "PROJECTS" | "ABOUT";
+
+type Options = {
+  whooshUrl?: string;
+  whooshVolume?: number;
+  musicVolume?: number; // ambience volume
+  ambience?: Record<AmbienceKey, string>;
 };
 
-export function useAudio({ whooshUrl, musicUrl, whooshVolume = 0.15, musicVolume = 0.18 }: AudioOptions) {
-  const [muted, setMuted] = useState(true);
-  const [unlocked, setUnlocked] = useState(false);
+type AudioApi = {
+  enabled: boolean;         // user has enabled audio at least once (persisted)
+  muted: boolean;           // shared across pages (persisted)
+  enableAudio: () => Promise<void>;
+  toggleMute: () => void;
+  setAmbience: (key: AmbienceKey) => void;
+  playWhoosh: () => void;
+};
 
-  const mutedRef = useRef(true);
-  const unlockedRef = useRef(false);
+const LS_ENABLED = "audio:enabled";
+const LS_MUTED = "audio:muted";
+const LS_SCENE = "audio:scene";
 
-  const whooshRef = useRef<HTMLAudioElement | null>(null);
-  const musicRef = useRef<HTMLAudioElement | null>(null);
+const DEFAULT_AMBIENCE: Record<AmbienceKey, string> = {
+  HOME: "/audio/home-ambient.mp3",
+  PROJECTS: "/audio/projects-ambient.mp3",
+  ABOUT: "/audio/about-ambient.mp3",
+};
 
-  // create audio elements once
+// Module-level singleton (shared across the whole app)
+let singleton: {
+  ambienceEl: HTMLAudioElement | null;
+  whooshEl: HTMLAudioElement | null;
+  initDone: boolean;
+} = {
+  ambienceEl: null,
+  whooshEl: null,
+  initDone: false,
+};
+
+function ensureAudioEls() {
+  if (!singleton.ambienceEl) {
+    const a = new Audio();
+    a.loop = true;
+    a.preload = "auto";
+    a.volume = 0.14;
+    singleton.ambienceEl = a;
+  }
+  if (!singleton.whooshEl) {
+    const w = new Audio();
+    w.preload = "auto";
+    w.volume = 0.08;
+    singleton.whooshEl = w;
+  }
+}
+
+export function useAudio(opts?: Options): AudioApi {
+  const whooshUrl = opts?.whooshUrl ?? "/audio/whoosh.mp3";
+  const whooshVolume = opts?.whooshVolume ?? 0.08;
+  const musicVolume = opts?.musicVolume ?? 0.14;
+  const ambienceMap = opts?.ambience ?? DEFAULT_AMBIENCE;
+
+  const [enabled, setEnabled] = useState(() => localStorage.getItem(LS_ENABLED) === "1");
+  const [muted, setMuted] = useState(() => localStorage.getItem(LS_MUTED) === "1");
+  const [scene, setScene] = useState<AmbienceKey>(() => (localStorage.getItem(LS_SCENE) as AmbienceKey) || "HOME");
+
+  const sceneRef = useRef<AmbienceKey>(scene);
   useEffect(() => {
-    const whoosh = new Audio(whooshUrl);
-    whoosh.preload = "auto";
-    whoosh.volume = whooshVolume;
+    sceneRef.current = scene;
+  }, [scene]);
 
-    const music = new Audio(musicUrl);
-    music.preload = "auto";
-    music.loop = true;
-    music.volume = musicVolume;
-
-    whooshRef.current = whoosh;
-    musicRef.current = music;
-
-    return () => {
-      whoosh.pause();
-      music.pause();
-      whooshRef.current = null;
-      musicRef.current = null;
-    };
-  }, [whooshUrl, musicUrl, whooshVolume, musicVolume]);
-
-  // unlock on first user gesture
+  // init once
   useEffect(() => {
-    const unlockAudio = async () => {
-      if (unlockedRef.current) return;
-      unlockedRef.current = true;
-      setUnlocked(true);
+    ensureAudioEls();
 
-      // Try a tiny play/pause to satisfy autoplay policies
-      try {
-        const music = musicRef.current;
-        if (music && !mutedRef.current) {
-          await music.play();
-          music.pause();
-          music.currentTime = 0;
-        }
-      } catch {
-        // If it fails, that's okay — next gesture will usually succeed.
-      }
-    };
+    const a = singleton.ambienceEl!;
+    const w = singleton.whooshEl!;
 
-    window.addEventListener("pointerdown", unlockAudio, { once: true });
-    window.addEventListener("keydown", unlockAudio, { once: true });
-
-    return () => {
-      window.removeEventListener("pointerdown", unlockAudio as any);
-      window.removeEventListener("keydown", unlockAudio as any);
-    };
-  }, []);
-
-  const playWhoosh = useCallback(() => {
-    if (mutedRef.current || !unlockedRef.current) return;
-    const a = whooshRef.current;
-    if (!a) return;
-
-    try {
-      a.currentTime = 0; // restart so rapid scroll still plays
-      a.volume = whooshVolume;
-      void a.play();
-    } catch {
-      // ignore
+    // Only set URLs once to avoid thrashing
+    if (!singleton.initDone) {
+      w.src = whooshUrl;
+      singleton.initDone = true;
     }
-  }, [whooshVolume]);
 
-  const startMusic = useCallback(async () => {
-    if (mutedRef.current || !unlockedRef.current) return;
-    const m = musicRef.current;
-    if (!m) return;
-    try {
-      await m.play();
-    } catch {
-      // ignore
+    a.muted = muted;
+    a.volume = musicVolume;
+    w.volume = whooshVolume;
+
+    // apply current scene src
+    const desired = ambienceMap[sceneRef.current] ?? ambienceMap.HOME;
+    if (!a.src.endsWith(desired)) {
+      a.src = desired;
+      a.load();
     }
-  }, []);
 
-  const stopMusic = useCallback(() => {
-    const m = musicRef.current;
-    if (!m) return;
-    m.pause();
-  }, []);
+    // try resume if already enabled
+    if (enabled && !muted) {
+      void a.play().catch(() => {});
+    }
+  }, [whooshUrl, whooshVolume, musicVolume, ambienceMap, enabled, muted]);
 
-  const setMute = useCallback((value: boolean) => {
-    mutedRef.current = value;
-    setMuted(value);
-  }, []);
+  useEffect(() => {
+    localStorage.setItem(LS_ENABLED, enabled ? "1" : "0");
+  }, [enabled]);
 
-  const toggleMute = useCallback(() => {
-    setMuted((prev) => {
-      const next = !prev;
-      mutedRef.current = next;
-      return next;
-    });
-  }, []);
+  useEffect(() => {
+    localStorage.setItem(LS_MUTED, muted ? "1" : "0");
+    ensureAudioEls();
+    if (singleton.ambienceEl) singleton.ambienceEl.muted = muted;
+  }, [muted]);
+
+  useEffect(() => {
+    localStorage.setItem(LS_SCENE, scene);
+  }, [scene]);
 
   const enableAudio = useCallback(async () => {
-    // Must be called inside a user gesture (click/tap/keydown)
-    unlockedRef.current = true;
-    setUnlocked(true);
+    ensureAudioEls();
+    const a = singleton.ambienceEl!;
+    a.muted = muted;
+    a.volume = musicVolume;
 
-    mutedRef.current = false;
-    setMuted(false);
+    // ensure correct ambience is loaded
+    const desired = ambienceMap[sceneRef.current] ?? ambienceMap.HOME;
+    if (!a.src.endsWith(desired)) {
+      a.src = desired;
+      a.load();
+    }
 
-    const m = musicRef.current;
-    if (!m) return;
+    setEnabled(true);
 
     try {
-      await m.play();
+      if (!muted) await a.play();
     } catch {
-      // ignore
+      // If browser blocks for some reason, user can click again
     }
+  }, [ambienceMap, muted, musicVolume]);
+
+  const toggleMute = useCallback(() => {
+    setMuted((m) => !m);
   }, []);
 
-  // keep music state in sync with mute
-  useEffect(() => {
-    // keep refs in sync with state (in case state changes elsewhere)
-    mutedRef.current = muted;
-    unlockedRef.current = unlocked;
+  const setAmbience = useCallback(
+    (key: AmbienceKey) => {
+      ensureAudioEls();
+      const a = singleton.ambienceEl!;
+      const next = ambienceMap[key] ?? ambienceMap.HOME;
 
-    const m = musicRef.current;
-    if (!m) return;
+      setScene(key);
 
-    if (muted) {
-      m.pause();
-    } else {
-      if (unlocked) void m.play();
-    }
-  }, [muted, unlocked]);
+      if (!a.src.endsWith(next)) {
+        a.src = next;
+        a.load();
+      }
 
-  return { muted, toggleMute, setMute, playWhoosh, startMusic, stopMusic, enableAudio, unlocked };
+      if (enabled && !muted) {
+        void a.play().catch(() => {});
+      }
+    },
+    [ambienceMap, enabled, muted]
+  );
+
+  const playWhoosh = useCallback(() => {
+    ensureAudioEls();
+    const w = singleton.whooshEl!;
+    if (muted) return;
+
+    try {
+      w.currentTime = 0;
+      void w.play();
+    } catch {}
+  }, [muted]);
+
+  return useMemo(
+    () => ({ enabled, muted, enableAudio, toggleMute, setAmbience, playWhoosh }),
+    [enabled, muted, enableAudio, toggleMute, setAmbience, playWhoosh]
+  );
 }

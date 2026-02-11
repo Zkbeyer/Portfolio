@@ -1,0 +1,45 @@
+/* =============================
+   BOTTOM CHECKER
+   Refactor of inline styles
+   ============================= */
+
+.bottomChecker {
+  margin-top: 28px;
+  padding: 22px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  opacity: 0.75;
+}
+
+.bottomCheckerLabel {
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-size: 12px;
+  margin-bottom: 10px;
+  opacity: 0.8;
+}
+
+.bottomCheckerGrid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 6px;
+}
+
+.bottomCheckerCell {
+  height: 10px;
+  border-radius: 2px;
+}
+
+.bottomCheckerCell.isBright {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.bottomCheckerCell.isDim {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.bottomCheckerHint {
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.75;
+}

@@ -1,0 +1,36 @@
+.mouseHudRoot {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.mouseGlow {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 170px;
+  height: 170px;
+  border-radius: 999px;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 255, 255, 0.34),
+    rgba(255, 255, 255, 0.14) 30%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  filter: blur(6px);
+  mix-blend-mode: screen;
+  opacity: 0.55;
+}
+
+.mouseCoords {
+  position: absolute;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.98);
+  white-space: nowrap;
+  user-select: none;
+  transition: opacity 240ms ease;
+  mix-blend-mode: screen;
+}

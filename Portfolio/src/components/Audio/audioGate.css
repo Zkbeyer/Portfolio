@@ -1,0 +1,38 @@
+.audioGate {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: grid;
+  place-items: center;
+
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+
+  cursor: pointer;
+
+  font-family: ui-sans-serif, system-ui;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+
+  border: none;
+}
+
+.audioGate:active {
+  transform: scale(0.995);
+}
+
+.projects-audioGate{
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background: rgba(0,0,0,0.55);
+  color: rgba(255,255,255,0.92);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+}

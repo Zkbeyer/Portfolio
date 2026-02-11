@@ -1,70 +1,68 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { ScrollControls, Scroll } from "@react-three/drei";
-import ProjectsOverlay from "./ProjectsOverlay";
-import { CameraRig } from "./ProjectsScene"; // export it (see next step)
+
 import "./projects.css";
 import Duck from "../../components/3dModels/Duck";
+import { CameraRig } from "../../scenes/ProjectsScene";
+import ProjectsOverlay from "./ProjectsOverlay";
+import { navigateTo } from "../../app/navBus";
+
+import { useAudio } from "../../components/Audio/useAudio";
 
 export default function ProjectsPage() {
+  const { muted, toggleMute, setAmbience } = useAudio();
+
+  const [progress, setProgress] = useState(0);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  // Switch ambience for this page
+  useEffect(() => {
+    setAmbience("PROJECTS");
+  }, [setAmbience]);
+
+  // Drive CameraRig progress from the Projects scroll host
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const onScroll = () => {
+      const max = Math.max(1, el.scrollHeight - el.clientHeight);
+      const y = el.scrollTop;
+      setProgress(y / max);
+    };
+
+    onScroll();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll as any);
+  }, []);
+
   return (
     <div className="projects-root">
-         {/* HOME BUTTON */}
-        <div
-            style={{
-            position: "fixed",
-            top: 22,
-            right: 26,
-            zIndex: 50,
-            }}
-        >
-            <button
-            onClick={() => {
-                console.log("HOME CLICKED"); // wire later
-            }}
-            style={{
-                background: "rgba(10,12,16,0.65)",
-                border: "1px solid rgba(255,255,255,0.18)",
-                color: "rgba(255,255,255,0.9)",
-                padding: "10px 14px",
-                borderRadius: 14,
-                fontSize: 12,
-                letterSpacing: "0.18em",
-                textTransform: "uppercase",
-                cursor: "pointer",
-                backdropFilter: "blur(8px)",
-                transition: "all 0.18s ease",
-            }}
-            onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.38)";
-                e.currentTarget.style.background = "rgba(20,24,30,0.75)";
-                e.currentTarget.style.transform = "translateY(-1px)";
-            }}
-            onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)";
-                e.currentTarget.style.background = "rgba(10,12,16,0.65)";
-                e.currentTarget.style.transform = "translateY(0)";
-            }}
-            >
-            ← Home
-            </button>
-        </div>
-      <Canvas className="projects-canvas">
-        <ScrollControls pages={2} damping={0.12}>
-          {/* 3D */}
-          <CameraRig />
-          <ambientLight intensity={0.8} />
-          <pointLight position={[4, 4, 4]} intensity={1.2} />
-          <Suspense fallback={null}>
-            <Duck />
-          </Suspense>
 
-          {/* HTML overlay tied to SAME scroll */}
-          <Scroll html>
-            <ProjectsOverlay />
-          </Scroll>
-        </ScrollControls>
+      <div className="projects-homeBtnWrap">
+        <button className="projects-homeBtn" onClick={() => navigateTo("HOME")}>
+          ← Home
+        </button>
+      </div>
+      
+      <div className="projects-audioBtnWrap">
+        <button className="projects-audioBtn" onClick={toggleMute}>
+          {muted ? "Audio: Muted" : "Audio: Live"}
+        </button>
+      </div>
+
+      <Canvas className="projects-canvas">
+        <CameraRig progress={progress} />
+        <ambientLight intensity={0.8} />
+        <pointLight position={[4, 4, 4]} intensity={1.2} />
+        <Suspense fallback={null}>
+          <Duck />
+        </Suspense>
       </Canvas>
+
+      <div className="projects-scroll" ref={scrollRef}>
+        <ProjectsOverlay />
+      </div>
     </div>
   );
 }

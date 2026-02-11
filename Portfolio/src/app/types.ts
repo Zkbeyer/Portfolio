@@ -1,0 +1,1 @@
+export type AppPage = "HOME" | "PROJECTS" | "ABOUT";
