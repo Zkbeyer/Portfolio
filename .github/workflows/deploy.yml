@@ -17,19 +17,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: Portfolio/Portfolio
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      # DEBUG: show the repo structure
-      - name: Show folders
-        run: |
-          pwd
-          ls -la
-          echo "---- Portfolio ----"
-          ls -la Portfolio || true
-          echo "---- Portfolio/Portfolio ----"
-          ls -la Portfolio/Portfolio || true
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -38,18 +32,11 @@ jobs:
           cache: npm
           cache-dependency-path: Portfolio/Portfolio/package-lock.json
 
-      # DEBUG: confirm the package.json we are about to use contains "build"
-      - name: Show package scripts
-        run: |
-          node -p "require('./Portfolio/Portfolio/package.json').scripts"
-
       - name: Install
         run: npm ci
-        working-directory: Portfolio/Portfolio
 
       - name: Build
         run: npm run build
-        working-directory: Portfolio/Portfolio
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
