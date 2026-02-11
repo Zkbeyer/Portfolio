@@ -38,7 +38,7 @@ export default function PageAbout() {
           <div className="aboutHeaderLeft">
             <div className="headshotWrap">
               <img
-                src="/assets/headshot.JPG"
+                src={`${import.meta.env.BASE_URL}/assets/headshot.JPG`}
                 alt="Zackery Beyer headshot"
                 width={52}
                 height={52}

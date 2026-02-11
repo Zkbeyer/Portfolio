@@ -20,7 +20,7 @@ export default function HomeExperience() {
   const NUM = 3;
 
   const { enabled, muted, toggleMute, playWhoosh, enableAudio, setAmbience } = useAudio({
-    whooshUrl: "/audio/whoosh.mp3",
+    whooshUrl: `${import.meta.env.BASE_URL}/audio/whoosh.mp3`,
     whooshVolume: 0.15,
     musicVolume: 0.30,
   });

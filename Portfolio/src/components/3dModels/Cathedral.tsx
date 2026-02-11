@@ -58,7 +58,7 @@ type GLTFResult = GLTF & {
 
 
 export default function Cathedral(props: JSX.IntrinsicElements['group']) {
-   const gltf = useGLTF("/Cathedral/cathedral.gltf") as unknown as GLTFResult;
+   const gltf = useGLTF(`${import.meta.env.BASE_URL}/Cathedral/cathedral.gltf`) as unknown as GLTFResult;
   const { nodes, materials } = gltf;
   return (
     <group {...props} dispose={null}>
@@ -101,4 +101,4 @@ export default function Cathedral(props: JSX.IntrinsicElements['group']) {
   )
 }
 
-useGLTF.preload('/Cathedral/cathedral.gltf')
+useGLTF.preload(`${import.meta.env.BASE_URL}/Cathedral/cathedral.gltf`)

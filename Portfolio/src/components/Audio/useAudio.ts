@@ -23,9 +23,9 @@ const LS_MUTED = "audio:muted";
 const LS_SCENE = "audio:scene";
 
 const DEFAULT_AMBIENCE: Record<AmbienceKey, string> = {
-  HOME: "/audio/home-ambient.mp3",
-  PROJECTS: "/audio/projects-ambient.mp3",
-  ABOUT: "/audio/about-ambient.mp3",
+  HOME: `${import.meta.env.BASE_URL}/audio/home-ambient.mp3`,
+  PROJECTS: `${import.meta.env.BASE_URL}/audio/projects-ambient.mp3`,
+  ABOUT: `${import.meta.env.BASE_URL}/audio/about-ambient.mp3`,
 };
 
 // Module-level singleton (shared across the whole app)

@@ -53,7 +53,7 @@ type GLTFResult = GLTF & {
 }
 
 export default function Duck(props: JSX.IntrinsicElements['group']) {
-  const gltf = useGLTF("/Duck/duck.gltf") as unknown as GLTFResult;
+  const gltf = useGLTF(`${import.meta.env.BASE_URL}/Duck/duck.gltf`) as unknown as GLTFResult;
   const { nodes, materials } = gltf;
   return (
     <group {...props} dispose={null}>
@@ -92,4 +92,4 @@ export default function Duck(props: JSX.IntrinsicElements['group']) {
   )
 }
 
-useGLTF.preload('/Duck/duck.gltf')
+useGLTF.preload(`${import.meta.env.BASE_URL}/Duck/duck.gltf`)

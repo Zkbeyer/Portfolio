@@ -73,7 +73,7 @@ export default function PageProjects() {
           </div>
 
           <div className="imageGrid">
-            {["/assets/project1.png", "/assets/project2.png"].map((src) => (
+            {[`${import.meta.env.BASE_URL}/assets/project1.png`, `${import.meta.env.BASE_URL}/assets/project2.png`].map((src) => (
               <div key={src} className="imageFrame">
                 <img
                   src={src}

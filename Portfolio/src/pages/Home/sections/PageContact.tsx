@@ -51,7 +51,7 @@ export default function PageContact() {
             </a>
 
             <a
-              href="/resume.pdf"
+              href={`${import.meta.env.BASE_URL}/resume.pdf`}
               target="_blank"
               rel="noreferrer"
               title="Place your resume at public/resume.pdf"

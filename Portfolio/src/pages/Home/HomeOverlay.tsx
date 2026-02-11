@@ -36,7 +36,7 @@ export default function Home({
 
           <a
             className="resume"
-            href="/resume.pdf"
+            href={`${import.meta.env.BASE_URL}/resume.pdf`}
             target="_blank"
             rel="noreferrer"
             aria-label="Open resume PDF"

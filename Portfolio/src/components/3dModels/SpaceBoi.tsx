@@ -44,7 +44,7 @@ type GLTFResult = GLTF & {
 }
 
 export default function SpaceBoi(props: JSX.IntrinsicElements['group']) {
-  const gltf = useGLTF("/SpaceBoi/spaceboi.gltf") as unknown as GLTFResult;
+  const gltf = useGLTF(`${import.meta.env.BASE_URL}/SpaceBoi/spaceboi.gltf`) as unknown as GLTFResult;
     const { nodes, materials } = gltf;
   return (
     <group {...props} dispose={null}>
@@ -81,4 +81,4 @@ export default function SpaceBoi(props: JSX.IntrinsicElements['group']) {
   )
 }
 
-useGLTF.preload('/SpaceBoi/spaceboi.gltf')
+useGLTF.preload(`${import.meta.env.BASE_URL}/SpaceBoi/spaceboi.gltf`)
