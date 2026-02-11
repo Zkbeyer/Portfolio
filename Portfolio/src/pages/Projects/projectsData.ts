@@ -36,7 +36,7 @@ export const PROJECTS: Project[] = [
     description:
       "Full-stack app that generates a Spotify Wrapped-style report with AI analysis and interactive insights.",
     tech: ["React", "Node.js", "Express", "Spotify API"],
-    images: ["/projects/spotify/1.png", "/projects/spotify/2.png"],
+    images: [`${import.meta.env.BASE_URL}/projects/spotify/1.png`, `${import.meta.env.BASE_URL}/projects/spotify/2.png`],
     repoUrl: "https://github.com/Zkbeyer/Rewind",
     liveUrl: "https://your-rewind.vercel.app",
     meta: { role: "Full-stack", timeframe: "2025", status: "Live" },
@@ -58,7 +58,7 @@ export const PROJECTS: Project[] = [
     description:
       "My portfolio website to showcase my projects, skills, and experience.",
     tech: ["React", "Node.js"],
-    images: ["/projects/portfolio/1.png", "/projects/portfolio/2.png"],
+    images: [`${import.meta.env.BASE_URL}/projects/portfolio/1.png`, `${import.meta.env.BASE_URL}/projects/portfolio/2.png`],
     repoUrl: "https://github.com/Zkbeyer/Portfolio",
     meta: { role: "Web Dev", timeframe: "2026", status: "In progress" },
     bullets: [

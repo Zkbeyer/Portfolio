@@ -98,7 +98,7 @@ function AboutOverlay() {
           <div className="about-avatarWrap">
             <img
               className="about-avatar"
-              src="/assets/headshot.JPG"
+              src={`${import.meta.env.BASE_URL}/assets/headshot.JPG`}
               alt="Zackery Beyer"
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).style.display = "none";
