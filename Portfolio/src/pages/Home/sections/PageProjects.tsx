@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { preloadPage, navigateTo } from "../../../app/navBus";
 import BottomChecker from "./BottomChecker";
 import "../sections.css";

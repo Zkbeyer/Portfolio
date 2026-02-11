@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo } from "react";
+import{ Suspense, useMemo } from "react";
 import Home from "./pages/Home/Home";
 import { usePageNavigation } from "./app/usePageNavigation";
 import { AboutPageLazy, ProjectsPageLazy } from "./app/routes";

@@ -1,4 +1,3 @@
-import React from "react";
 import "../bottomChecker.css";
 
 export default function BottomChecker({ label }: { label: string }) {

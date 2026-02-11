@@ -8,7 +8,6 @@ Title: Concerto
 */
 
 import * as THREE from 'three'
-import React from 'react'
 import { useGLTF } from '@react-three/drei'
 import type { GLTF } from 'three-stdlib'
 import type { JSX } from 'react'
@@ -55,7 +54,7 @@ type GLTFResult = GLTF & {
 
 export default function Duck(props: JSX.IntrinsicElements['group']) {
   const gltf = useGLTF("/Duck/duck.gltf") as unknown as GLTFResult;
-  const { nodes, materials, animations } = gltf;
+  const { nodes, materials } = gltf;
   return (
     <group {...props} dispose={null}>
       <group rotation={[-Math.PI / 2, 0, 0]} scale={1.466}>

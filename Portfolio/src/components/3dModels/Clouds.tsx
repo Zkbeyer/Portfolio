@@ -8,7 +8,6 @@ Title: Ship in Clouds
 */
 
 import * as THREE from 'three'
-import React from 'react'
 import { useGLTF } from '@react-three/drei'
 import type { GLTF } from 'three-stdlib'
 import type { JSX } from 'react'
@@ -35,7 +34,7 @@ type GLTFResult = GLTF & {
 
 export default function Model(props: JSX.IntrinsicElements['group']) {
   const gltf = useGLTF("/Clouds/clouds.gltf") as unknown as GLTFResult;
-const { nodes, materials, animations } = gltf;
+const { nodes, materials } = gltf;
   return (
     <group {...props} dispose={null}>
       <group rotation={[-Math.PI / 2, 0, 0]} scale={0.003}>

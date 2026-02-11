@@ -8,7 +8,6 @@ Title: space boi
 */
 
 import * as THREE from 'three'
-import React from 'react'
 import { useGLTF } from '@react-three/drei'
 import type { GLTF } from 'three-stdlib'
 import type { JSX } from 'react'
@@ -46,7 +45,7 @@ type GLTFResult = GLTF & {
 
 export default function SpaceBoi(props: JSX.IntrinsicElements['group']) {
   const gltf = useGLTF("/SpaceBoi/spaceboi.gltf") as unknown as GLTFResult;
-    const { nodes, materials, animations } = gltf;
+    const { nodes, materials } = gltf;
   return (
     <group {...props} dispose={null}>
       <group scale={0.01}>
