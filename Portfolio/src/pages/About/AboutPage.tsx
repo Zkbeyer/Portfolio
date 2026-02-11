@@ -1,10 +1,10 @@
 import { Suspense, useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { PerspectiveCamera, ScrollControls, Scroll, useScroll } from "@react-three/drei";
+import { PerspectiveCamera, ScrollControls, Scroll, useScroll, Environment } from "@react-three/drei";
 import * as THREE from "three";
 
 import "./about.css";
-import Cathedral from "../../components/3dModels/Cathedral";
+import Forest from "../../components/3dModels/Forest";
 import { navigateTo } from "../../app/navBus";
 import { useAudio } from "../../components/Audio/useAudio";
 
@@ -233,9 +233,9 @@ export default function AboutPage() {
   // These are just placeholder poses — tune freely
   const poses = useMemo<Pose[]>(
     () => [
-      { camPos: [20, 30, 10], lookAt: [0, 10, 0]},
-      { camPos: [2.5, .5, -5.5], lookAt: [1, 2, 0]},
-      { camPos: [-10, 1, -9.5], lookAt: [4, 1.5, -9.5] },
+      { camPos: [5, 8, 5], lookAt: [1, 8, 0]},
+      { camPos: [-5.5, 17, -2.5], lookAt: [10, 8, -3]},
+      { camPos: [-8, 7, 3], lookAt: [-2, 10, -1] },
     ],
     []
   );
@@ -256,17 +256,17 @@ export default function AboutPage() {
         </button>
       </div>
 
-      <Canvas className="about-canvas">
+      <Canvas shadows className="about-canvas">
         <ScrollControls pages={2.4} damping={0.12}>
           <AboutCameraRig poses={poses} />
           <ambientLight intensity={0} />
-          <pointLight position={[4, 6, 6]} intensity={1.2} />
-
+          <hemisphereLight castShadow intensity={10} />
           <Suspense fallback={null}>
-            <Cathedral />
+            <Forest />
           </Suspense>
 
           <Scroll html>
+            <Environment preset="forest" background blur={0.15} />
             <AboutOverlay />
           </Scroll>
         </ScrollControls>
