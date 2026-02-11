@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import {CameraControls, OrbitControls, PerspectiveCamera } from "@react-three/drei";
+import {PerspectiveCamera } from "@react-three/drei";
 import  { Suspense } from "react";
 //import CrtMonitor from '../components/3dModels/CrtMonitor';
 //import Terminal from '../components/3dModels/Terminal';
