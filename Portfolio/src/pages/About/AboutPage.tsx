@@ -133,8 +133,9 @@ function AboutOverlay() {
           <div className="about-card">
             <div className="about-cardTitle">Snapshot</div>
             <div className="about-cardBody">
-              I build software that feels like a <span className="about-em">world</span>—interactive, clean, and a little weird in the best way.
-              I’m most interested in systems-style problem solving and projects that blend engineering with experience design.
+              I am a <span className="about-em">software engineer</span> focused on backed, platform, and could systems.
+              I love constantly learning new things and the process of problem solving and building solutions.
+              
             </div>
           </div>
 
@@ -233,9 +234,9 @@ export default function AboutPage() {
   // These are just placeholder poses — tune freely
   const poses = useMemo<Pose[]>(
     () => [
-      { camPos: [5, 8, 5], lookAt: [1, 8, 0]},
-      { camPos: [-5.5, 17, -2.5], lookAt: [10, 8, -3]},
-      { camPos: [-8, 7, 3], lookAt: [-2, 10, -1] },
+      { camPos: [-8, 7, 3], lookAt: [-2, 10, -1]},
+      { camPos: [4, 9, 7], lookAt: [3, 8, -3]},
+      { camPos: [5, 9.5, 5], lookAt: [1, 8, 0] },
     ],
     []
   );
