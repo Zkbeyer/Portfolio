@@ -54,7 +54,7 @@ export default function PageProjects() {
             <div>
               <div className="cardTitle">SPOTIFY REWIND</div>
               <div className="cardTagline">
-                Your personal music year-in-review with AI-style insights
+                Your personal music year-in-review with AI-style insights 
               </div>
             </div>
           </div>
@@ -62,6 +62,7 @@ export default function PageProjects() {
           <div className="cardBody">
             A full-stack web app that analyzes listening history to generate a personalized
             “Wrapped”-style report, with shareable insights and clean, fast UX.
+            <p>(Your Spotify email has to be regisered with my API key to be able to use this yourself)</p>
           </div>
 
           <div className="pillRow">

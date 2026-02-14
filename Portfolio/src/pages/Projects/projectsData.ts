@@ -32,7 +32,7 @@ export const PROJECTS: Project[] = [
   {
     id: "spotify-rewind",
     title: "Spotify Rewind",
-    tagline: "Your personal year-in-review",
+    tagline: "Your personal year-in-review (Your Spotify email has to be regisered with my API key to be able to use this yourself)",
     description:
       "Full-stack app that generates a Spotify Wrapped-style report with AI analysis and interactive insights.",
     tech: ["React", "Node.js", "Express", "Spotify API"],
