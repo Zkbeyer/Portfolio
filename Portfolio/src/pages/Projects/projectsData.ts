@@ -51,6 +51,31 @@ export const PROJECTS: Project[] = [
       { label: "Data", value: "Spotify API" },
     ],
   },
+    {
+    id: "fault-injector",
+    title: "Fault Injector API",
+    tagline: "Chaos testing & fault injection service",
+    description:
+      "A .NET 10 API that injects configurable faults like latency, errors, and dropped requests to test system resilience under real-world failure scenarios.",
+    tech: ["C#",".NET 10", "ASP.NET Core", "Docker", "YARP"],
+    images: [
+      `${import.meta.env.BASE_URL}/projects/fault-injector/1.png`,
+      `${import.meta.env.BASE_URL}/projects/fault-injector/2.png`
+    ],
+    repoUrl: "https://github.com/Zkbeyer/FaultInjector",
+    meta: { role: "Backend / Systems", timeframe: "2026", status: "Active" },
+    bullets: [
+      "Injects latency, faults, and chaos behaviors via configurable rules",
+      "Runtime enable/disable of fault profiles without redeploy",
+      "Dockerized for fast local and CI testing workflows",
+      "Structured logging and rule-based probability controls"
+    ],
+    highlight: [
+      { label: "Focus", value: "Resilience Testing" },
+      { label: "Type", value: "Chaos / Fault API" },
+      { label: "Runtime", value: ".NET 10" }
+    ],
+  },
   {
     id: "portfolio",
     title: "Portfilio",
@@ -60,7 +85,7 @@ export const PROJECTS: Project[] = [
     tech: ["React", "Node.js"],
     images: [`${import.meta.env.BASE_URL}/projects/portfolio/1.png`, `${import.meta.env.BASE_URL}/projects/portfolio/2.png`],
     repoUrl: "https://github.com/Zkbeyer/Portfolio",
-    meta: { role: "Web Dev", timeframe: "2026", status: "In progress" },
+    meta: { role: "Web Dev", timeframe: "2026", status: "Live" },
     bullets: [
       "Shows what I can do and have done",
       "Helps you find and connect with me",
