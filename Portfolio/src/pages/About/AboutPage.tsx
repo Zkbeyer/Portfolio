@@ -146,9 +146,9 @@ function AboutOverlay() {
                 "Always learning",
                 "Coachable",
                 "High ownership",
-                "Fast iteration",
-                "Documentation-first",
-                "Taste + polish",
+                "Consistent",
+                "Team player",
+                "Dedicated",
               ].map((t) => (
                 <span key={t} className="about-pill">
                   {t}
@@ -202,7 +202,7 @@ function AboutOverlay() {
             <div className="about-toolGrid">
               {[
                 { k: "Languages", v: "C/C++, C#, TypeScript, Python, Java" },
-                { k: "Web", v: "React, Vite, Node/Express, REST" },
+                { k: "Web", v: "React, Vite, .NET, Node/Express, REST" },
                 { k: "Data", v: "SQL, modeling, visualization" },
                 { k: "Dev", v: "Git/GitHub, CI mindset, clean structure" },
               ].map((x) => (
