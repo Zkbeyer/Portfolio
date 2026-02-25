@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useRef } from "react";
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { PerspectiveCamera, ScrollControls, Scroll, useScroll, Environment } from "@react-three/drei";
 import * as THREE from "three";
@@ -90,9 +90,9 @@ function AboutCameraRig({ poses }: { poses: Pose[] }) {
   return <PerspectiveCamera ref={camRef} makeDefault fov={50} position={poses[0].camPos} />;
 }
 
-function AboutOverlay() {
+function AboutOverlay({ rootRef }: { rootRef: React.RefObject<HTMLDivElement | null> }) {
   return (
-    <div className="about-overlay">
+    <div className="about-overlay" ref={rootRef}>
       <div className="about-shell">
         <section className="about-hero" aria-label="About header">
           <div className="about-avatarWrap">
@@ -226,10 +226,55 @@ function AboutOverlay() {
 export default function AboutPage() {
   const { setAmbience, muted, toggleMute } = useAudio();
 
+  // Keep desktop tuning the same, but allow more scroll pages when the HTML overlay
+  // is taller (common on mobile due to wrapping / larger text).
+  const BASE_PAGES = 2.4;
+  const [pages, setPages] = useState(BASE_PAGES);
+  const overlayRootRef = useRef<HTMLDivElement | null>(null);
+
+  const recomputePages = () => {
+    const el = overlayRootRef.current;
+    const vh = Math.max(1, window.innerHeight);
+    if (!el) {
+      setPages(BASE_PAGES);
+      return;
+    }
+
+    // Prefer real content height over CSS min-heights.
+    const contentH = Math.max(el.scrollHeight, el.getBoundingClientRect().height);
+    const needed = contentH / vh;
+
+    // Never shrink below the tuned desktop value.
+    const next = Math.max(BASE_PAGES, needed);
+
+    // Avoid tiny oscillations.
+    setPages((prev) => (Math.abs(prev - next) < 0.05 ? prev : next));
+  };
+
   // Switch ambience for this route/page
   useEffect(() => {
     setAmbience("ABOUT");
   }, [setAmbience]);
+
+  useLayoutEffect(() => {
+    recomputePages();
+
+    const onResize = () => recomputePages();
+    window.addEventListener("resize", onResize);
+
+    const el = overlayRootRef.current;
+    let ro: ResizeObserver | null = null;
+    if (el && "ResizeObserver" in window) {
+      ro = new ResizeObserver(() => recomputePages());
+      ro.observe(el);
+    }
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      if (ro) ro.disconnect();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // These are just placeholder poses — tune freely
   const poses = useMemo<Pose[]>(
@@ -258,7 +303,7 @@ export default function AboutPage() {
       </div>
 
       <Canvas shadows className="about-canvas">
-        <ScrollControls pages={2.4} damping={0.12}>
+        <ScrollControls pages={pages} damping={0.12}>
           <AboutCameraRig poses={poses} />
           <ambientLight intensity={0} />
           <hemisphereLight castShadow intensity={10} />
@@ -268,7 +313,7 @@ export default function AboutPage() {
 
           <Scroll html>
             <Environment preset="forest" background blur={0.15} />
-            <AboutOverlay />
+            <AboutOverlay rootRef={overlayRootRef} />
           </Scroll>
         </ScrollControls>
       </Canvas>
