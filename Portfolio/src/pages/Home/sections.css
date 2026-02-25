@@ -331,3 +331,120 @@
 .pageBottomPad {
   height: 220px;
 }
+
+/* =============================
+   RESPONSIVE (tablet + mobile)
+   No classname changes
+   ============================= */
+
+/* "Medium" first: reduce collisions earlier */
+@media (max-width: 1024px) {
+  .sectionPanel {
+    padding: 20px 18px;
+  }
+
+  .panelTitle {
+    font-size: 36px;
+  }
+
+  .panelLead,
+  .sectionBody {
+    max-width: 720px;
+  }
+
+  .image {
+    height: 170px;
+  }
+}
+
+/* Tablets / large phones */
+@media (max-width: 820px) {
+  .sectionPanel {
+    padding: 18px 16px;
+    border-radius: 16px;
+  }
+
+  .panelTitle {
+    font-size: 30px;
+    letter-spacing: 0.05em;
+  }
+
+  .panelCta {
+    padding: 9px 10px;
+    font-size: 11px;
+  }
+
+  .subTitle {
+    font-size: 18px;
+  }
+
+  .sectionH2 {
+    font-size: 16px;
+  }
+
+  .statGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .imageGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .image {
+    height: 190px;
+  }
+
+  .headshotImg {
+    transform: scale(1.14);
+  }
+}
+
+/* Phones */
+@media (max-width: 520px) {
+  .sectionKicker {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+  }
+
+  .sectionPanel {
+    padding: 16px 14px;
+  }
+
+  .panelTitle {
+    font-size: 26px;
+  }
+
+  .panelLead,
+  .sectionBody {
+    line-height: 1.55;
+  }
+
+  .pill {
+    font-size: 11px;
+    padding: 6px 9px;
+  }
+
+  .statGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .headshotWrap {
+    width: 46px;
+    height: 46px;
+  }
+
+  .headshotImg {
+    width: 46px;
+    height: 46px;
+    transform: scale(1.08);
+  }
+
+  .headshotDot {
+    width: 9px;
+    height: 9px;
+  }
+
+  .pageBottomPad {
+    height: 170px;
+  }
+}

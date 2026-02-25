@@ -1,0 +1,66 @@
+/* src/styles/responsiveTokens.css */
+/* Responsive tokens: one place to tune mobile/desktop spacing without rewriting layouts */
+
+:root {
+  /* Overlay header/footer heights (you used 160/170 previously) */
+  --header-h: 160px;
+  --footer-h: 170px;
+
+  /* Horizontal padding for content */
+  --pad-x: clamp(14px, 4vw, 42px);
+
+  /* Content max widths */
+  --content-max: 820px;
+  --content-w: min(var(--content-max), 92%);
+
+  /* Typography scale */
+  --title-size: 44px;
+  --subtitle-size: 14px;
+  --body-size: 15px;
+
+  /* Tap target minimums */
+  --tap: 44px;
+
+  /* Panel styling */
+  --panel-bg: rgba(10, 12, 16, 0.52);
+  --panel-bg-hover: rgba(10, 12, 16, 0.62);
+  --panel-border: rgba(255, 255, 255, 0.10);
+  --panel-border-hover: rgba(255, 255, 255, 0.16);
+
+  /* Safe areas (iOS notch) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* Z layers */
+  --z-canvas: 0;
+  --z-sections: 5;
+  --z-hud: 6;
+  --z-overlay: 200;
+}
+
+/* Tablets / large phones */
+@media (max-width: 768px) {
+  :root {
+    --header-h: 150px;
+    --footer-h: 155px;
+
+    --content-w: min(760px, 94%);
+    --title-size: 36px;
+    --subtitle-size: 13px;
+    --body-size: 15px;
+  }
+}
+
+/* Phones */
+@media (max-width: 480px) {
+  :root {
+    --header-h: 138px;
+    --footer-h: 148px;
+
+    --content-w: min(680px, 94%);
+
+    --title-size: 30px;
+    --subtitle-size: 12px;
+    --body-size: 15px;
+  }
+}

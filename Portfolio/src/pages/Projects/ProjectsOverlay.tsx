@@ -1,11 +1,15 @@
 import { motion } from "framer-motion";
+import type { RefObject } from "react";
 import { PROJECTS } from "./projectsData";
 import "./projectsOverlay.css";
 import type { Project } from "./projectsData";
+
 const fadeUp = {
   hidden: { opacity: 0, y: 14 },
   show: { opacity: 1, y: 0 },
 };
+
+type ScrollRootRef = RefObject<HTMLElement | null>;
 
 function ProjectHeader() {
   return (
@@ -19,7 +23,8 @@ function ProjectHeader() {
       <div className="p-kicker">V-002</div>
       <div className="p-h1">PROJECTS</div>
       <div className="p-lead">
-        Scroll down to see the projects I am most proud of. Each has a link to the repo and live site if it applies.
+        Scroll down to see the projects I am most proud of. Each has a link to
+        the repo and live site if it applies.
       </div>
     </motion.header>
   );
@@ -39,7 +44,9 @@ function MetaRow({ meta }: { meta?: Project["meta"] }) {
     <div className="p-highlightGrid" aria-label="Project quick facts">
       {items.map((it) => (
         <div key={it.k} className="p-highlightItem">
-          <div className="p-kicker" style={{ opacity: 0.65 }}>{it.k}</div>
+          <div className="p-kicker" style={{ opacity: 0.65 }}>
+            {it.k}
+          </div>
           <div style={{ marginTop: 8 }}>{it.v}</div>
         </div>
       ))}
@@ -53,7 +60,9 @@ function Highlights({ highlight }: { highlight?: Project["highlight"] }) {
     <div className="p-highlightGrid" aria-label="Project highlights">
       {highlight.map((h) => (
         <div key={h.label + h.value} className="p-highlightItem">
-          <div className="p-kicker" style={{ opacity: 0.65 }}>{h.label}</div>
+          <div className="p-kicker" style={{ opacity: 0.65 }}>
+            {h.label}
+          </div>
           <div style={{ marginTop: 8 }}>{h.value}</div>
         </div>
       ))}
@@ -74,7 +83,15 @@ function ProjectImages({ images }: { images: string[] }) {
   );
 }
 
-function ProjectCard({ p, idx }: { p: Project; idx: number }) {
+function ProjectCard({
+  p,
+  idx,
+  scrollRoot,
+}: {
+  p: Project;
+  idx: number;
+  scrollRoot: ScrollRootRef;
+}) {
   const hasBullets = !!p.bullets?.length;
 
   return (
@@ -82,8 +99,11 @@ function ProjectCard({ p, idx }: { p: Project; idx: number }) {
       className="p-card"
       variants={fadeUp}
       initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, margin: "-120px" }}
+      animate={idx === 0 ? "show" : undefined}
+      whileInView={idx === 0 ? undefined : "show"}
+      // Tell Framer Motion what element is scrolling.
+      // For the first card, we animate immediately so it never waits for an intersection event.
+      viewport={idx === 0 ? undefined : { once: true, margin: "-120px", root: scrollRoot }}
       transition={{ duration: 0.5, delay: Math.min(idx * 0.05, 0.25) }}
       whileHover={{ y: -2 }}
     >
@@ -136,14 +156,18 @@ function ProjectCard({ p, idx }: { p: Project; idx: number }) {
   );
 }
 
-export default function ProjectsOverlay() {
+export default function ProjectsOverlay({
+  scrollRoot,
+}: {
+  scrollRoot: ScrollRootRef;
+}) {
   return (
     <div className="projects-overlay">
       <ProjectHeader />
 
       <section className="p-list" aria-label="Projects list">
         {PROJECTS.map((p, idx) => (
-          <ProjectCard key={p.id} p={p} idx={idx} />
+          <ProjectCard key={p.id} p={p} idx={idx} scrollRoot={scrollRoot} />
         ))}
       </section>
 

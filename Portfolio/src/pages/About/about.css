@@ -2,6 +2,7 @@
   position: fixed;
   inset: 0;
   background: #000;
+  overflow: hidden; /* prevents fixed canvas from causing weird scroll artifacts */
 }
 
 .about-canvas {
@@ -323,10 +324,43 @@
   padding-top: 14px;
 }
 
-/* Responsive */
+/* =============================
+   Responsive
+   ============================= */
+
+/* Middle ground: small laptop / tablet landscape (prevents collisions early) */
+@media (max-width: 1080px) {
+  .about-overlay {
+    padding: 150px 4vw 200px;
+  }
+
+  .about-shell {
+    width: min(940px, 92%);
+  }
+
+  .about-title {
+    font-size: 38px;
+  }
+
+  .about-heroMeta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-toolGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Your existing breakpoint (kept) + small refinements */
 @media (max-width: 860px) {
   .about-hero {
     grid-template-columns: 96px 1fr;
+    gap: 16px;
+    padding: 18px 16px;
   }
 
   .about-avatarWrap {
@@ -335,7 +369,8 @@
   }
 
   .about-title {
-    font-size: 36px;
+    font-size: 32px;
+    letter-spacing: 0.06em;
   }
 
   .about-heroMeta {
@@ -348,5 +383,84 @@
 
   .about-toolGrid {
     grid-template-columns: 1fr;
+  }
+
+  .about-homeBtnWrap {
+    top: 18px;
+    right: 18px;
+  }
+
+  .about-audioBtnWrap {
+    right: 18px;
+    bottom: 18px;
+  }
+}
+
+/* Phones */
+@media (max-width: 520px) {
+  .about-overlay {
+    padding: 132px 4vw 170px;
+  }
+
+  .about-kicker {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+  }
+
+  .about-title {
+    font-size: 26px;
+    letter-spacing: 0.05em;
+  }
+
+  .about-subtitle {
+    line-height: 1.5;
+  }
+
+  .about-avatarWrap {
+    width: 84px;
+    height: 84px;
+  }
+
+  .about-avatar {
+    transform: scale(1.12);
+  }
+
+  .about-metaCard,
+  .about-card,
+  .about-tool {
+    border-radius: 16px;
+  }
+
+  .about-card {
+    padding: 16px;
+  }
+
+  .about-pill {
+    font-size: 11px;
+    padding: 6px 9px;
+  }
+
+  .about-homeBtn,
+  .about-audioBtn {
+    padding: 9px 12px;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+  }
+}
+
+/* Very small devices */
+@media (max-width: 380px) {
+  .about-title {
+    font-size: 24px;
+  }
+
+  .about-homeBtnWrap {
+    top: 14px;
+    right: 14px;
+  }
+
+  .about-audioBtnWrap {
+    right: 14px;
+    bottom: 14px;
   }
 }

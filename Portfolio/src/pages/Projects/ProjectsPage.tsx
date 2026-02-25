@@ -13,17 +13,18 @@ export default function ProjectsPage() {
   const { muted, toggleMute, setAmbience } = useAudio();
 
   const [progress, setProgress] = useState(0);
-  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Switch ambience for this page
   useEffect(() => {
     setAmbience("PROJECTS");
   }, [setAmbience]);
 
-  // Drive CameraRig progress from the Projects scroll host
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
+
+    // capture once (after mount)
+    // setScrollRoot(el);
 
     const onScroll = () => {
       const max = Math.max(1, el.scrollHeight - el.clientHeight);
@@ -38,13 +39,12 @@ export default function ProjectsPage() {
 
   return (
     <div className="projects-root">
-
       <div className="projects-homeBtnWrap">
         <button className="projects-homeBtn" onClick={() => navigateTo("HOME")}>
           ← Home
         </button>
       </div>
-      
+
       <div className="projects-audioBtnWrap">
         <button className="projects-audioBtn" onClick={toggleMute}>
           {muted ? "Audio: Muted" : "Audio: Live"}
@@ -61,7 +61,7 @@ export default function ProjectsPage() {
       </Canvas>
 
       <div className="projects-scroll" ref={scrollRef}>
-        <ProjectsOverlay />
+        <ProjectsOverlay scrollRoot={scrollRef} />
       </div>
     </div>
   );

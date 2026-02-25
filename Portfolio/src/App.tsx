@@ -2,6 +2,8 @@ import{ Suspense, useMemo } from "react";
 import Home from "./pages/Home/Home";
 import { usePageNavigation } from "./app/usePageNavigation";
 import { AboutPageLazy, ProjectsPageLazy } from "./app/routes";
+import "./styles/responsiveTokens.css";
+import "./styles/global.css";
 
 export default function App() {
   const { page } = usePageNavigation("HOME");

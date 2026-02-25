@@ -15,9 +15,14 @@
 .projectsOverlay{
   width: min(980px, 92%);
   margin-left: auto;
-  margin-right: 14px; /* keep projects “right-justified” like your current layout */
+  margin-right: 14px; /* keep projects “right-justified” on desktop */
   color: rgba(255,255,255,0.88);
+  box-sizing: border-box;
 }
+
+/* =============================
+   HEADER
+   ============================= */
 
 .p-header{
   margin-top: 20px;
@@ -50,6 +55,10 @@
   line-height: 1.55;
 }
 
+/* =============================
+   LIST + CARDS
+   ============================= */
+
 .p-list{
   display: grid;
   gap: 16px;
@@ -66,6 +75,7 @@
   overflow: hidden;
   box-shadow: 0 10px 32px rgba(0,0,0,0.25);
   transition: border-color 180ms ease, background 180ms ease;
+  box-sizing: border-box;
 }
 
 .p-cardHead{
@@ -92,6 +102,7 @@
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap; /* important for medium widths */
 }
 
 .p-btn{
@@ -106,6 +117,7 @@
   opacity: 0.85;
   transition: opacity 160ms ease, transform 160ms ease;
   background: rgba(255,255,255,0.04);
+  white-space: nowrap;
 }
 
 .p-btn:hover{
@@ -150,10 +162,7 @@
   border: 1px solid var(--p-border);
   letter-spacing: 0.08em;
   opacity: 0.9;
-}
-
-@media (max-width: 900px){
-  .p-highlightGrid{ grid-template-columns: 1fr; }
+  min-width: 0;
 }
 
 .p-tech{
@@ -204,6 +213,10 @@
   border-top: 1px dashed var(--p-border);
 }
 
+/* =============================
+   CARD FX
+   ============================= */
+
 .p-card::before{
   content: "";
   position: absolute;
@@ -236,9 +249,118 @@
   animation: pSheen 900ms ease;
 }
 
+/* =============================
+   CODE
+   ============================= */
+
 code{
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.92em;
   letter-spacing: 0.06em;
   opacity: 0.9;
+}
+
+/* =============================
+   RESPONSIVE (adds a middle ground + mobile)
+   ============================= */
+
+/* 1) Medium screens: stop collisions sooner, center instead of right-justified */
+@media (max-width: 1100px){
+  .projectsOverlay{
+    margin-right: auto;
+    margin-left: auto;
+    width: min(980px, 94%);
+  }
+
+  .p-h1{
+    font-size: 40px;
+  }
+
+  .p-card{
+    padding: 18px 16px;
+  }
+}
+
+/* 2) Tablet: tighten spacing, stack actions cleanly, reduce image height */
+@media (max-width: 900px){
+  .projectsOverlay{
+    width: min(980px, 94%);
+  }
+
+  .p-header{
+    padding: 16px 16px 14px;
+  }
+
+  .p-h1{
+    font-size: 36px;
+  }
+
+  .p-cardHead{
+    gap: 12px;
+  }
+
+  .p-actions{
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .p-highlightGrid{
+    grid-template-columns: 1fr;
+  }
+
+  .p-images{
+    grid-template-columns: 1fr;
+  }
+
+  .p-img{
+    height: 200px;
+  }
+}
+
+/* 3) Mobile: comfortable tap targets, smaller type, no cramped padding */
+@media (max-width: 560px){
+  .projectsOverlay{
+    width: min(980px, 94%);
+  }
+
+  .p-kicker{
+    font-size: 11px;
+    letter-spacing: 0.16em;
+  }
+
+  .p-h1{
+    font-size: 30px;
+    letter-spacing: 0.05em;
+  }
+
+  .p-lead{
+    font-size: 14px;
+  }
+
+  .p-card{
+    padding: 16px 14px;
+    border-radius: 16px;
+  }
+
+  .p-title{
+    font-size: 16px;
+  }
+
+  .p-tagline{
+    font-size: 14px;
+  }
+
+  .p-btn{
+    padding: 11px 12px; /* slightly bigger tap target */
+    font-size: 11px;
+    letter-spacing: 0.12em;
+  }
+
+  .p-bullets{
+    padding-left: 16px;
+  }
+
+  .p-img{
+    height: 190px;
+  }
 }

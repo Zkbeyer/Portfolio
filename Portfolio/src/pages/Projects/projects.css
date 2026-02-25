@@ -1,15 +1,13 @@
-
-
 .projects-root {
   position: fixed;
   inset: 0;
   width: 100vw;
   height: 100vh;
-  overflow: hidden; /* prevent the body/page from scrolling past the canvas */
+  overflow: hidden; /* prevent page from scrolling past the canvas */
   background: #000;
 }
 
-/* Make the canvas a true background layer */
+/* Canvas = true background layer */
 .projects-canvas {
   position: fixed !important;
   inset: 0;
@@ -19,51 +17,19 @@
   pointer-events: none;
 }
 
-.projects-audioBtnWrap {
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  z-index: 3;
-}
-
-.projects-audioBtn {
-  all: unset;
-  cursor: pointer;
-  padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: rgba(255, 255, 255, 0.9);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-size: 12px;
-  background: rgba(10, 12, 16, 0.45);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
-}
-
-.projects-audioBtn:hover {
-  border-color: rgba(255, 255, 255, 0.24);
-  background: rgba(10, 12, 16, 0.55);
-  transform: translateY(-1px);
-}
-
-/* Overlay must be above canvas and scrollable */
-.projects-overlay {
-  position: relative;
-  z-index: 2;
-  pointer-events: auto;
-  padding: 160px 4vw 140px;
-  color: rgba(255,255,255,0.88);
-  min-height: 120vh; /* ensures there's scroll space even with short content */
-}
-
-
-/* If you have a fixed Home button, keep it above everything */
+/* Fixed buttons */
 .projects-homeBtnWrap {
   position: fixed;
   top: 18px;
   right: 18px;
+  z-index: 3;
+  pointer-events: auto;
+}
+
+.projects-audioBtnWrap {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
   z-index: 3;
   pointer-events: auto;
 }
@@ -79,7 +45,8 @@
   text-transform: uppercase;
   cursor: pointer;
   backdrop-filter: blur(8px);
-  transition: all 0.18s ease;
+  -webkit-backdrop-filter: blur(8px);
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
 }
 
 .projects-homeBtn:hover {
@@ -88,18 +55,29 @@
   transform: translateY(-1px);
 }
 
-.projects-scroll {
-  position: fixed;
-  inset: 0;
-  z-index: 2;
-  overflow-y: auto;
-  overflow-x: hidden;
- /* give breathing room if you have header/footer overlays */
-  padding: 170px 4vw 170px;
-  box-sizing: border-box;
+.projects-audioBtn {
+  all: unset;
+  cursor: pointer;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 12px;
+  background: rgba(10, 12, 16, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease, opacity 180ms ease;
 }
 
-/* Scroll host for the Projects overlay content */
+.projects-audioBtn:hover {
+  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(10, 12, 16, 0.55);
+  transform: translateY(-1px);
+}
+
+/* Scroll host (THIS is what scrolls) */
 .projects-scroll {
   position: fixed;
   inset: 0;
@@ -107,13 +85,82 @@
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  padding: 100px 15vw 500px;
-  box-sizing: border-box;
   pointer-events: auto;
+
+  /* Desktop default: comfy but not too wide */
+  padding: 140px 8vw 220px;
+  box-sizing: border-box;
 }
 
-/* Let the overlay size itself inside the scroll host */
+/* Overlay sits inside the scroll host */
 .projects-overlay {
-  padding: 0; /* padding handled by .projects-scroll */
-  min-height: auto;
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+
+  /* no padding here — scroll host owns padding */
+  padding: 0;
+  color: rgba(255, 255, 255, 0.88);
+
+  /* ensures some scroll room even if content is short */
+  min-height: 120vh;
+}
+
+/* =============================
+   Responsive
+   ============================= */
+
+/* Middle ground: tablet landscape / small laptop */
+@media (max-width: 1100px) {
+  .projects-scroll {
+    padding: 130px 6vw 220px;
+  }
+}
+
+/* Tablets / large phones */
+@media (max-width: 820px) {
+  .projects-scroll {
+    padding: 120px 5vw 200px;
+  }
+
+  .projects-homeBtnWrap {
+    top: 16px;
+    right: 16px;
+  }
+
+  .projects-audioBtnWrap {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .projects-homeBtn,
+  .projects-audioBtn {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    padding: 9px 12px;
+  }
+}
+
+/* Phones */
+@media (max-width: 520px) {
+  .projects-scroll {
+    padding: 108px 4vw 180px;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 380px) {
+  .projects-scroll {
+    padding: 100px 4vw 170px;
+  }
+
+  .projects-homeBtnWrap {
+    top: 14px;
+    right: 14px;
+  }
+
+  .projects-audioBtnWrap {
+    right: 14px;
+    bottom: 14px;
+  }
 }
