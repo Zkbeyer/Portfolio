@@ -23,9 +23,6 @@ export default function ProjectsPage() {
     const el = scrollRef.current;
     if (!el) return;
 
-    // capture once (after mount)
-    // setScrollRoot(el);
-
     const onScroll = () => {
       const max = Math.max(1, el.scrollHeight - el.clientHeight);
       const y = el.scrollTop;

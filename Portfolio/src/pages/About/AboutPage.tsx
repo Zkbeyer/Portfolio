@@ -1,6 +1,6 @@
-import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { PerspectiveCamera, ScrollControls, Scroll, useScroll, Environment } from "@react-three/drei";
+import { PerspectiveCamera, Environment } from "@react-three/drei";
 import * as THREE from "three";
 
 import "./about.css";
@@ -21,9 +21,8 @@ function easeInOut(t: number) {
   return t * t * (3 - 2 * t);
 }
 
-function AboutCameraRig({ poses }: { poses: Pose[] }) {
+function AboutCameraRig({ poses, progressRef }: { poses: Pose[]; progressRef: { current: number } }) {
   const camRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const scroll = useScroll();
 
   const mouseRef = useRef(new THREE.Vector2(0, 0));
   const desiredLookRef = useRef(new THREE.Vector3());
@@ -51,10 +50,10 @@ function AboutCameraRig({ poses }: { poses: Pose[] }) {
     const cam = camRef.current;
     if (!cam) return;
 
-    // ScrollControls provides a normalized 0..1 offset across pages
-    const u = clamp01(scroll.offset);
+    // progress is normalized 0..1 based on HTML scroll
+    const u = clamp01(progressRef.current ?? 0);
 
-    // With 3 poses, blend 0->1 between pose0..pose1, then pose1..pose2
+    // Blend across pose segments
     const n = poses.length;
     const segs = Math.max(1, n - 1);
     const scaled = u * segs;
@@ -72,7 +71,7 @@ function AboutCameraRig({ poses }: { poses: Pose[] }) {
     blendedPos.current.copy(fromPos.current).lerp(toPos.current, localT);
     blendedLook.current.copy(fromLook.current).lerp(toLook.current, localT);
 
-    // Smooth camera move (feels alive)
+    // Smooth camera move
     cam.position.lerp(blendedPos.current, 0.10);
 
     // Subtle parallax look
@@ -90,9 +89,9 @@ function AboutCameraRig({ poses }: { poses: Pose[] }) {
   return <PerspectiveCamera ref={camRef} makeDefault fov={50} position={poses[0].camPos} />;
 }
 
-function AboutOverlay({ rootRef }: { rootRef: React.RefObject<HTMLDivElement | null> }) {
+function AboutOverlay() {
   return (
-    <div className="about-overlay" ref={rootRef}>
+    <div className="about-overlay">
       <div className="about-shell">
         <section className="about-hero" aria-label="About header">
           <div className="about-avatarWrap">
@@ -226,54 +225,51 @@ function AboutOverlay({ rootRef }: { rootRef: React.RefObject<HTMLDivElement | n
 export default function AboutPage() {
   const { setAmbience, muted, toggleMute } = useAudio();
 
-  // Keep desktop tuning the same, but allow more scroll pages when the HTML overlay
-  // is taller (common on mobile due to wrapping / larger text).
-  const BASE_PAGES = 2.4;
-  const [pages, setPages] = useState(BASE_PAGES);
-  const overlayRootRef = useRef<HTMLDivElement | null>(null);
-
-  const recomputePages = () => {
-    const el = overlayRootRef.current;
-    const vh = Math.max(1, window.innerHeight);
-    if (!el) {
-      setPages(BASE_PAGES);
-      return;
-    }
-
-    // Prefer real content height over CSS min-heights.
-    const contentH = Math.max(el.scrollHeight, el.getBoundingClientRect().height);
-    const needed = contentH / vh;
-
-    // Never shrink below the tuned desktop value.
-    const next = Math.max(BASE_PAGES, needed);
-
-    // Avoid tiny oscillations.
-    setPages((prev) => (Math.abs(prev - next) < 0.05 ? prev : next));
-  };
+  const progressRef = useRef<number>(0);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
   // Switch ambience for this route/page
   useEffect(() => {
     setAmbience("ABOUT");
   }, [setAmbience]);
 
-  useLayoutEffect(() => {
-    recomputePages();
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
 
-    const onResize = () => recomputePages();
-    window.addEventListener("resize", onResize);
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const max = Math.max(1, el.scrollHeight - el.clientHeight);
+      const y = el.scrollTop;
+      const next = y / max;
+      // Store in a ref to avoid React re-renders during scroll (prevents iOS WebGL black frames)
+      const clamped = next < 0 ? 0 : next > 1 ? 1 : next;
+      progressRef.current = clamped;
+    };
 
-    const el = overlayRootRef.current;
-    let ro: ResizeObserver | null = null;
-    if (el && "ResizeObserver" in window) {
-      ro = new ResizeObserver(() => recomputePages());
-      ro.observe(el);
-    }
+    const onScroll = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(update);
+    };
+
+    // Run once after first paint so mobile layout (address bar/safe-area) settles
+    raf = window.requestAnimationFrame(update);
+
+    el.addEventListener("scroll", onScroll, { passive: true });
+
+    // If content height changes (images load, fonts, etc.), recompute max
+    const ro = new ResizeObserver(() => {
+      // schedule update, don't run synchronously
+      onScroll();
+    });
+    ro.observe(el);
 
     return () => {
-      window.removeEventListener("resize", onResize);
-      if (ro) ro.disconnect();
+      el.removeEventListener("scroll", onScroll as any);
+      ro.disconnect();
+      if (raf) window.cancelAnimationFrame(raf);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // These are just placeholder poses — tune freely
@@ -303,20 +299,33 @@ export default function AboutPage() {
       </div>
 
       <Canvas shadows className="about-canvas">
-        <ScrollControls pages={pages} damping={0.12}>
-          <AboutCameraRig poses={poses} />
-          <ambientLight intensity={0} />
-          <hemisphereLight castShadow intensity={10} />
-          <Suspense fallback={null}>
-            <Forest />
-          </Suspense>
-
-          <Scroll html>
-            <Environment preset="forest" background blur={0.15} />
-            <AboutOverlay rootRef={overlayRootRef} />
-          </Scroll>
-        </ScrollControls>
+        <AboutCameraRig poses={poses} progressRef={progressRef} />
+        <ambientLight intensity={0} />
+        <hemisphereLight castShadow intensity={10} />
+        <Suspense fallback={null}>
+          <Forest />
+        </Suspense>
+        <Environment preset="forest" background blur={0.15} />
       </Canvas>
+
+      <div
+        ref={scrollRef}
+        style={{
+          position: "fixed",
+          inset: 0,
+          height: "100dvh",
+          maxHeight: "100dvh",
+          zIndex: 2,
+          overflowY: "auto",
+          overflowX: "hidden",
+          WebkitOverflowScrolling: "touch",
+          overscrollBehaviorY: "contain",
+          paddingBottom: "max(env(safe-area-inset-bottom), 24px)",
+          pointerEvents: "auto",
+        }}
+      >
+        <AboutOverlay />
+      </div>
     </div>
   );
 }
