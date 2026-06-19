@@ -156,10 +156,10 @@ function AboutOverlay() {
           </div>
 
           <div className="about-card">
-            <div className="about-cardTitle">What I’m building</div>
+            <div className="about-cardTitle">What I'm building</div>
             <div className="about-cardBody">
-              Currently interning at Garmin’s Aviation ATE team, building and optimizing software infrastructure for automated hardware testing.
-              On the side, I build personal projects I’ll actually use — course tools, scheduling platforms, and developer tooling.
+              Currently interning at Garmin's Aviation ATE team, building and optimizing software infrastructure for automated hardware testing.
+              On the side, I build personal projects I'll actually use — course tools, scheduling platforms, and developer tooling.
             </div>
           </div>
 
@@ -195,7 +195,7 @@ function AboutOverlay() {
           <div className="about-card about-cardWide">
             <div className="about-cardTitle">Toolbox</div>
             <div className="about-cardBody">
-              I try to keep my stack simple and sharp. Here’s what I reach for most often.
+              I try to keep my stack simple and sharp. Here's what I reach for most often.
             </div>
             <div className="about-toolGrid">
               {[
