@@ -109,7 +109,7 @@ function AboutOverlay() {
           <div className="about-heroText">
             <div className="about-kicker">V-001 • PROFILE • ABOUT</div>
             <h1 className="about-title">ZACKERY BEYER</h1>
-            <div className="about-subtitle">Software Developer • CS @ Mizzou • Systems-minded builder</div>
+            <div className="about-subtitle">Software Engineer • CS @ Mizzou • Systems-minded builder</div>
 
             <div className="about-heroMeta" role="list">
               <div className="about-metaCard" role="listitem">
@@ -132,9 +132,8 @@ function AboutOverlay() {
           <div className="about-card">
             <div className="about-cardTitle">Snapshot</div>
             <div className="about-cardBody">
-              I am a <span className="about-em">software engineer</span> focused on backed, platform, and could systems.
+              I am a <span className="about-em">software engineer</span> focused on backend, platform, and cloud systems.
               I love constantly learning new things and the process of problem solving and building solutions.
-              
             </div>
           </div>
 
@@ -159,8 +158,8 @@ function AboutOverlay() {
           <div className="about-card">
             <div className="about-cardTitle">What I’m building</div>
             <div className="about-cardBody">
-              An interactive portfolio experience (this), plus personal projects that combine useful tooling and good UX.
-              I like projects that I’ll actually use—analyzers, dashboards, automation, and developer tooling.
+              Currently interning at Garmin’s Aviation ATE team, building and optimizing software infrastructure for automated hardware testing.
+              On the side, I build personal projects I’ll actually use — course tools, scheduling platforms, and developer tooling.
             </div>
           </div>
 
@@ -170,22 +169,22 @@ function AboutOverlay() {
               <div className="about-timelineRow">
                 <div className="about-dot" aria-hidden />
                 <div>
-                  <div className="about-timelineTitle">Garmin Aviation (Summer 2026)</div>
-                  <div className="about-timelineSub">Incoming software engineering internship</div>
+                  <div className="about-timelineTitle">Garmin Aviation — ATE Team (Summer 2026)</div>
+                  <div className="about-timelineSub">Software engineering intern on the Aviation ATE (Automated Test Equipment) team. Optimizing SQL query pipelines (95% load-time reduction), building a batch multi-socket result comparison system, and developing a Pickering Thermocouple Simulation driver to extend hardware test coverage.</div>
                 </div>
               </div>
               <div className="about-timelineRow">
                 <div className="about-dot" aria-hidden />
                 <div>
                   <div className="about-timelineTitle">Full-stack projects</div>
-                  <div className="about-timelineSub">React/Node apps + data-driven features</div>
+                  <div className="about-timelineSub">React/Next.js apps, data-driven tools, and scheduling platforms</div>
                 </div>
               </div>
               <div className="about-timelineRow">
                 <div className="about-dot" aria-hidden />
                 <div>
-                  <div className="about-timelineTitle">Embedded curiosity</div>
-                  <div className="about-timelineSub">Sensors, hardware experiments, systems thinking</div>
+                  <div className="about-timelineTitle">Systems & hardware curiosity</div>
+                  <div className="about-timelineSub">Driver development, hardware integration, and systems thinking</div>
                 </div>
               </div>
             </div>

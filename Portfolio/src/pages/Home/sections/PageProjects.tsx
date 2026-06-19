@@ -47,41 +47,41 @@ export default function PageProjects() {
 
         <div className="spacer50" />
 
-        <div className="subTitle">HIGHLIGHTED PROJECT:</div>
+        <div className=”subTitle”>HIGHLIGHTED PROJECT:</div>
 
-        <div className="card">
-          <div className="cardTopRow">
+        <div className=”card”>
+          <div className=”cardTopRow”>
             <div>
-              <div className="cardTitle">SPOTIFY REWIND</div>
-              <div className="cardTagline">
-                Your personal music year-in-review with AI-style insights 
+              <div className=”cardTitle”>MU PLANNER</div>
+              <div className=”cardTagline”>
+                Mizzou course explorer — browse courses, grade distributions, and professor ratings
               </div>
             </div>
           </div>
 
-          <div className="cardBody">
-            A full-stack web app that analyzes listening history to generate a personalized
-            “Wrapped”-style report, with shareable insights and clean, fast UX.
-            <p>(Your Spotify email has to be regisered with my API key to be able to use this yourself)</p>
+          <div className=”cardBody”>
+            A Next.js web app that aggregates Mizzou course catalog data, historical grade
+            distributions, and professor ratings into a fast, searchable interface for students
+            planning their semester.
           </div>
 
-          <div className="pillRow">
-            {["React", "Node", "Express", "TypeScript", "API"].map((t) => (
-              <div key={t} className="pill">
+          <div className=”pillRow”>
+            {[“Next.js”, “TypeScript”, “Tailwind CSS”, “Fuse.js”].map((t) => (
+              <div key={t} className=”pill”>
                 {t}
               </div>
             ))}
           </div>
 
-          <div className="imageGrid">
-            {[`${import.meta.env.BASE_URL}/assets/project1.png`, `${import.meta.env.BASE_URL}/assets/project2.png`].map((src) => (
-              <div key={src} className="imageFrame">
+          <div className=”imageGrid”>
+            {[`${import.meta.env.BASE_URL}/projects/mu-planner/1.png`, `${import.meta.env.BASE_URL}/projects/mu-planner/2.png`].map((src) => (
+              <div key={src} className=”imageFrame”>
                 <img
                   src={src}
-                  alt=""
-                  className="image"
+                  alt=””
+                  className=”image”
                   onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                    (e.currentTarget as HTMLImageElement).style.display = “none”;
                   }}
                 />
               </div>

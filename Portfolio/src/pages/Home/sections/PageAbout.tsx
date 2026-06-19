@@ -69,15 +69,15 @@ export default function PageAbout() {
               CS @ Mizzou • software + systems • building useful, fun stuff
             </div>
             <div className="cardBody">
-              I love problem solving and building fun stuff with code. I’m aiming to become
-              a software engineer post graduation, with a focus on systems and embedded-adjacent work.
+              I love problem solving and building useful things with code. Currently interning at
+              Garmin Aviation, with a focus on backend systems and software infrastructure.
             </div>
           </div>
 
           <div className="statGrid">
             {[
               { k: "FOCUS", v: "SWE + Systems" },
-              { k: "BEST", v: "C/C++ • Python • TS" },
+              { k: "BEST", v: "C/C++ • C# • Python • TS" },
               { k: "STYLE", v: "Creative + Intentional" },
             ].map((item) => (
               <div key={item.k} className="statCard">
@@ -108,8 +108,8 @@ export default function PageAbout() {
 
         <div className="sectionH2">RIGHT NOW</div>
         <div className="sectionBody">
-          Building this interactive portfolio experience, working on personal projects, and
-          leveling up in systems + embedded-adjacent work.
+          Interning at Garmin Aviation on the ATE software team — optimizing SQL pipelines,
+          building hardware test infrastructure, and developing drivers for new test equipment.
         </div>
 
         <div className="panelTip">
