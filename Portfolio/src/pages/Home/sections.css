@@ -126,6 +126,30 @@
   flex-wrap: wrap;
 }
 
+.cardActions {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.cardLink {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.75;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+
+.cardLink:hover {
+  opacity: 1;
+  border-color: rgba(255,255,255,0.5);
+}
+
 .cardTitle {
   font-size: 18px;
   letter-spacing: 0.12em;

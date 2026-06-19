@@ -57,6 +57,10 @@ export default function PageProjects() {
                 Mizzou course explorer — browse courses, grade distributions, and professor ratings
               </div>
             </div>
+            <div className="cardActions">
+              <a href="https://github.com/Zkbeyer/mu-planner" target="_blank" rel="noreferrer" className="cardLink">Repo →</a>
+              <a href="https://mu.ailuruslab.dev" target="_blank" rel="noreferrer" className="cardLink">Live →</a>
+            </div>
           </div>
 
           <div className="cardBody">

@@ -38,7 +38,8 @@ export const PROJECTS: Project[] = [
     tech: ["Next.js", "TypeScript", "Tailwind CSS", "Fuse.js"],
     images: [`${import.meta.env.BASE_URL}/projects/mu-planner/1.png`, `${import.meta.env.BASE_URL}/projects/mu-planner/2.png`],
     repoUrl: "https://github.com/Zkbeyer/mu-planner",
-    meta: { role: "Full-stack", timeframe: "2025", status: "Active" },
+    liveUrl: "https://mu.ailuruslab.dev",
+    meta: { role: "Full-stack", timeframe: "2025", status: "Live" },
     bullets: [
       "Scrapes and aggregates Mizzou course catalog, grade distributions, and professor data",
       "Fuzzy search across all courses and professors with instant results (Fuse.js)",
