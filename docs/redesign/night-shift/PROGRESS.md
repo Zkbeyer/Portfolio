@@ -10,10 +10,10 @@ Rules for every session (attended or scheduled):
 ### P0 — setup
 - [x] Create branches `redesign/night-shift` and `redesign/sessions`
 - [x] Write PLAN.md / PROGRESS.md
-- [ ] `npm ci`; add deps: @fontsource/kalam, @fontsource/zen-maru-gothic, @pmndrs/assets
-- [ ] Remove unused heavy assets + old pages (see PLAN Cleanup)
-- [ ] `src/content/site.ts` single content source from the Oct 2026 resume
-- [ ] index.html meta/OG/favicon fixes; replace resume.pdf
+- [x] `npm ci`; add deps: @fontsource/kalam, @fontsource/zen-maru-gothic, @pmndrs/assets
+- [x] Remove unused heavy assets + old pages (see PLAN Cleanup)
+- [x] `src/content/site.ts` single content source from the Oct 2026 resume
+- [x] index.html meta/OG/favicon fixes; replace resume.pdf
 ### P1 — scene shell
 - [ ] NightCanvas + CameraRig (base framing, parallax)
 - [ ] Room shell (walls, window cut-out, floor, desk, shelf) with palette materials
@@ -51,3 +51,4 @@ Rules for every session (attended or scheduled):
 
 ## Log
 - 2026-10-07: branches created, plan written.
+- 2026-10-07: P0 done — deps added, ~130MB unused models removed, content module, meta tags, new resume.pdf. Old pages still in place until P1 swaps the app (Forest/Duck/SpaceBoi removed then).
