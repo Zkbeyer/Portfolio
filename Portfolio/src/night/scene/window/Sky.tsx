@@ -1,10 +1,11 @@
-import { useEffect, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Color, ShaderMaterial, Vector2 } from "three";
 import { PALETTE } from "../../palette";
 import { OUTSIDE, WALL_Z, WINDOW } from "../layout";
 import { BASE_SHOT } from "../focus";
 import { useSceneTime } from "../../hooks/useSceneTime";
+import { useDisposable } from "../../hooks/useDisposable";
+import { setUniform } from "./uniforms";
 import { SKY_FRAG, UV_VERT } from "./shaders";
 
 /** Sky backdrop: gradient, twinkling stars, moon with halo. */
@@ -12,7 +13,7 @@ export function Sky() {
   const time = useSceneTime();
   const { center, size } = OUTSIDE.sky;
 
-  const material = useMemo(() => {
+  const material = useDisposable(() => {
     const [w, h] = size;
     const left = center[0] - w / 2;
     const bottom = center[1] - h / 2;
@@ -41,9 +42,8 @@ export function Sky() {
     });
   }, [center, size]);
 
-  useEffect(() => () => material.dispose(), [material]);
   useFrame(() => {
-    material.uniforms.uTime.value = time.current;
+    setUniform(material, "uTime", time.current);
   });
 
   return (

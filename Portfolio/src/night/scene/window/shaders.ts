@@ -136,3 +136,91 @@ void main() {
   gl_FragColor = vec4(col, 1.0);
 }
 `;
+
+/**
+ * Rain on the window pane. The outside world is rendered to a mip-mapped texture each frame;
+ * the glass samples it in screen space. Fogged glass reads a blurrier mip level, while drops and
+ * the clear trails behind running drops read the sharp level, offset by a lens-like normal so
+ * each drop refracts the city behind it. Two layers of running drops + a field of static beads.
+ */
+export const RAIN_FRAG = /* glsl */ `
+uniform sampler2D uScene;
+uniform vec2 uResolution;
+uniform vec2 uGlass;   // pane size in metres
+uniform float uTime;
+uniform float uBlur;   // mip level for fogged glass
+uniform vec3 uTint;
+varying vec2 vUv;
+${HASH_GLSL}
+
+// One layer of drops running down the pane in staggered columns.
+// xy: refraction offset, z: how "clear" the glass is here (drop or trail).
+vec3 runningDrops(vec2 p, float t, float scale) {
+  vec2 cell = vec2(0.09, 0.36) * scale;
+  float column = floor(p.x / cell.x);
+  float ch = hash21(vec2(column, scale * 13.0));
+  // gravity with a little stick-slip: speed pulses so drops hesitate, then run
+  float run = t * (0.045 + 0.05 * ch) + 0.012 * sin(t * (1.3 + ch) + ch * 6.28);
+  p.y += run + ch * 3.0;
+
+  vec2 id = vec2(column, floor(p.y / cell.y));
+  vec2 st = (p - id * cell) / cell;            // 0..1 inside the cell
+  vec3 n = hash31(id.x * 35.2 + id.y * 2376.1 + scale * 7.0);
+  float present = step(0.3, n.z);
+
+  float wobble = sin(p.y * 16.0 + n.x * 6.28) * 0.07 + (n.x - 0.5) * 0.3;
+  const float DROP_Y = 0.22;
+  vec2 d = (st - vec2(0.5 + wobble, DROP_Y)) * cell;  // metres from the drop centre
+  float r = (0.009 + 0.007 * n.y) * scale;
+  float drop = smoothstep(r, r * 0.7, length(d * vec2(1.0, 0.8))) * present;
+
+  // trail it leaves above itself, fading with distance
+  float above = smoothstep(DROP_Y - 0.01, DROP_Y + 0.06, st.y);
+  float fade = 1.0 - smoothstep(DROP_Y, 1.0, st.y);
+  float trail = smoothstep(r * 0.6, r * 0.25, abs(d.x)) * above * fade * present;
+
+  // tiny beads left behind inside the trail
+  float beadStep = cell.y / 7.0;
+  vec2 bd = vec2(d.x, (fract(st.y * 7.0 + n.y) - 0.5) * beadStep);
+  float bead = smoothstep(r * 0.42, r * 0.22, length(bd)) * above * fade * present * step(0.35, hash21(id + floor(st.y * 7.0)));
+
+  vec2 offset = d / r * drop * 0.9 + bd / (r * 0.42) * bead * 0.35;
+  return vec3(offset * 0.011, max(max(drop, bead), trail * 0.75));
+}
+
+// Static beads of condensation that slowly appear and evaporate.
+vec3 staticDrops(vec2 p, float t) {
+  vec2 g = p * 30.0;
+  vec2 id = floor(g);
+  vec2 f = fract(g) - 0.5;
+  vec3 n = hash31(id.x * 107.45 + id.y * 3543.654);
+  vec2 d = f - (n.xy - 0.5) * 0.6;
+  float life = fract(t * 0.04 + n.z);
+  float alive = smoothstep(0.0, 0.04, life) * (1.0 - smoothstep(0.55, 1.0, life));
+  float r = 0.05 + 0.13 * n.y * n.y;
+  float drop = smoothstep(r, r * 0.6, length(d)) * alive * step(0.25, n.x);
+  return vec3(d / r * drop * 0.006, drop);
+}
+
+void main() {
+  vec2 p = vUv * uGlass;
+  vec3 s = staticDrops(p, uTime);
+  vec3 a = runningDrops(p, uTime, 1.0);
+  vec3 b = runningDrops(p + vec2(0.37, 0.11), uTime * 1.12, 0.7);
+
+  vec2 offset = s.xy + a.xy + b.xy;
+  float clear = clamp(s.z + a.z + b.z, 0.0, 1.0);
+
+  // condensation is a little heavier toward the bottom of the pane
+  float fog = (1.0 - clear) * mix(1.0, 0.75, vUv.y);
+  vec2 suv = gl_FragCoord.xy / uResolution + offset;
+  vec3 col = textureLod(uScene, suv, uBlur * fog).rgb;
+
+  // fogged glass scatters a little room light and loses some contrast
+  col = mix(col, col * 0.82 + uTint * 0.035, fog * 0.7);
+  // a faint specular rim on the drops
+  col += uTint * 0.05 * smoothstep(0.4, 1.0, length(offset) * 90.0) * clear;
+
+  gl_FragColor = vec4(col, 1.0);
+}
+`;

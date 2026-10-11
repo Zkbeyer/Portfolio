@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Color, Group, MathUtils, MeshBasicMaterial, Vector3 } from "three";
+import { Color, Group, MathUtils, MeshBasicMaterial } from "three";
 import { OUTSIDE } from "../layout";
 import { FROZEN_TIME, useSceneTime } from "../../hooks/useSceneTime";
+import { useDisposable } from "../../hooks/useDisposable";
+import { planeState } from "./planeState";
 
 /** Seconds for one crossing, and how often a crossing starts. */
 const CROSSING = 11;
@@ -11,18 +13,11 @@ const PERIOD = 21;
 // and a normal visit sees the first crossing ~8s after load.
 const PHASE = (CROSSING * 0.55 - (FROZEN_TIME % PERIOD) + PERIOD) % PERIOD;
 
-/**
- * Live state for other modules (the "day job" hotspot in P4 follows the plane while it's visible).
- * Mutated every frame; read it, don't copy it into React state.
- */
-export const planeState = { visible: false, progress: 0, position: new Vector3() };
-
 const SILHOUETTE = "#0B0A1C";
 
 function useGlow(hex: string) {
   const base = useMemo(() => new Color(hex), [hex]);
-  const material = useMemo(() => new MeshBasicMaterial({ color: base.clone(), toneMapped: false }), [base]);
-  useEffect(() => () => material.dispose(), [material]);
+  const material = useDisposable(() => new MeshBasicMaterial({ color: base.clone(), toneMapped: false }), [base]);
   return { base, material };
 }
 
@@ -30,8 +25,7 @@ function useGlow(hex: string) {
 export function Plane() {
   const time = useSceneTime();
   const group = useRef<Group>(null);
-  const body = useMemo(() => new MeshBasicMaterial({ color: SILHOUETTE }), []);
-  useEffect(() => () => body.dispose(), [body]);
+  const body = useDisposable(() => new MeshBasicMaterial({ color: SILHOUETTE }), []);
 
   const port = useGlow("#FF3B3B"); // left wing (far side when flying +x)
   const starboard = useGlow("#3BFF7A"); // right wing (near side)

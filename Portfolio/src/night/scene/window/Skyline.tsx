@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { BufferAttribute, BufferGeometry, Color, Mesh, MeshBasicMaterial, ShaderMaterial, Vector2 } from "three";
 import { PALETTE } from "../../palette";
 import { OUTSIDE } from "../layout";
 import { useSceneTime } from "../../hooks/useSceneTime";
+import { useDisposable } from "../../hooks/useDisposable";
+import { setUniform } from "./uniforms";
 import { SKYLINE_FRAG, SKYLINE_VERT } from "./shaders";
 
 type LayerSpec = {
@@ -101,8 +103,7 @@ function Beacon({ position, phase }: { position: [number, number, number]; phase
   const time = useSceneTime();
   const ref = useRef<Mesh>(null);
   const base = useMemo(() => new Color("#FF4A4A"), []);
-  const material = useMemo(() => new MeshBasicMaterial({ color: base.clone(), toneMapped: false }), [base]);
-  useEffect(() => () => material.dispose(), [material]);
+  const material = useDisposable(() => new MeshBasicMaterial({ color: base.clone(), toneMapped: false }), [base]);
   useFrame(() => {
     const p = (time.current * 0.55 + phase) % 1;
     const pulse = Math.exp(-Math.pow((p - 0.15) * 9, 2));
@@ -117,8 +118,10 @@ function Beacon({ position, phase }: { position: [number, number, number]; phase
 
 function SkylineLayer({ spec }: { spec: LayerSpec }) {
   const time = useSceneTime();
-  const { geometry, beacons } = useMemo(() => buildLayer(spec), [spec]);
-  const material = useMemo(
+  const layer = useMemo(() => buildLayer(spec), [spec]);
+  const geometry = useDisposable(() => layer.geometry, [layer]);
+  const beacons = layer.beacons;
+  const material = useDisposable(
     () =>
       new ShaderMaterial({
         vertexShader: SKYLINE_VERT,
@@ -138,15 +141,8 @@ function SkylineLayer({ spec }: { spec: LayerSpec }) {
       }),
     [spec],
   );
-  useEffect(
-    () => () => {
-      geometry.dispose();
-      material.dispose();
-    },
-    [geometry, material],
-  );
   useFrame(() => {
-    material.uniforms.uTime.value = time.current;
+    setUniform(material, "uTime", time.current);
   });
 
   return (
