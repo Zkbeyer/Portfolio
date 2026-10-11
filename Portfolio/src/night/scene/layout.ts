@@ -18,19 +18,19 @@ export const WINDOW_CENTER: Vec3 = [(WINDOW.x0 + WINDOW.x1) / 2, (WINDOW.y0 + WI
 
 export const SHELF = { center: [-1.7, 1.95, -1.45] as Vec3, width: 2.0, depth: 0.28 } as const;
 
-// Anchor points for props (P3 places meshes here).
+// Anchor points for props. Books/cassette/telescope were pulled inward in P3 so they stay in the base shot.
 export const ANCHORS = {
   lamp: [-1.75, DESK.topY, -1.2] as Vec3,
   lampHead: [-1.35, 1.5, -1.05] as Vec3,
   monitor: [0.05, DESK.topY, -1.3] as Vec3,
   monitorScreen: [0.05, 1.08, -1.26] as Vec3,
   pi: [-1.0, SHELF.center[1] + 0.03, SHELF.center[2]] as Vec3,
-  books: [-2.4, SHELF.center[1] + 0.03, SHELF.center[2]] as Vec3,
+  books: [-1.95, SHELF.center[1] + 0.03, SHELF.center[2]] as Vec3,
   plant: [-0.85, SHELF.center[1] + 0.03, SHELF.center[2]] as Vec3,
   mug: [0.95, DESK.topY, -0.95] as Vec3,
   notebook: [1.35, DESK.topY, -0.85] as Vec3,
-  cassette: [2.05, DESK.topY, -1.2] as Vec3,
-  telescope: [2.5, DESK.topY, -0.9] as Vec3,
+  cassette: [1.9, DESK.topY, -1.35] as Vec3,
+  telescope: [2.2, DESK.topY, -1.0] as Vec3,
 } as const;
 
 // The world outside the window (P2). Everything here sits behind the back wall (z < WALL_Z).

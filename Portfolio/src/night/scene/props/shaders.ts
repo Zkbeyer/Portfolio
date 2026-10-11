@@ -1,4 +1,4 @@
-// GLSL for the desk props: the monitor's code editor, the mug's steam and the notebook pages.
+// GLSL for the desk props: the monitor's code editor and the mug's steam.
 // Procedural like the window shaders — no textures are loaded.
 import { HASH_GLSL } from "../window/shaders";
 
@@ -126,44 +126,5 @@ void main() {
   float a = clamp(d, 0.0, 1.0) * fade * uOpacity;
   if (a < 0.002) discard;
   gl_FragColor = vec4(uColor, a);
-}
-`;
-
-/**
- * Notebook paper: ruled lines, a margin, and a few rows of handwriting-like ink strokes.
- * uSeed picks a different "page"; uInk 0 renders a blank ruled page.
- */
-export const PAGE_FRAG = /* glsl */ `
-uniform vec3 uPaper;
-uniform vec3 uRule;
-uniform vec3 uMargin;
-uniform vec3 uInk;
-uniform float uSeed;
-uniform float uInkAmount;
-varying vec2 vUv;
-${HASH_GLSL}
-void main() {
-  vec3 col = uPaper * (0.92 + 0.08 * valueNoise(vUv * 40.0 + uSeed));
-  const float LINES = 16.0;
-  float ly = vUv.y * LINES;
-  float rule = smoothstep(0.06, 0.0, abs(fract(ly) - 0.5) - 0.0);
-  if (vUv.y < 0.9) col = mix(col, uRule, rule * 0.55);
-  col = mix(col, uMargin, smoothstep(0.006, 0.0, abs(vUv.x - 0.14)) * 0.6);
-
-  // handwriting: wobbly strokes sitting on the rules
-  float row = floor(ly);
-  if (uInkAmount > 0.0 && vUv.y < 0.86 && vUv.y > 0.12) {
-    float h = hash21(vec2(row, uSeed));
-    float len = mix(0.35, 0.8, hash21(vec2(row + 3.0, uSeed)));
-    if (h < 0.75) {
-      float x = vUv.x;
-      float inRow = step(0.18, x) * step(x, 0.18 + len);
-      float wob = sin(x * 120.0 + row * 7.0) * 0.12 + sin(x * 47.0 + uSeed) * 0.1;
-      float y = fract(ly) - 0.62 - wob * 0.35;
-      float stroke = smoothstep(0.1, 0.0, abs(y)) * step(0.35, valueNoise(vec2(x * 60.0, row + uSeed)));
-      col = mix(col, uInk, stroke * inRow * uInkAmount);
-    }
-  }
-  gl_FragColor = vec4(col, 1.0);
 }
 `;
