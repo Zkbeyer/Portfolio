@@ -23,9 +23,9 @@ Rules for every session (attended or scheduled):
 - [x] Plane flyby with blinking lights
 - [x] Rain-on-glass shader
 ### P3 — props
-- [ ] Monitor (animated code screen), Lamp, Books, Plant, Mug + steam
-- [ ] Pi with status-driven LED (status client with fallback)
-- [ ] Notebook, Cassette (spinning reels), Telescope
+- [x] Monitor (animated code screen), Lamp, Books, Plant, Mug + steam
+- [x] Pi with status-driven LED (status client with fallback)
+- [x] Notebook, Cassette (spinning reels), Telescope
 ### P4 — interaction
 - [ ] Hotspot component (outline, handwritten label, click → focusOn → scroll)
 - [ ] Subtitles overlay + accessible hidden nav
@@ -47,10 +47,11 @@ Rules for every session (attended or scheduled):
 - Royalty-free lofi track → `Portfolio/public/audio/lofi.mp3` (placeholder used until then)
 - Optional: Kenney Furniture Kit (CC0) unzipped into `Portfolio/public/models/kenney-furniture/`
 - Photos: Grafana screenshot or photo of the Pi; preferred headshot
-- Homelab `status.json` endpoint (spec in STATUS_ENDPOINT.md, to be written in P3)
+- Homelab `status.json` endpoint — spec written in STATUS_ENDPOINT.md; needs Zack to expose it from the Go service (+ CORS for the site origin). LED shows amber "unknown" until then.
 
 ## Log
 - 2026-10-07: branches created, plan written.
 - 2026-10-07: P0 done — deps added, ~130MB unused models removed, content module, meta tags, new resume.pdf. Old pages still in place until P1 swaps the app (Forest/Duck/SpaceBoi removed then).
 - 2026-10-11: P1 done — App now renders `src/night/NightApp` (HTML shell + lazy `NightCanvas` chunk). CameraRig: base shot, mouse parallax, responsive FOV + portrait shift, `focusOn(id)` store (`scene/focus.ts`, Esc / scroll-to-top resets). Shared `scene/layout.ts` anchors for P3 props. Procedural Room (wall with window opening, frame + sill, side wall, floor, desk, shelf). Lighting (lamp spot, window fill, monitor fill, night HDRI) + Post (bloom on >1.0 emissives, neutral tone map, vignette, grain). Window view is a gradient + moon placeholder until P2. Fonts switched to latin subsets (CSS 127KB→0.8KB gz). Initial JS 62KB gz; NightCanvas chunk 433KB gz (three + inlined night HDRI) → revisit in perf pass. Old pages/scenes are still in the tree, unimported; delete in P7 cleanup. Checked in headless Chromium at 960×600 and 360×700.
 - 2026-10-11 (scheduled run): P2 done — window view. `scene/window/`: Sky shader (gradient mapped to the visible band, hashed twinkling stars, moon + halo), Skyline (3 seeded layers, merged geometry per layer, lit/flickering windows in-shader, rooftop blocks, pulsing antenna beacons), Plane (silhouette + nav lights/strobe/beacon, crosses every ~21s, `planeState` exported for the P4 hotspot), RainGlass (outside world lives in its own scene via `createPortal`, rendered each frame to a half-res HalfFloat mip-mapped target; glass samples it in screen space — fogged glass = blurred mip, running drops/trails/beads = sharp + refracted). New hooks: `useSceneTime` (frozen frame under reduced motion), `useDisposable`. `src/night` is lint-clean; remaining lint errors are all in legacy pages slated for P7 deletion. NightCanvas chunk 438KB gz (+2KB). Note for future runs: the device shell is Linux and the repo's node_modules are macOS-native, so builds run in a mirror (`~/build`, `npm ci` there) — no changes to the repo's node_modules. Checked in headless Chromium at 960×600 (normal + reduced motion) and 390×760.
+- 2026-10-11 (scheduled run 2): P3 done — all props procedural in `scene/props/` (mounted by `Props.tsx`). Monitor: code-editor shader (gutter, syntax-coloured glyph runs, line typed char by char with caret, buffer scrolls; `active` raises brightness) + instanced keyboard (1 draw call). Lamp (articulated arms, shade aimed at the same spot as the Lighting spotlight, blooming bulb), Books (seeded row, last one leaning on its neighbour), Plant (pothos, two trailing vines with sway), Mug (lathe-hollow, glaze band, billboarded steam shader). Pi 5 case with status LED driven by `status/homelabStatus.ts` (useSyncExternalStore, 5s timeout, 60s poll only while visible, strict JSON validation → unknown on any failure; green steady w/ activity flicker, amber breathe, red blink) + cable down the wall; STATUS_ENDPOINT.md written. Notebook (canvas-drawn ruled pages w/ handwriting strokes, lit by the scene; top page flutters on `active`), Cassette player (`playing` spins reels at different rates, LED, play key pressed), Telescope (tripod, refractor aimed through the window, leans toward cursor; off under reduced motion). Moved anchors for books (-1.95), cassette (1.9, z -1.35) and telescope (2.2, z -1.0) so they are inside the base shot. `active`/`playing` props are ready for P4 hotspots. NightCanvas chunk 443KB gz (+5KB). Lint clean in `src/night`. Checked status states by mocking status.json, and renders at 1280×800, 960×600 reduced-motion and 390×760 in headless Chromium (cloud preview of the build). Note: Playwright can't download browsers on the device shell, so previews run from a copied `dist`.
