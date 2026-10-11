@@ -20,7 +20,7 @@ Rules for every session (attended or scheduled):
 - [x] Lighting (lamp, window, monitor) + Environment(night) + Post (bloom, vignette, grain)
 ### P2 — window
 - [x] Sky shader (gradient, stars, moon glow) + skyline layers with lit windows
-- [ ] Plane flyby with blinking lights
+- [x] Plane flyby with blinking lights
 - [ ] Rain-on-glass shader
 ### P3 — props
 - [ ] Monitor (animated code screen), Lamp, Books, Plant, Mug + steam
