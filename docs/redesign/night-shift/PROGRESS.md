@@ -15,9 +15,9 @@ Rules for every session (attended or scheduled):
 - [x] `src/content/site.ts` single content source from the Oct 2026 resume
 - [x] index.html meta/OG/favicon fixes; replace resume.pdf
 ### P1 — scene shell
-- [ ] NightCanvas + CameraRig (base framing, parallax)
-- [ ] Room shell (walls, window cut-out, floor, desk, shelf) with palette materials
-- [ ] Lighting (lamp, window, monitor) + Environment(night) + Post (bloom, vignette, grain)
+- [x] NightCanvas + CameraRig (base framing, parallax)
+- [x] Room shell (walls, window cut-out, floor, desk, shelf) with palette materials
+- [x] Lighting (lamp, window, monitor) + Environment(night) + Post (bloom, vignette, grain)
 ### P2 — window
 - [ ] Sky shader (gradient, stars, moon glow) + skyline layers with lit windows
 - [ ] Plane flyby with blinking lights
@@ -52,3 +52,4 @@ Rules for every session (attended or scheduled):
 ## Log
 - 2026-10-07: branches created, plan written.
 - 2026-10-07: P0 done — deps added, ~130MB unused models removed, content module, meta tags, new resume.pdf. Old pages still in place until P1 swaps the app (Forest/Duck/SpaceBoi removed then).
+- 2026-10-11: P1 done — App now renders `src/night/NightApp` (HTML shell + lazy `NightCanvas` chunk). CameraRig: base shot, mouse parallax, responsive FOV + portrait shift, `focusOn(id)` store (`scene/focus.ts`, Esc / scroll-to-top resets). Shared `scene/layout.ts` anchors for P3 props. Procedural Room (wall with window opening, frame + sill, side wall, floor, desk, shelf). Lighting (lamp spot, window fill, monitor fill, night HDRI) + Post (bloom on >1.0 emissives, neutral tone map, vignette, grain). Window view is a gradient + moon placeholder until P2. Fonts switched to latin subsets (CSS 127KB→0.8KB gz). Initial JS 62KB gz; NightCanvas chunk 433KB gz (three + inlined night HDRI) → revisit in perf pass. Old pages/scenes are still in the tree, unimported; delete in P7 cleanup. Checked in headless Chromium at 960×600 and 360×700.
