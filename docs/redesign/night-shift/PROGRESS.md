@@ -19,7 +19,7 @@ Rules for every session (attended or scheduled):
 - [x] Room shell (walls, window cut-out, floor, desk, shelf) with palette materials
 - [x] Lighting (lamp, window, monitor) + Environment(night) + Post (bloom, vignette, grain)
 ### P2 — window
-- [ ] Sky shader (gradient, stars, moon glow) + skyline layers with lit windows
+- [x] Sky shader (gradient, stars, moon glow) + skyline layers with lit windows
 - [ ] Plane flyby with blinking lights
 - [ ] Rain-on-glass shader
 ### P3 — props

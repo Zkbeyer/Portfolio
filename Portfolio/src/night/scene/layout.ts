@@ -32,3 +32,13 @@ export const ANCHORS = {
   cassette: [2.05, DESK.topY, -1.2] as Vec3,
   telescope: [2.5, DESK.topY, -0.9] as Vec3,
 } as const;
+
+// The world outside the window (P2). Everything here sits behind the back wall (z < WALL_Z).
+export const OUTSIDE = {
+  /** Sky backdrop plane: wide enough to survive parallax and the close "plane" shot. */
+  sky: { center: [3, 2.75, -8] as Vec3, size: [12, 9] as [number, number] },
+  moon: { position: [3.2, 3.95] as [number, number], radius: 0.19 },
+  /** Ground line the skyline buildings start from (hidden below the sill). */
+  ground: -1,
+  plane: { z: -7, x0: -1.5, x1: 8.5, y0: 3.45, y1: 3.7 },
+} as const;
