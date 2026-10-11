@@ -5,6 +5,7 @@ import { BASE_SHOT } from "./focus";
 import { CameraRig } from "./CameraRig";
 import { Room } from "./Room";
 import { WindowView } from "./WindowView";
+import { Props } from "./props/Props";
 import { Lighting } from "./Lighting";
 import { Post } from "./Post";
 
@@ -27,6 +28,7 @@ export default function NightCanvas() {
         <Lighting />
         <Room />
         <WindowView />
+        <Props />
         <Post multisampling={coarse ? 0 : 4} />
       </Suspense>
     </Canvas>
