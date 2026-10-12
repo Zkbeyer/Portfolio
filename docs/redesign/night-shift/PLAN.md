@@ -25,13 +25,27 @@ Below the hero, normal HTML sections (fast, accessible, indexable):
 4. **track 04 — through the telescope**: about, taped polaroid, night window.
 5. **now playing** footer: contact links + audio state.
 
+## Round 3 — layout + Pinterest board (Zack, 2026-10-12)
+Zack: "feel free to change the layout… the desk feels very large, the window is in a weird spot." Board
+("Apartment Inspiration", pin.it/636VOKyPy, public) themes: 70s-leaning mid-century, many small glowing orange
+glass lamps (dome/mushroom, globe, tiered paper), warm walnut/teak, cream + rust, checker and red Persian rugs,
+lots of plants (monstera, palms, trailing), record player on a wood stand with a vinyl collection, olive/forest
+green upholstery, bookshelves. Layout now (`scene/layout.ts`):
+- Compact 1.8m walnut desk (centre x −0.45) against the oak slat wall; landscape + portrait monitors on a riser.
+- Window moved right and lowered (x 0.95–2.45, y 1.0–2.55) over a low walnut **record console** (`CONSOLE`):
+  turntable (the lofi hotspot, replaces the cassette), vinyl cubby, mushroom lamp, headphones; bonsai + candle on the sill.
+- Floor-standing telescope by the window (about hotspot); shelf, lava lamp, film camera and Pi upper left;
+  sunset projector on the floor throwing a disc on the left wall with a monstera silhouetted against it.
+- Checker rug (rust/cream). Base camera pulled back (z 3.2) to frame the whole corner.
+Ideas from the board not done yet: a green velvet / cognac leather chair, tiered paper floor lamp, a red Persian
+rug option, more trailing plants.
+
 ## Restyle notes, round 2 (Zack, 2026-10-12) — these override the section below where they differ
 - **No big/ceiling light.** Only small lamps. The room should feel dark, lit by accent lighting.
 - **One accent colour: reddish orange** (`accent #D1492A`, `accentDeep #9E3220`, `accentSoft #E8774F`). Other colours stay neutral.
 - **Darker accent wood** (walnut `#3E2618`, "oak" `#7A5236`).
 - **Accent lighting**: desk lamp (key), a **sunset projector lamp** throwing a disc on the wall, lava lamp, vintage mushroom lamp, orange LED bias glow behind the monitors, candle.
 - **Decor leans vintage/fun.** Zack does not like the framed print, the sunburst clock or the vase of stems — don't bring them back.
-- Pinterest: Zack offered his "Apartment Inspiration" board; needs him to log in to Pinterest in the Claude app's browser (or share a public link) before a run can look at it.
 
 ## Restyle — mid-century modern × Japandi (Zack, 2026-10-12)
 Zack's direction: more mid-century modern × Japandi (his aesthetic), a more aesthetic room and view,
@@ -95,6 +109,7 @@ Facts come only from the Oct 2026 resume. No invented metrics.
 ## Cleanup (this branch)
 - Delete unused heavy assets: `public/Cathedral` (104MB), `public/Clouds`, `public/Forest`, `public/Duck`, `assets/headshot1.JPG`, duplicate `resume-2026.pdf`/`project1.png`/`project2.png`.
 - Replace old pages/scenes with the night app; keep git history.
+- Remove `src/night/scene/props/Cassette.tsx`, unused since round 3 replaced it with the turntable.
 - Remove `src/night/scene/window/Skyline.tsx` (+ its SKYLINE_* shaders), unused since the R3 restyle swapped it for `Hills.tsx`.
 - `index.html`: real title, meta description, Open Graph/Twitter card + image, fixed favicon path.
 - Fix `${BASE_URL}/x` double slashes.
