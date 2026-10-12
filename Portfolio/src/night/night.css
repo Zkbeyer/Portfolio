@@ -1,10 +1,15 @@
 :root {
-  --ns-wall: #251e40;
-  --ns-deep: #191430;
-  --ns-deep-2: #1a1530;
-  --ns-cream: #f4e9d8;
-  --ns-lilac: #c9bfd9;
-  --ns-lamp: #ffc77a;
+  /* mid-century modern × Japandi restyle (PLAN.md → Restyle); mirrors src/night/palette.ts */
+  --ns-wall: #2a221b;
+  --ns-deep: #16130f;
+  --ns-deep-2: #1c1813;
+  --ns-cream: #f3ece0;
+  --ns-lilac: #d8cbb6; /* secondary text: warm linen (name kept so existing rules still apply) */
+  --ns-lamp: #ffc98a;
+  --ns-mustard: #d9a441;
+  --ns-terracotta: #c0623e;
+  --ns-olive: #7c7f45;
+  --ns-teal: #2f5d62;
 }
 
 html,
@@ -30,7 +35,7 @@ body {
   min-height: 520px;
   overflow: hidden;
   /* flat backdrop that matches the room while the 3D chunk loads */
-  background: radial-gradient(ellipse at 30% 70%, #3a2a3f 0%, transparent 55%), var(--ns-wall);
+  background: radial-gradient(ellipse at 22% 55%, #6b4a2e 0%, transparent 55%), var(--ns-wall);
 }
 
 .night-hero__stage,
@@ -79,7 +84,7 @@ body {
   white-space: nowrap;
   color: var(--ns-cream);
   opacity: 0.78;
-  text-shadow: 0 1px 2px rgba(10, 6, 24, 0.9), 0 0 10px rgba(10, 6, 24, 0.6);
+  text-shadow: 0 1px 2px rgba(20, 14, 8, 0.9), 0 0 10px rgba(20, 14, 8, 0.6);
   transform: rotate(-3deg);
   transition: opacity 180ms ease, color 180ms ease, transform 220ms ease;
   user-select: none;
@@ -122,7 +127,7 @@ body {
   pointer-events: auto;
   font-size: 18px;
   color: var(--ns-cream);
-  background: rgba(25, 20, 48, 0.72);
+  background: rgba(28, 24, 19, 0.72);
   border: 1px solid rgba(244, 233, 216, 0.35);
   border-radius: 999px;
   padding: 10px 18px;
@@ -177,7 +182,7 @@ body {
 }
 
 .night-skipnav:focus-within {
-  background: rgba(22, 18, 42, 0.92);
+  background: rgba(28, 24, 19, 0.94);
 }
 
 .night-skipnav a,
