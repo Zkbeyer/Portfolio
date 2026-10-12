@@ -25,6 +25,12 @@ Below the hero, normal HTML sections (fast, accessible, indexable):
 4. **track 04 — through the telescope**: about, taped polaroid, night window.
 5. **now playing** footer: contact links + audio state.
 
+## Round 4 notes (Zack, 2026-10-12)
+- Notebook: first click moves the camera in to the open notebook, whose pages show a greeked resume (name +
+  real section headings, bar text); clicking it again opens the PDF. Never leave the page on the first click.
+- "work" is a still object — a vintage model plane on the window sill. The real plane outside only flies by as an easter egg.
+- The view outside must match the room: warm umber night sky, rust horizon glow, dark warm hills, warm glass tint.
+
 ## Round 3 — layout + Pinterest board (Zack, 2026-10-12)
 Zack: "feel free to change the layout… the desk feels very large, the window is in a weird spot." Board
 ("Apartment Inspiration", pin.it/636VOKyPy, public) themes: 70s-leaning mid-century, many small glowing orange
@@ -109,6 +115,7 @@ Facts come only from the Oct 2026 resume. No invented metrics.
 ## Cleanup (this branch)
 - Delete unused heavy assets: `public/Cathedral` (104MB), `public/Clouds`, `public/Forest`, `public/Duck`, `assets/headshot1.JPG`, duplicate `resume-2026.pdf`/`project1.png`/`project2.png`.
 - Replace old pages/scenes with the night app; keep git history.
+- Remove `src/night/scene/window/PlaneHotspot.tsx`, unused since the model plane took over "work".
 - Remove `src/night/scene/props/Cassette.tsx`, unused since round 3 replaced it with the turntable.
 - Remove `src/night/scene/window/Skyline.tsx` (+ its SKYLINE_* shaders), unused since the R3 restyle swapped it for `Hills.tsx`.
 - `index.html`: real title, meta description, Open Graph/Twitter card + image, fixed favicon path.
