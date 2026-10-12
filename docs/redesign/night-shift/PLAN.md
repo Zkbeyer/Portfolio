@@ -25,7 +25,28 @@ Below the hero, normal HTML sections (fast, accessible, indexable):
 4. **track 04 — through the telescope**: about, taped polaroid, night window.
 5. **now playing** footer: contact links + audio state.
 
-## Visual system
+## Restyle — mid-century modern × Japandi (Zack, 2026-10-12)
+Zack's direction: more mid-century modern × Japandi (his aesthetic), a more aesthetic room and view,
+neutral colours with fun accents, a dual-monitor setup, and more decor on the desk. It's still 2am, rain on the glass,
+same hotspots and interactions; only the look changes. This **supersedes the palette below** (kept for history) and
+applies to the HTML sections too (P6 builds on the new tokens).
+
+Direction (from Japandi/MCM palette guides; Pinterest itself can't be fetched from here):
+- **Base neutrals**: warm oat/linen plaster walls, cream, greige, charcoal in small doses. One warm undertone throughout.
+- **Woods**: walnut (desk, riser, frames) + light oak (slat panel, shelf, window grid). Matte finishes, no gloss.
+- **Fun accents (sparingly)**: mustard, terracotta/burnt orange, olive/sage, deep teal. One accent per object.
+- **Shapes**: MCM tapered splayed legs, rounded rectangles, sunburst clock, globe/mushroom lamp; Japandi vertical slats,
+  shoji-style window grid, paper lantern, ceramics, dried stems, bonsai, linen/wool textures.
+- **Light**: warm lamp + paper lantern pools, cool moonlight from the window, monitor fill. Night, but cozy, not purple.
+- **View**: ink-blue night sky with a soft dusty-rose horizon glow, layered mountain/hill silhouettes with sparse warm
+  town lights (replaces the purple city skyline), moon, plane, rain on glass.
+
+Tokens (`src/night/palette.ts`): plaster `#CDBFAA`, plasterShade `#A89A86`, linen `#E8DFD0`, cream `#F3ECE0`,
+greige `#8C8275`, charcoal `#2E2B28`, ink `#24221F`, walnut `#5E3F2B`, walnutDark `#3F2A1D`, oak `#C49A6C`,
+oakLight `#D8B98F`, mustard `#D9A441`, terracotta `#C0623E`, olive `#7C7F45`, sage `#9DA88C`, teal `#2F5D62`,
+lamp `#FFC98A`, screen `#9CC3FF`, led `#8CFFB0`, skyTop `#0D1424`, skyMid `#1E2A44`, skyLow `#6B5266`, moon `#F3E7C9`.
+
+## Visual system (original — superseded by the restyle above)
 - Palette: wall `#251E40`, deep `#191430`/`#1A1530`/`#16122A`, cream `#F4E9D8`, lamp amber `#FFC77A`,
   screen blue `#7FA8FF`, Pi red `#C4505E`, LED green `#8CFFB0`, paper `#EFE6D6`, ink `#2B2238`.
 - Type: Zen Maru Gothic (UI/body), Kalam (handwritten notes/labels). Self-hosted via @fontsource.
