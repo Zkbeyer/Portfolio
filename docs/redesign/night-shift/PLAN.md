@@ -87,6 +87,7 @@ Facts come only from the Oct 2026 resume. No invented metrics.
 ## Cleanup (this branch)
 - Delete unused heavy assets: `public/Cathedral` (104MB), `public/Clouds`, `public/Forest`, `public/Duck`, `assets/headshot1.JPG`, duplicate `resume-2026.pdf`/`project1.png`/`project2.png`.
 - Replace old pages/scenes with the night app; keep git history.
+- Remove `src/night/scene/window/Skyline.tsx` (+ its SKYLINE_* shaders), unused since the R3 restyle swapped it for `Hills.tsx`.
 - `index.html`: real title, meta description, Open Graph/Twitter card + image, fixed favicon path.
 - Fix `${BASE_URL}/x` double slashes.
 - Replace `public/resume.pdf` with the Oct 2026 resume.

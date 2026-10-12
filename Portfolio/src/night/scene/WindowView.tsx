@@ -2,12 +2,12 @@ import { useMemo } from "react";
 import { createPortal } from "@react-three/fiber";
 import { Scene } from "three";
 import { Sky } from "./window/Sky";
-import { Skyline } from "./window/Skyline";
+import { Hills } from "./window/Hills";
 import { Plane } from "./window/Plane";
 import { RainGlass } from "./window/RainGlass";
 
 /**
- * Everything seen through the window — sky, moon, stars, the city skyline and the occasional
+ * Everything seen through the window — sky, moon, stars, layered hills with village lights and the occasional
  * plane — lives in its own scene and is only ever seen through the rain-streaked glass.
  */
 export function WindowView() {
@@ -17,7 +17,7 @@ export function WindowView() {
       {createPortal(
         <>
           <Sky />
-          <Skyline />
+          <Hills />
           <Plane />
         </>,
         outside,

@@ -39,10 +39,10 @@ export const PALETTE = {
   shadowPurple: "#3F2A1D",
   deep2: "#1A1530",
   deep3: "#16122A",
-  // window view (restyled in R3)
-  skyTop: "#0E0F2E",
-  skyMid: "#2A1F4E",
-  skyLow: "#5C3C6D",
+  // window view (R3): ink-blue night, dusty-rose horizon glow
+  skyTop: "#0D1424",
+  skyMid: "#1E2A44",
+  skyLow: "#6B5266",
   moon: "#F3E7C9",
   cityLight: "#F5B971",
 } as const;
