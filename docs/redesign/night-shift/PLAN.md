@@ -11,7 +11,7 @@ Every object is navigation:
 | Object | Goes to | Behaviour |
 |---|---|---|
 | Monitor | Projects ("on the monitor" playlist) | screen shows animated code; hover glow |
-| Raspberry Pi (red case, shelf) | Homelab | LED colour = live homelab status (green / amber unknown / red down) |
+| Raspberry Pi (red case, shelf) | Homelab | LED: steady green with activity flicker (decorative; no live status) |
 | Plane crossing the window | Work ("the day job") | blinking nav lights, crosses every ~20s |
 | Telescope | About ("through the telescope") | tilts slightly toward cursor |
 | Notebook | Resume PDF | pages flutter on hover |
@@ -21,7 +21,7 @@ Intro copy is shown as anime-style subtitles at the bottom of the hero.
 Below the hero, normal HTML sections (fast, accessible, indexable):
 1. **track 01 — the day job**: notebook spread (Garmin left page, DataAnnotation + "next stop" right page).
 2. **track 02 — on the monitor**: projects as a playlist; selecting a track swaps the detail panel.
-3. **track 03 — the little red box on the shelf**: homelab, Pi illustration, live status sticky note.
+3. **track 03 — the little red box on the shelf**: homelab, Pi illustration, static "status: running" sticky note.
 4. **track 04 — through the telescope**: about, taped polaroid, night window.
 5. **now playing** footer: contact links + audio state.
 
@@ -52,7 +52,8 @@ Optional upgrade: swap selected props for Kenney "Furniture Kit" (CC0) models if
 - Music: one lofi track at `public/audio/lofi.mp3` (Zack supplies a royalty-free track; until then fall back to existing `home-ambient.mp3`).
 - Remember mute preference in localStorage (wrapped in try/catch).
 
-## Live homelab status
+## Live homelab status — dropped (Zack, 2026-10-12)
+No endpoint will be exposed. In P6, remove the fetch in `status/homelabStatus.ts` (or pin it to "healthy") and drop uptime/self-heal from the copy. Original plan kept below for reference.
 - Client fetches `VITE_STATUS_URL` (default `https://status.ailuruslab.dev/status.json`), expects
   `{ "healthy": bool, "uptimeSeconds": number, "lastSelfHeal": ISO8601|null }`, 5s timeout, 60s poll.
 - Unknown/failed fetch → amber LED + "status: unknown". Never block render.
