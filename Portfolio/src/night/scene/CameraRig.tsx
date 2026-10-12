@@ -30,7 +30,7 @@ export function CameraRig() {
   // Responsive FOV: widen on narrow viewports so the desk still reads, capped for portrait.
   useEffect(() => {
     const aspect = size.width / Math.max(1, size.height);
-    portraitShift.current = MathUtils.clamp((1 - aspect) * 0.9, 0, 0.55);
+    portraitShift.current = MathUtils.clamp((1 - aspect) * 0.35, 0, 0.2); // R4: monitors moved left, keep them in a portrait crop
     const distance = new Vector3(...BASE_SHOT.position).distanceTo(new Vector3(...BASE_SHOT.target));
     const halfH = Math.atan(KEEP_HALF_WIDTH / distance);
     const needed = MathUtils.radToDeg(2 * Math.atan(Math.tan(halfH) / aspect));

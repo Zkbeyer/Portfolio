@@ -7,6 +7,7 @@ import { Pi } from "./Pi";
 import { Notebook } from "./Notebook";
 import { Cassette } from "./Cassette";
 import { Telescope } from "./Telescope";
+import { Decor } from "./Decor";
 import { ANCHORS, DESK } from "../layout";
 import { Hotspot, type HitBox } from "../Hotspot";
 import { useHotspotActive } from "../hotspots";
@@ -40,7 +41,7 @@ export function Props() {
       <Hotspot id="pi" hit={HIT.pi} labelAt={offset(ANCHORS.pi, 0, 0.2, 0.02)}>
         <Pi />
       </Hotspot>
-      <Hotspot id="notebook" hit={HIT.notebook} labelAt={offset(ANCHORS.notebook, 0, 0.16, 0.02)}>
+      <Hotspot id="notebook" hit={HIT.notebook} labelAt={offset(ANCHORS.notebook, -0.1, 0.09, 0.16)}>
         <Notebook active={notebookActive} />
       </Hotspot>
       <Hotspot
@@ -59,6 +60,7 @@ export function Props() {
       <Books />
       <Plant />
       <Mug />
+      <Decor />
     </group>
   );
 }

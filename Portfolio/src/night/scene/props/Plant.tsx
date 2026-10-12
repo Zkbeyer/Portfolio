@@ -6,8 +6,8 @@ import { useSceneTime } from "../../hooks/useSceneTime";
 import { Matte } from "./parts";
 import { seeded } from "./seeded";
 
-const LEAF = ["#5E8C6A", "#79A77B", "#4D7A5C"];
-const POT = "#B8695A";
+const LEAF = ["#5F7A4E", "#7C8F5A", "#4E6A44"];
+const POT = "#E8DFD0"; // cream ceramic
 
 type Leaf = { p: Vector3; rot: [number, number, number]; s: number; color: string };
 
@@ -26,7 +26,7 @@ function vineLeaves(curve: CatmullRomCurve3, count: number, rand: () => number):
   return leaves;
 }
 
-/** Trailing pothos in a terracotta pot at the end of the shelf; the vines sway very slightly. */
+/** Trailing pothos in a cream ceramic pot at the end of the shelf; the vines sway very slightly. */
 export function Plant() {
   const time = useSceneTime();
   const sway = useRef<Group>(null);
@@ -88,7 +88,7 @@ export function Plant() {
       </mesh>
       <mesh position={[potX, y + potH - 0.006, z]}>
         <cylinderGeometry args={[0.058, 0.058, 0.014, 24]} />
-        <Matte color="#A85C4E" roughness={0.9} />
+        <Matte color="#CFC4B3" roughness={0.9} />
       </mesh>
       <mesh position={[potX, y + potH - 0.004, z]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[0.05, 20]} />

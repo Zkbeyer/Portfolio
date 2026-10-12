@@ -7,7 +7,7 @@ import { Matte, Rod } from "./parts";
 
 const TUBE = "#E9DCC3";
 const BRASS = "#C9A25E";
-const DARK = "#1E1834";
+const DARK = "#2A2724";
 const MOUNT_H = 0.25;
 const LEG_SPREAD = 0.12;
 
@@ -85,7 +85,7 @@ export function Telescope({ active = false }: { active?: boolean }) {
         {/* objective lens */}
         <mesh position={[0, 0, 0.29]}>
           <circleGeometry args={[0.034, 24]} />
-          <meshStandardMaterial color="#2A3770" roughness={0.05} metalness={0.6} />
+          <meshStandardMaterial color="#2A3A48" roughness={0.05} metalness={0.6} />
         </mesh>
         {/* focuser + eyepiece, angled up at the back */}
         <mesh position={[0, 0, -0.18]} rotation={[Math.PI / 2, 0, 0]}>

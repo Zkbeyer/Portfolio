@@ -55,12 +55,12 @@ export function Mug() {
     <group position={[x, y, z]} rotation={[0, -0.5, 0]}>
       <mesh>
         <latheGeometry args={[profile, 32]} />
-        <meshStandardMaterial color="#EADCC6" roughness={0.35} side={DoubleSide} />
+        <meshStandardMaterial color="#E8DFD0" roughness={0.6} side={DoubleSide} />
       </mesh>
       {/* glaze band */}
       <mesh position={[0, H * 0.62, 0]}>
         <cylinderGeometry args={[R + 0.0018, R + 0.0016, 0.016, 32, 1, true]} />
-        <Matte color={PALETTE.piRed} roughness={0.4} />
+        <Matte color={PALETTE.olive} roughness={0.4} />
       </mesh>
       <mesh position={[0, H - 0.016, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[R - 0.005, 24]} />
@@ -68,7 +68,7 @@ export function Mug() {
       </mesh>
       <mesh position={[R + 0.002, H * 0.5, 0]} rotation={[0, 0, -Math.PI / 2]}>
         <torusGeometry args={[0.027, 0.007, 8, 16, Math.PI]} />
-        <meshStandardMaterial color="#EADCC6" roughness={0.35} />
+        <meshStandardMaterial color="#E8DFD0" roughness={0.6} />
       </mesh>
       <Billboard position={[0, H + 0.13, 0]} lockX lockZ>
         <mesh material={steam}>

@@ -12,7 +12,7 @@ import { Matte } from "./parts";
 const CASE = { w: 0.13, h: 0.046, d: 0.095 } as const;
 const LID_H = 0.013;
 const LID = "#EFE6D6";
-const PORT = "#141022";
+const PORT = "#161412";
 
 /** LED brightness over time for each state: steady with activity flicker, slow breathe, or alarm blink. */
 function ledLevel(state: HomelabState, t: number) {
@@ -101,7 +101,7 @@ export function Pi() {
       </group>
       <mesh>
         <tubeGeometry args={[cable, 32, 0.003, 6, false]} />
-        <Matte color="#17122A" roughness={0.6} />
+        <Matte color="#2A2724" roughness={0.6} />
       </mesh>
     </group>
   );

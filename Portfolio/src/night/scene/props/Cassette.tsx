@@ -9,7 +9,7 @@ import { useDisposable } from "../../hooks/useDisposable";
 import { Matte } from "./parts";
 
 const BODY = { w: 0.2, h: 0.128, d: 0.05 } as const;
-const BODY_COLOR = "#5B4A8A";
+const BODY_COLOR = "#2F5D62"; // teal
 const TAPE = "#2A1A14";
 
 function Reel({ tape, spin }: { tape: number; spin: (g: Group | null) => void }) {
@@ -75,12 +75,12 @@ export function Cassette({ playing = false }: { playing?: boolean }) {
       <group position={[0, windowY, frontZ + 0.0008]}>
         <mesh>
           <planeGeometry args={[0.152, 0.072]} />
-          <meshStandardMaterial color="#17122A" roughness={0.15} metalness={0.2} />
+          <meshStandardMaterial color="#151A19" roughness={0.15} metalness={0.2} />
         </mesh>
         {/* cassette shell + label */}
         <mesh position={[0, 0, 0.0005]}>
           <planeGeometry args={[0.14, 0.062]} />
-          <Matte color="#2B2340" roughness={0.6} />
+          <Matte color="#2A2724" roughness={0.6} />
         </mesh>
         <mesh position={[0, 0.021, 0.001]}>
           <planeGeometry args={[0.13, 0.016]} />
@@ -101,11 +101,11 @@ export function Cassette({ playing = false }: { playing?: boolean }) {
       {Array.from({ length: 18 }, (_, i) => (
         <mesh key={i} position={[-0.075 + (i % 9) * 0.0185, 0.018 + Math.floor(i / 9) * 0.012, frontZ + 0.0006]}>
           <circleGeometry args={[0.003, 8]} />
-          <Matte color="#2E2548" />
+          <Matte color="#1E2A2A" />
         </mesh>
       ))}
       {/* transport buttons on top; play sits pressed while playing */}
-      {["#C4505E", "#E6D3B3", "#E6D3B3", "#E6D3B3"].map((c, i) => (
+      {["#C0623E", "#E6DDCC", "#E6DDCC", "#E6DDCC"].map((c, i) => (
         <mesh key={i} position={[-0.05 + i * 0.033, BODY.h + (i === 0 && playing ? 0.002 : 0.006), 0.004]}>
           <boxGeometry args={[0.027, 0.012, 0.03]} />
           <Matte color={c} roughness={0.5} />
