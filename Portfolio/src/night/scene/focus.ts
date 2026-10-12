@@ -11,7 +11,7 @@ export const BASE_SHOT: CameraShot = { position: [0, 1.45, 2.6], target: [0.15, 
 
 /** Close-up for each interactive object; `section` is the HTML section it scrolls to. */
 export const SHOTS: Record<FocusId, CameraShot & { section?: string }> = {
-  monitor: { position: [0.1, 1.2, 0.35], target: ANCHORS.monitorScreen, section: "projects" },
+  monitor: { position: [-0.22, 1.28, 0.5], target: ANCHORS.monitorsCenter, section: "projects" },
   pi: { position: [-0.95, 1.95, -0.25], target: ANCHORS.pi, section: "homelab" },
   plane: { position: [1.1, 1.75, 0.7], target: [WINDOW_CENTER[0] + 0.2, WINDOW_CENTER[1] + 0.1, -3], section: "work" },
   telescope: { position: [1.7, 1.3, 0.55], target: [ANCHORS.telescope[0], 1.0, ANCHORS.telescope[2]], section: "about" },

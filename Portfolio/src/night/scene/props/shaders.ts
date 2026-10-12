@@ -9,6 +9,7 @@ import { HASH_GLSL } from "../window/shaders";
  */
 export const CODE_FRAG = /* glsl */ `
 uniform float uTime;
+uniform float uSpeed; // lines per LINE_SECONDS (the terminal scrolls faster than the editor)
 uniform vec2 uGrid; // (columns, rows) of character cells
 uniform float uGain; // overall brightness (hover raises it)
 uniform vec3 uBg;
@@ -27,7 +28,7 @@ const float GUTTER = 4.0;
 void main() {
   float cols = uGrid.x;
   float rows = uGrid.y;
-  float t = uTime / LINE_SECONDS;
+  float t = uTime * uSpeed / LINE_SECONDS;
   float cur = floor(t);
   float prog = fract(t);
 

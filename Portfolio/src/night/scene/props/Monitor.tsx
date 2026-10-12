@@ -3,7 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { RoundedBox } from "@react-three/drei";
 import { Color, InstancedMesh, MathUtils, Matrix4, ShaderMaterial, Vector2 } from "three";
 import { PALETTE } from "../../palette";
-import { ANCHORS } from "../layout";
+import { ANCHORS, DESK, RISER, type Vec3 } from "../layout";
 import { useSceneTime } from "../../hooks/useSceneTime";
 import { useDisposable } from "../../hooks/useDisposable";
 import { setUniform } from "../window/uniforms";
@@ -12,17 +12,36 @@ import { CODE_FRAG } from "./shaders";
 import { Matte } from "./parts";
 
 export const SCREEN = { width: 0.66, height: 0.39 } as const;
-const BEZEL = { width: 0.72, height: 0.45, depth: 0.04 } as const;
+const SCREEN2 = { width: 0.34, height: 0.58 } as const;
+const BEZEL_PAD = { side: 0.03, bottom: 0.03, depth: 0.035 } as const;
+const BEZEL = "#2A2724";
 
-/** Monitor on a stand with a self-typing code editor, plus the keyboard in front of it. */
-export function Monitor({ active = false }: { active?: boolean }) {
-  const time = useSceneTime();
-  const gain = useRef(1);
-  const [sx, sy, sz] = ANCHORS.monitorScreen;
-  const [mx, my, mz] = ANCHORS.monitor;
-  const bezelZ = sz - 0.006 - BEZEL.depth / 2;
+type Scheme = { bg: string; hi: string; gutter: string; ident: string; key: string; str: string; num: string; comment: string };
 
-  const material = useDisposable(
+// Main screen: an editor. Second screen: a terminal tailing logs (greens + ambers on near-black).
+const EDITOR: Scheme = {
+  bg: "#1A1B22",
+  hi: "#121318",
+  gutter: "#5B5A66",
+  ident: PALETTE.cream,
+  key: PALETTE.terracotta,
+  str: PALETTE.sage,
+  num: PALETTE.mustard,
+  comment: "#7A7468",
+};
+const TERMINAL: Scheme = {
+  bg: "#121614",
+  hi: "#0C0F0D",
+  gutter: "#3E4A43",
+  ident: "#B9D8C2",
+  key: PALETTE.led,
+  str: "#9FC9B0",
+  num: PALETTE.mustard,
+  comment: "#55665C",
+};
+
+function useCodeMaterial(grid: [number, number], s: Scheme, speed: number) {
+  return useDisposable(
     () =>
       new ShaderMaterial({
         vertexShader: UV_VERT,
@@ -30,61 +49,131 @@ export function Monitor({ active = false }: { active?: boolean }) {
         toneMapped: false,
         uniforms: {
           uTime: { value: 0 },
-          uGrid: { value: new Vector2(52, 19) },
+          uSpeed: { value: speed },
+          uGrid: { value: new Vector2(...grid) },
           uGain: { value: 1 },
-          uBg: { value: new Color("#121735") },
-          uLineHi: { value: new Color("#0B0E26") },
-          uGutter: { value: new Color("#4C5590") },
-          uIdent: { value: new Color(PALETTE.cream).multiplyScalar(1.15) },
-          uKey: { value: new Color("#FF8FB1").multiplyScalar(1.2) },
-          uStr: { value: new Color(PALETTE.led).multiplyScalar(1.1) },
-          uNum: { value: new Color(PALETTE.lamp).multiplyScalar(1.2) },
-          uComment: { value: new Color("#6F68A0") },
+          uBg: { value: new Color(s.bg) },
+          uLineHi: { value: new Color(s.hi) },
+          uGutter: { value: new Color(s.gutter) },
+          uIdent: { value: new Color(s.ident).multiplyScalar(1.12) },
+          uKey: { value: new Color(s.key).multiplyScalar(1.2) },
+          uStr: { value: new Color(s.str).multiplyScalar(1.1) },
+          uNum: { value: new Color(s.num).multiplyScalar(1.2) },
+          uComment: { value: new Color(s.comment) },
         },
       }),
     [],
   );
+}
+
+/** One monitor: charcoal bezel, glowing code screen, slim stand with a round oak foot. */
+function Screen({
+  center,
+  size,
+  rotationY = 0,
+  material,
+  baseY,
+}: {
+  center: Vec3;
+  size: { width: number; height: number };
+  rotationY?: number;
+  material: ShaderMaterial;
+  baseY: number;
+}) {
+  const bw = size.width + BEZEL_PAD.side * 2;
+  const bh = size.height + BEZEL_PAD.side + BEZEL_PAD.bottom;
+  const neckH = center[1] - size.height / 2 - baseY;
+  return (
+    <group position={center} rotation={[0, rotationY, 0]}>
+      <RoundedBox args={[bw, bh, BEZEL_PAD.depth]} radius={0.012} smoothness={3} position={[0, (BEZEL_PAD.side - BEZEL_PAD.bottom) / 2, -BEZEL_PAD.depth / 2 - 0.004]}>
+        <Matte color={BEZEL} roughness={0.55} />
+      </RoundedBox>
+      <mesh position={[0, 0, 0.0005]} material={material}>
+        <planeGeometry args={[size.width, size.height]} />
+      </mesh>
+      {/* neck + round oak foot */}
+      <mesh position={[0, -size.height / 2 - neckH / 2, -0.05]}>
+        <boxGeometry args={[0.04, neckH, 0.022]} />
+        <Matte color={BEZEL} roughness={0.5} />
+      </mesh>
+      <mesh position={[0, -(center[1] - baseY) + 0.008, -0.05]}>
+        <cylinderGeometry args={[0.09, 0.095, 0.016, 28]} />
+        <Matte color={PALETTE.oakLight} roughness={0.6} />
+      </mesh>
+    </group>
+  );
+}
+
+/** Walnut riser board on two short blocks, spanning both monitors. */
+function Riser() {
+  const w = RISER.x1 - RISER.x0;
+  const cx = (RISER.x0 + RISER.x1) / 2;
+  const top = DESK.topY + RISER.height;
+  return (
+    <group>
+      <RoundedBox args={[w, 0.028, RISER.depth]} radius={0.008} smoothness={2} position={[cx, top - 0.014, RISER.z]}>
+        <Matte color={PALETTE.walnut} roughness={0.6} />
+      </RoundedBox>
+      {[RISER.x0 + 0.08, RISER.x1 - 0.08].map((x) => (
+        <mesh key={x} position={[x, DESK.topY + (RISER.height - 0.028) / 2, RISER.z]}>
+          <boxGeometry args={[0.05, RISER.height - 0.028, RISER.depth - 0.04]} />
+          <Matte color={PALETTE.walnutDark} roughness={0.65} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/**
+ * Dual-monitor setup (→ projects): editor on the landscape main screen, a log-tailing terminal on the
+ * portrait second screen angled in from the left, on a walnut riser; keyboard + mouse on a felt mat.
+ */
+export function Monitor({ active = false }: { active?: boolean }) {
+  const time = useSceneTime();
+  const gain = useRef(1);
+  const editor = useCodeMaterial([52, 19], EDITOR, 1);
+  const terminal = useCodeMaterial([28, 44], TERMINAL, 1.7);
+  const baseY = DESK.topY + RISER.height;
 
   useFrame((_, delta) => {
     gain.current = MathUtils.damp(gain.current, active ? 1.35 : 1, 6, Math.min(delta, 0.1));
-    setUniform(material, "uTime", time.current);
-    setUniform(material, "uGain", gain.current);
+    for (const m of [editor, terminal]) {
+      setUniform(m, "uTime", time.current);
+      setUniform(m, "uGain", gain.current);
+    }
   });
 
   return (
     <group>
-      {/* stand */}
-      <RoundedBox args={[0.26, 0.016, 0.17]} radius={0.007} smoothness={2} position={[mx, my + 0.008, mz - 0.02]}>
-        <Matte color={PALETTE.ink} roughness={0.6} />
-      </RoundedBox>
-      <mesh position={[mx, my + 0.16, bezelZ - 0.035]}>
-        <boxGeometry args={[0.045, 0.3, 0.025]} />
-        <Matte color={PALETTE.ink} roughness={0.6} />
-      </mesh>
-      {/* bezel + screen */}
-      <RoundedBox args={[BEZEL.width, BEZEL.height, BEZEL.depth]} radius={0.014} smoothness={3} position={[sx, sy, bezelZ]}>
-        <Matte color="#1B1630" roughness={0.5} />
-      </RoundedBox>
-      <mesh position={[sx, sy, sz - 0.004]} material={material}>
-        <planeGeometry args={[SCREEN.width, SCREEN.height]} />
-      </mesh>
-      {/* power LED */}
-      <mesh position={[sx + BEZEL.width / 2 - 0.035, sy - BEZEL.height / 2 + 0.014, sz - 0.005]}>
-        <circleGeometry args={[0.004, 10]} />
-        <meshBasicMaterial color={new Color(PALETTE.screen).multiplyScalar(2)} toneMapped={false} />
-      </mesh>
+      <Riser />
+      <Screen center={ANCHORS.monitorScreen} size={SCREEN} material={editor} baseY={baseY} />
+      <Screen center={ANCHORS.monitor2Screen} size={SCREEN2} rotationY={0.42} material={terminal} baseY={baseY} />
+      <DeskMat />
       <Keyboard />
+      <Mouse />
     </group>
+  );
+}
+
+const MAT = { x: 0.08, z: -0.86, w: 0.92, d: 0.34 } as const;
+
+function DeskMat() {
+  return (
+    <RoundedBox args={[MAT.w, 0.004, MAT.d]} radius={0.002} smoothness={2} position={[MAT.x, DESK.topY + 0.002, MAT.z]}>
+      <Matte color="#4A4540" roughness={1} />
+    </RoundedBox>
   );
 }
 
 const KEY_ROWS = 4;
 const KEY_COLS = 13;
 const SPACE = { from: 4, to: 8 } as const; // bottom-row columns replaced by the space bar
+const KEYCAP = "#E6DDCC";
+const KEYCAP_DARK = "#A79E8E";
 
-/** Low keyboard: one instanced mesh for the keys so it costs a single draw call. */
+/** Retro keyboard: cream keycaps, greige modifiers, a mustard Esc and terracotta Enter. One instanced draw call. */
 function Keyboard() {
-  const [mx, my] = ANCHORS.monitor;
+  const x = ANCHORS.monitor[0] - 0.05;
   const keys = useRef<InstancedMesh>(null);
   const count = KEY_ROWS * KEY_COLS - (SPACE.to - SPACE.from + 1);
 
@@ -92,30 +181,47 @@ function Keyboard() {
     const mesh = keys.current;
     if (!mesh) return;
     const m = new Matrix4();
+    const c = new Color();
     let i = 0;
     for (let r = 0; r < KEY_ROWS; r++) {
-      for (let c = 0; c < KEY_COLS; c++) {
-        if (r === KEY_ROWS - 1 && c >= SPACE.from && c <= SPACE.to) continue;
-        m.makeTranslation(-0.198 + c * 0.033, 0.019, -0.045 + r * 0.03);
-        mesh.setMatrixAt(i++, m);
+      for (let col = 0; col < KEY_COLS; col++) {
+        if (r === KEY_ROWS - 1 && col >= SPACE.from && col <= SPACE.to) continue;
+        m.makeTranslation(-0.198 + col * 0.033, 0.019, -0.045 + r * 0.03);
+        mesh.setMatrixAt(i, m);
+        const edge = col === 0 || col === KEY_COLS - 1 || r === KEY_ROWS - 1;
+        if (r === 0 && col === 0) c.set(PALETTE.mustard);
+        else if (r === 2 && col === KEY_COLS - 1) c.set(PALETTE.terracotta);
+        else c.set(edge ? KEYCAP_DARK : KEYCAP);
+        mesh.setColorAt(i, c);
+        i++;
       }
     }
     mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
   }, []);
 
   return (
-    <group position={[mx, my, -0.88]} rotation={[0.04, 0, 0]}>
+    <group position={[x, DESK.topY + 0.004, -0.86]} rotation={[0.04, 0, 0]}>
       <RoundedBox args={[0.44, 0.016, 0.14]} radius={0.006} smoothness={2} position={[0, 0.008, 0]}>
-        <Matte color="#2E2548" roughness={0.7} />
+        <Matte color={PALETTE.greige} roughness={0.7} />
       </RoundedBox>
       <instancedMesh ref={keys} args={[undefined, undefined, count]}>
-        <boxGeometry args={[0.027, 0.008, 0.024]} />
-        <Matte color="#3E3360" roughness={0.75} />
+        <boxGeometry args={[0.027, 0.009, 0.024]} />
+        <meshStandardMaterial roughness={0.7} />
       </instancedMesh>
       <mesh position={[-0.198 + ((SPACE.from + SPACE.to) / 2) * 0.033, 0.019, -0.045 + (KEY_ROWS - 1) * 0.03]}>
-        <boxGeometry args={[(SPACE.to - SPACE.from) * 0.033 + 0.027, 0.008, 0.024]} />
-        <Matte color="#4B3B66" roughness={0.75} />
+        <boxGeometry args={[(SPACE.to - SPACE.from) * 0.033 + 0.027, 0.009, 0.024]} />
+        <Matte color={KEYCAP} roughness={0.7} />
       </mesh>
     </group>
+  );
+}
+
+function Mouse() {
+  return (
+    <mesh position={[MAT.x + MAT.w / 2 - 0.12, DESK.topY + 0.016, MAT.z + 0.02]} scale={[0.6, 0.32, 1]}>
+      <sphereGeometry args={[0.05, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
+      <Matte color={PALETTE.cream} roughness={0.5} />
+    </mesh>
   );
 }

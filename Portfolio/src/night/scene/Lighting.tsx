@@ -38,8 +38,8 @@ export function Lighting() {
       <directionalLight position={[WINDOW_CENTER[0] + 0.4, WINDOW_CENTER[1] + 1.2, WINDOW_CENTER[2] - 2]} color="#A8B6E0" intensity={0.55} />
       <pointLight position={[WINDOW_CENTER[0], WINDOW_CENTER[1], WINDOW_CENTER[2] + 0.4]} color="#9FB0E0" intensity={1.8} distance={3.2} decay={2} />
 
-      {/* monitor glow */}
-      <pointLight position={[ANCHORS.monitorScreen[0], ANCHORS.monitorScreen[1], ANCHORS.monitorScreen[2] + 0.35]} color={PALETTE.screen} intensity={3} distance={2.6} decay={2} />
+      {/* glow from both monitors */}
+      <pointLight position={[ANCHORS.monitorsCenter[0], ANCHORS.monitorsCenter[1], ANCHORS.monitorsCenter[2] + 0.35]} color={PALETTE.screen} intensity={3.2} distance={2.8} decay={2} />
 
       <Environment files={nightHdr} environmentIntensity={0.3} />
     </>

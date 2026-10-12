@@ -16,14 +16,21 @@ export const DESK = {
 export const WINDOW = { x0: 0.6, x1: 2.6, y0: 1.2, y1: 2.7 } as const;
 export const WINDOW_CENTER: Vec3 = [(WINDOW.x0 + WINDOW.x1) / 2, (WINDOW.y0 + WINDOW.y1) / 2, WALL_Z];
 
+/** Walnut monitor riser spanning both screens. */
+export const RISER = { x0: -0.98, x1: 0.48, height: 0.065, z: -1.3, depth: 0.27 } as const;
+
 export const SHELF = { center: [-1.7, 1.95, -1.45] as Vec3, width: 2.0, depth: 0.28 } as const;
 
 // Anchor points for props. Books/cassette/telescope were pulled inward in P3 so they stay in the base shot.
 export const ANCHORS = {
   lamp: [-1.75, DESK.topY, -1.2] as Vec3,
   lampHead: [-1.35, 1.5, -1.05] as Vec3,
-  monitor: [0.05, DESK.topY, -1.3] as Vec3,
-  monitorScreen: [0.05, 1.08, -1.26] as Vec3,
+  // R4 dual monitors on a walnut riser: landscape main + portrait second (left, angled in).
+  monitor: [0.05, DESK.topY + 0.065, -1.3] as Vec3,
+  monitorScreen: [0.05, 1.145, -1.26] as Vec3,
+  monitor2Screen: [-0.64, 1.2, -1.22] as Vec3,
+  /** Midpoint of both screens: camera shot, label and hit box for the "projects" hotspot. */
+  monitorsCenter: [-0.27, 1.17, -1.26] as Vec3,
   pi: [-1.0, SHELF.center[1] + 0.03, SHELF.center[2]] as Vec3,
   books: [-1.95, SHELF.center[1] + 0.03, SHELF.center[2]] as Vec3,
   plant: [-0.85, SHELF.center[1] + 0.03, SHELF.center[2]] as Vec3,
@@ -35,7 +42,7 @@ export const ANCHORS = {
 
 // Restyle (P4.5): Japandi oak slat panel framing the monitors,
 // a paper lantern pendant, and a wool rug under the desk.
-export const SLATS = { x0: -0.72, x1: 0.5, y0: 0, y1: 2.9, pitch: 0.07, width: 0.042, depth: 0.03 } as const;
+export const SLATS = { x0: -1.08, x1: 0.5, y0: 0, y1: 2.9, pitch: 0.07, width: 0.042, depth: 0.03 } as const;
 export const LANTERN = { position: [-0.15, 2.58, -1.12] as Vec3, radius: 0.21, cordTop: 4 } as const;
 export const RUG = { center: [0.1, 0.004, -0.55] as Vec3, size: [3.6, 2.2] as [number, number] } as const;
 

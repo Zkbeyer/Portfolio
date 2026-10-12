@@ -18,7 +18,7 @@ const offset = (a: Vec3, dx: number, dy: number, dz: number): Vec3 => [a[0] + dx
 
 // Generous hit boxes around each interactive prop (world space, see layout.ts).
 const HIT: Record<"monitor" | "pi" | "notebook" | "cassette" | "telescope", HitBox> = {
-  monitor: { center: ANCHORS.monitorScreen, size: [0.8, 0.52, 0.12] },
+  monitor: { center: ANCHORS.monitorsCenter, size: [1.5, 0.72, 0.26] },
   pi: { center: offset(ANCHORS.pi, 0, 0.035, 0), size: [0.24, 0.16, 0.18] },
   notebook: { center: offset(ANCHORS.notebook, 0, 0.03, 0), size: [0.44, 0.08, 0.34] },
   cassette: { center: offset(ANCHORS.cassette, 0, 0.075, 0), size: [0.26, 0.18, 0.14] },
@@ -34,7 +34,7 @@ export function Props() {
 
   return (
     <group>
-      <Hotspot id="monitor" hit={HIT.monitor} labelAt={offset(ANCHORS.monitorScreen, 0, 0.33, 0)}>
+      <Hotspot id="monitor" hit={HIT.monitor} labelAt={offset(ANCHORS.monitorsCenter, 0, 0.45, 0)}>
         <Monitor active={monitorActive} />
       </Hotspot>
       <Hotspot id="pi" hit={HIT.pi} labelAt={offset(ANCHORS.pi, 0, 0.2, 0.02)}>
