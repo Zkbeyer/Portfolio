@@ -8,6 +8,7 @@ import { WindowView } from "./WindowView";
 import { Props } from "./props/Props";
 import { Lighting } from "./Lighting";
 import { Post } from "./Post";
+import { setHovered } from "./hotspots";
 
 /** The single real-time 3D room behind the hero. Lazy-loaded so three.js never blocks first paint. */
 export default function NightCanvas() {
@@ -20,6 +21,7 @@ export default function NightCanvas() {
       shadows={false}
       flat // renderer tone mapping off; ToneMapping runs in the post chain (Post.tsx)
       camera={{ fov: 42, near: 0.05, far: 40, position: BASE_SHOT.position }}
+      onPointerMissed={() => setHovered(null)}
       gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
     >
       <color attach="background" args={[PALETTE.deep]} />
