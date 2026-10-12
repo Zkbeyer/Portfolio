@@ -9,7 +9,7 @@ import { Matte } from "./parts";
 import { paperTexture } from "./paperTexture";
 
 const PAGE = { w: 0.17, d: 0.235 } as const;
-const COVER = "#A8553A"; // terracotta cloth cover
+const COVER = "#3A3430"; // charcoal linen cover
 const PAGE_SLOPE = 0.025;
 
 function usePaper(seed: number, ink: number) {

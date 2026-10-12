@@ -3,7 +3,7 @@ import { ANCHORS, SHELF } from "../layout";
 import { Matte } from "./parts";
 import { seeded } from "./seeded";
 
-const SPINES = ["#C0623E", "#7C7F45", "#D9A441", "#2F5D62", "#E8DFD0", "#8C8275", "#5E3F2B", "#9DA88C"];
+const SPINES = ["#D1492A", "#3A3430", "#E8DFD0", "#8C8275", "#9E3220", "#5A4A3C", "#CFC4B3", "#2E2B28"];
 
 type Book = { x: number; w: number; h: number; d: number; color: string; lean: number };
 

@@ -3,7 +3,7 @@ import { RoundedBox } from "@react-three/drei";
 import { Color, ExtrudeGeometry, InstancedMesh, Matrix4, Shape, Path, type Texture } from "three";
 import { PALETTE } from "../palette";
 import { useDisposable } from "../hooks/useDisposable";
-import { DESK, LANTERN, ROOM, RUG, SHELF, SLATS, WALL_Z, WINDOW } from "./layout";
+import { DESK, ROOM, RUG, SHELF, SLATS, WALL_Z, WINDOW } from "./layout";
 import { floorTexture, plasterTexture, rugTexture } from "./textures";
 import { Rod } from "./props/parts";
 
@@ -113,7 +113,7 @@ function SlatPanel() {
   );
 }
 
-/** Mid-century walnut desk: thin top, tapered splayed legs with brass caps, a mustard-fronted drawer. */
+/** Mid-century walnut desk: thin top, tapered splayed legs with brass caps, a reddish-orange drawer front. */
 function Desk() {
   const { topY, width, depth, centerZ } = DESK;
   const underY = topY - 0.045;
@@ -145,18 +145,18 @@ function Desk() {
           </Rod>
           <mesh position={[l.foot[0], 0.02, l.foot[2]]}>
             <cylinderGeometry args={[0.0135, 0.0135, 0.04, 12]} />
-            <meshStandardMaterial color={PALETTE.mustard} metalness={0.8} roughness={0.35} />
+            <meshStandardMaterial color={PALETTE.brass} metalness={0.8} roughness={0.35} />
           </mesh>
         </group>
       ))}
-      {/* hanging drawer (left), mustard front + brass pull */}
+      {/* hanging drawer (left), accent front + brass pull */}
       <group position={[-1.95, underY - 0.065, centerZ + 0.02]}>
         <mesh>
           <boxGeometry args={[0.72, 0.12, depth - 0.12]} />
           <Mat color={PALETTE.walnut} roughness={0.65} />
         </mesh>
         <RoundedBox args={[0.68, 0.1, 0.012]} radius={0.004} smoothness={2} position={[0, 0, (depth - 0.12) / 2 + 0.006]}>
-          <Mat color={PALETTE.mustard} roughness={0.7} />
+          <Mat color={PALETTE.accent} roughness={0.7} />
         </RoundedBox>
         <mesh position={[0, -0.005, (depth - 0.12) / 2 + 0.018]} rotation={[0, 0, Math.PI / 2]}>
           <cylinderGeometry args={[0.006, 0.006, 0.14, 10]} />
@@ -177,40 +177,7 @@ function Shelf() {
   );
 }
 
-/** Paper lantern pendant: glowing washi sphere with faint ribs, cord to the ceiling. Its light lives in Lighting. */
-function Lantern() {
-  const [x, y, z] = LANTERN.position;
-  const r = LANTERN.radius;
-  const glow = useMemo(() => new Color(PALETTE.lamp).multiplyScalar(1.15), []);
-  return (
-    <group position={[x, y, z]}>
-      <mesh scale={[1, 0.92, 1]}>
-        <sphereGeometry args={[r, 32, 20]} />
-        <meshStandardMaterial color={PALETTE.cream} emissive={glow} emissiveIntensity={1} roughness={1} toneMapped={false} />
-      </mesh>
-      {[-0.6, -0.3, 0, 0.3, 0.6].map((t) => {
-        const ry = t * r * 0.92;
-        const rr = Math.sqrt(Math.max(0, r * r - (t * r) ** 2)) + 0.001;
-        return (
-          <mesh key={t} position={[0, ry, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[rr, 0.0018, 4, 40]} />
-            <meshBasicMaterial color="#C99C66" transparent opacity={0.45} />
-          </mesh>
-        );
-      })}
-      <mesh position={[0, r * 0.92 + 0.012, 0]}>
-        <cylinderGeometry args={[0.025, 0.03, 0.025, 14]} />
-        <meshStandardMaterial color={PALETTE.charcoal} roughness={0.6} />
-      </mesh>
-      <mesh position={[0, (LANTERN.cordTop - y) / 2 + r, 0]}>
-        <cylinderGeometry args={[0.003, 0.003, LANTERN.cordTop - y, 6]} />
-        <meshStandardMaterial color={PALETTE.charcoal} />
-      </mesh>
-    </group>
-  );
-}
-
-/** Procedural room shell: plaster walls, slat panel, plank floor + rug, desk, shelf, oak window, lantern. */
+/** Procedural room shell: plaster walls, slat panel, plank floor + rug, desk, shelf, oak window. No ceiling light — only small lamps (Zack). */
 export function Room() {
   const { width, height, leftX } = ROOM;
   const plaster = useDisposable(() => {
@@ -239,7 +206,7 @@ export function Room() {
       </mesh>
       <mesh position={RUG.center} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={RUG.size} />
-        <Mat map={rug} color="#CFC6B8" roughness={1} />
+        <Mat map={rug} color="#958C80" roughness={1} />
       </mesh>
       {/* oak skirting */}
       <mesh position={[leftX + width / 2, 0.04, WALL_Z + 0.01]}>
@@ -248,7 +215,6 @@ export function Room() {
       </mesh>
       <Desk />
       <Shelf />
-      <Lantern />
     </group>
   );
 }

@@ -5,7 +5,7 @@ import { ANCHORS, type Vec3 } from "../layout";
 import { Matte, Rod } from "./parts";
 
 const ARM = "#2E2B28"; // charcoal arms
-const SHADE = "#D9A441"; // mustard MCM shade
+const SHADE = "#D1492A"; // reddish-orange MCM shade (the accent)
 
 /** Articulated desk lamp. Its light lives in Lighting.tsx; this is the visible fixture + glowing bulb. */
 export function Lamp() {

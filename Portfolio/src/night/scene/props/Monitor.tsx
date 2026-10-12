@@ -24,7 +24,7 @@ const EDITOR: Scheme = {
   hi: "#121318",
   gutter: "#5B5A66",
   ident: PALETTE.cream,
-  key: PALETTE.terracotta,
+  key: PALETTE.accentSoft,
   str: PALETTE.sage,
   num: PALETTE.mustard,
   comment: "#7A7468",
@@ -171,7 +171,7 @@ const SPACE = { from: 4, to: 8 } as const; // bottom-row columns replaced by the
 const KEYCAP = "#E6DDCC";
 const KEYCAP_DARK = "#A79E8E";
 
-/** Retro keyboard: cream keycaps, greige modifiers, a mustard Esc and terracotta Enter. One instanced draw call. */
+/** Retro keyboard: cream keycaps, greige modifiers, reddish-orange Esc and Enter. One instanced draw call. */
 function Keyboard() {
   const x = ANCHORS.monitor[0] - 0.05;
   const keys = useRef<InstancedMesh>(null);
@@ -189,8 +189,7 @@ function Keyboard() {
         m.makeTranslation(-0.198 + col * 0.033, 0.019, -0.045 + r * 0.03);
         mesh.setMatrixAt(i, m);
         const edge = col === 0 || col === KEY_COLS - 1 || r === KEY_ROWS - 1;
-        if (r === 0 && col === 0) c.set(PALETTE.mustard);
-        else if (r === 2 && col === KEY_COLS - 1) c.set(PALETTE.terracotta);
+        if ((r === 0 && col === 0) || (r === 2 && col === KEY_COLS - 1)) c.set(PALETTE.accent);
         else c.set(edge ? KEYCAP_DARK : KEYCAP);
         mesh.setColorAt(i, c);
         i++;

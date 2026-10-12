@@ -60,7 +60,7 @@ export function Mug() {
       {/* glaze band */}
       <mesh position={[0, H * 0.62, 0]}>
         <cylinderGeometry args={[R + 0.0018, R + 0.0016, 0.016, 32, 1, true]} />
-        <Matte color={PALETTE.olive} roughness={0.4} />
+        <Matte color={PALETTE.accent} roughness={0.4} />
       </mesh>
       <mesh position={[0, H - 0.016, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[R - 0.005, 24]} />

@@ -8,6 +8,7 @@ import { Notebook } from "./Notebook";
 import { Cassette } from "./Cassette";
 import { Telescope } from "./Telescope";
 import { Decor } from "./Decor";
+import { AccentLamps } from "./AccentLamps";
 import { ANCHORS, DESK } from "../layout";
 import { Hotspot, type HitBox } from "../Hotspot";
 import { useHotspotActive } from "../hotspots";
@@ -61,6 +62,7 @@ export function Props() {
       <Plant />
       <Mug />
       <Decor />
+      <AccentLamps />
     </group>
   );
 }

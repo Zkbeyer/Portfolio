@@ -79,7 +79,7 @@ export function floorTexture(seed = 11) {
   return finish(c, [3, 2]);
 }
 
-/** Cream wool rug with a terracotta + mustard border band (MCM accent). */
+/** Cream wool rug with a reddish-orange double border band (the accent). */
 export function rugTexture(seed = 5) {
   const W = 512;
   const H = 320;
@@ -97,7 +97,7 @@ export function rugTexture(seed = 5) {
     ctx.lineWidth = w;
     ctx.strokeRect(inset, inset, W - inset * 2, H - inset * 2);
   };
-  band(22, 10, PALETTE.terracotta);
-  band(38, 4, PALETTE.mustard);
+  band(22, 10, PALETTE.accent);
+  band(38, 4, PALETTE.accentDeep);
   return finish(c);
 }

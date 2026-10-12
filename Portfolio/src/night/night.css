@@ -6,10 +6,8 @@
   --ns-cream: #f3ece0;
   --ns-lilac: #d8cbb6; /* secondary text: warm linen (name kept so existing rules still apply) */
   --ns-lamp: #ffc98a;
-  --ns-mustard: #d9a441;
-  --ns-terracotta: #c0623e;
-  --ns-olive: #7c7f45;
-  --ns-teal: #2f5d62;
+  --ns-accent: #d1492a; /* reddish orange — the one accent */
+  --ns-accent-soft: #e8774f;
 }
 
 html,
@@ -35,7 +33,7 @@ body {
   min-height: 520px;
   overflow: hidden;
   /* flat backdrop that matches the room while the 3D chunk loads */
-  background: radial-gradient(ellipse at 22% 55%, #6b4a2e 0%, transparent 55%), var(--ns-wall);
+  background: radial-gradient(ellipse at 18% 55%, #5a2a1a 0%, transparent 50%), var(--ns-wall);
 }
 
 .night-hero__stage,

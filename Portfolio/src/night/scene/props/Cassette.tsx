@@ -9,7 +9,7 @@ import { useDisposable } from "../../hooks/useDisposable";
 import { Matte } from "./parts";
 
 const BODY = { w: 0.2, h: 0.128, d: 0.05 } as const;
-const BODY_COLOR = "#2F5D62"; // teal
+const BODY_COLOR = "#E6DDCC"; // cream body, orange play key + label stripe
 const TAPE = "#2A1A14";
 
 function Reel({ tape, spin }: { tape: number; spin: (g: Group | null) => void }) {
@@ -105,7 +105,7 @@ export function Cassette({ playing = false }: { playing?: boolean }) {
         </mesh>
       ))}
       {/* transport buttons on top; play sits pressed while playing */}
-      {["#C0623E", "#E6DDCC", "#E6DDCC", "#E6DDCC"].map((c, i) => (
+      {["#D1492A", "#3A3430", "#3A3430", "#3A3430"].map((c, i) => (
         <mesh key={i} position={[-0.05 + i * 0.033, BODY.h + (i === 0 && playing ? 0.002 : 0.006), 0.004]}>
           <boxGeometry args={[0.027, 0.012, 0.03]} />
           <Matte color={c} roughness={0.5} />

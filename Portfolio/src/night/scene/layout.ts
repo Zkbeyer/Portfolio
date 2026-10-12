@@ -41,9 +41,8 @@ export const ANCHORS = {
 } as const;
 
 // Restyle (P4.5): Japandi oak slat panel framing the monitors,
-// a paper lantern pendant, and a wool rug under the desk.
+// and a wool rug under the desk.
 export const SLATS = { x0: -1.08, x1: 0.5, y0: 0, y1: 2.9, pitch: 0.07, width: 0.042, depth: 0.03 } as const;
-export const LANTERN = { position: [-0.15, 2.58, -1.12] as Vec3, radius: 0.21, cordTop: 4 } as const;
 export const RUG = { center: [0.1, 0.004, -0.55] as Vec3, size: [3.6, 2.2] as [number, number] } as const;
 
 // The world outside the window (P2). Everything here sits behind the back wall (z < WALL_Z).
