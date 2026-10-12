@@ -25,6 +25,14 @@ Below the hero, normal HTML sections (fast, accessible, indexable):
 4. **track 04 — through the telescope**: about, taped polaroid, night window.
 5. **now playing** footer: contact links + audio state.
 
+## Restyle notes, round 2 (Zack, 2026-10-12) — these override the section below where they differ
+- **No big/ceiling light.** Only small lamps. The room should feel dark, lit by accent lighting.
+- **One accent colour: reddish orange** (`accent #D1492A`, `accentDeep #9E3220`, `accentSoft #E8774F`). Other colours stay neutral.
+- **Darker accent wood** (walnut `#3E2618`, "oak" `#7A5236`).
+- **Accent lighting**: desk lamp (key), a **sunset projector lamp** throwing a disc on the wall, lava lamp, vintage mushroom lamp, orange LED bias glow behind the monitors, candle.
+- **Decor leans vintage/fun.** Zack does not like the framed print, the sunburst clock or the vase of stems — don't bring them back.
+- Pinterest: Zack offered his "Apartment Inspiration" board; needs him to log in to Pinterest in the Claude app's browser (or share a public link) before a run can look at it.
+
 ## Restyle — mid-century modern × Japandi (Zack, 2026-10-12)
 Zack's direction: more mid-century modern × Japandi (his aesthetic), a more aesthetic room and view,
 neutral colours with fun accents, a dual-monitor setup, and more decor on the desk. It's still 2am, rain on the glass,
