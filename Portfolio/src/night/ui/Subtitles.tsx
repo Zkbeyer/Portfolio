@@ -16,7 +16,11 @@ export function Subtitles() {
   const id = hovered ?? focus;
 
   let lines: readonly string[] = INTRO_LINES;
-  if (id) lines = [id === "cassette" && playing ? "press stop for quiet." : HOTSPOTS[id].hint];
+  if (id) {
+    const info = HOTSPOTS[id];
+    const focused = focus === id;
+    lines = [id === "cassette" && playing ? "press stop for quiet." : focused && info.focusHint ? info.focusHint : info.hint];
+  }
 
   return (
     <div className="night-subs">

@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { person, projects } from "../../content/site";
 import { toggleAudio } from "../audio/audioStore";
-import { focusOn, useFocus, type FocusId } from "./focus";
+import { focusOn, getFocus, useFocus, type FocusId } from "./focus";
 
 /**
  * Every clickable object in the room, shared by the 3D hotspots (scene/Hotspot.tsx), the subtitles
@@ -15,6 +15,10 @@ export type HotspotInfo = {
   label: string;
   /** Subtitle line shown while the object is hovered or focused. */
   hint: string;
+  /** Optional different line once the camera has moved in (focused). */
+  focusHint?: string;
+  /** Optional different handwritten label while focused. */
+  focusLabel?: string;
   /** In-page section the object leads to, if any. */
   section?: string;
 };
@@ -35,7 +39,7 @@ export const HOTSPOTS: Record<HotspotId, HotspotInfo> = {
   plane: {
     id: "plane",
     label: "work",
-    hint: `that plane is the day job. ${person.next.org.toLowerCase()} after graduation.`,
+    hint: `the model plane is the day job. ${person.next.org.toLowerCase()} after graduation.`,
     section: "work",
   },
   telescope: {
@@ -47,7 +51,9 @@ export const HOTSPOTS: Record<HotspotId, HotspotInfo> = {
   notebook: {
     id: "notebook",
     label: "resume",
-    hint: "the notebook is my resume. opens as a pdf.",
+    hint: "my resume is in the notebook. take a look.",
+    focusHint: "click the page to open the pdf.",
+    focusLabel: "open resume (pdf) ↗",
   },
   cassette: {
     id: "cassette",
@@ -60,8 +66,9 @@ export const HOTSPOTS: Record<HotspotId, HotspotInfo> = {
 export function activateHotspot(id: HotspotId) {
   switch (id) {
     case "notebook":
-      focusOn("notebook");
-      window.open(person.links.resume, "_blank", "noopener");
+      // first click moves in to read the pages; clicking the open notebook opens the PDF
+      if (getFocus() === "notebook") window.open(person.links.resume, "_blank", "noopener");
+      else focusOn("notebook");
       return;
     case "cassette":
       toggleAudio();

@@ -4,6 +4,7 @@ import { Color, Group, MathUtils, Mesh, MeshStandardMaterial } from "three";
 import { PALETTE } from "../palette";
 import { Html } from "@react-three/drei";
 import type { Vec3 } from "./layout";
+import { useFocus } from "./focus";
 import {
   HOTSPOTS,
   activateHotspot,
@@ -41,10 +42,12 @@ function collectLit(group: Group): Lit[] {
 }
 
 export function HotspotLabel({ id, position, text, active }: { id: HotspotId; position: Vec3; text?: string; active: boolean }) {
+  const focused = useFocus() === id;
+  const label = text ?? (focused ? HOTSPOTS[id].focusLabel : undefined) ?? HOTSPOTS[id].label;
   return (
     <Html position={position} center zIndexRange={[20, 0]} pointerEvents="none" className="night-label-anchor">
       <span className={`night-label hand${active ? " is-active" : ""}`} data-hotspot={id}>
-        {text ?? HOTSPOTS[id].label}
+        {label}
       </span>
     </Html>
   );

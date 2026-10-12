@@ -7,6 +7,7 @@ import { useSceneTime } from "../../hooks/useSceneTime";
 import { useDisposable } from "../../hooks/useDisposable";
 import { Matte } from "./parts";
 import { paperTexture } from "./paperTexture";
+import { resumeTexture } from "./resumeTexture";
 
 const PAGE = { w: 0.17, d: 0.235 } as const;
 const COVER = "#3A3430"; // charcoal linen cover
@@ -17,22 +18,29 @@ function usePaper(seed: number, ink: number) {
   return useDisposable(() => new MeshStandardMaterial({ map, roughness: 0.95, side: DoubleSide }), [map]);
 }
 
+function useResumePage(page: 0 | 1) {
+  const map = useDisposable(() => resumeTexture(page), [page]);
+  // toned down so the desk lamp doesn't blow the printed page out
+  return useDisposable(() => new MeshStandardMaterial({ map, color: "#BDB5A9", roughness: 1, side: DoubleSide }), [map]);
+}
+
 /**
- * Open notebook (→ resume). With `active` (hover) the top right page lifts and flutters.
+ * Open notebook with the resume printed on its pages (→ resume). Hover: the right page lifts and
+ * flutters. Focused (`open`): pages lie flat so the resume reads; the next click opens the PDF.
  */
-export function Notebook({ active = false }: { active?: boolean }) {
+export function Notebook({ active = false, open = false }: { active?: boolean; open?: boolean }) {
   const time = useSceneTime();
   const flutter = useRef<Group>(null);
   const lift = useRef(0);
   const [x, y, z] = ANCHORS.notebook;
-  const left = usePaper(3, 0.8);
+  const left = useResumePage(0);
   const under = usePaper(9, 0.6); // revealed when the top page lifts
-  const top = usePaper(5, 0.45);
+  const top = useResumePage(1);
 
   useFrame((_, delta) => {
     const g = flutter.current;
     if (!g) return;
-    lift.current = MathUtils.damp(lift.current, active ? 1 : 0, 5, Math.min(delta, 0.1));
+    lift.current = MathUtils.damp(lift.current, active && !open ? 1 : 0, 5, Math.min(delta, 0.1));
     const t = time.current;
     const wobble = Math.sin(t * 7) * 0.12 + Math.sin(t * 11.3) * 0.06;
     g.rotation.z = PAGE_SLOPE + lift.current * (0.55 + wobble);

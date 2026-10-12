@@ -62,7 +62,7 @@ void main() {
   float size = mix(0.05, 0.11, hash21(id + 5.3));
   float twinkle = 0.55 + 0.45 * sin(uTime * (0.6 + 2.2 * hash21(id + 9.1)) + h * 40.0);
   float star = smoothstep(size, 0.0, length(f - o)) * step(0.94, h) * twinkle;
-  col += vec3(0.95, 0.93, 1.0) * star * smoothstep(0.3, 0.75, t) * 1.3;
+  col += vec3(1.0, 0.92, 0.82) * star * smoothstep(0.3, 0.75, t) * 1.3;
 
   // moon + halo
   vec2 mp = (vUv - uMoonPos) * vec2(uAspect, 1.0);

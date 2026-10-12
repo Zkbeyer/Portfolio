@@ -56,7 +56,7 @@ export function RainGlass({ outside }: { outside: Scene }) {
           uGlass: { value: new Vector2(WINDOW.x1 - WINDOW.x0, WINDOW.y1 - WINDOW.y0) },
           uTime: { value: 0 },
           uBlur: { value: FOG_BLUR },
-          uTint: { value: new Color("#B9B2E8") },
+          uTint: { value: new Color("#E2C2A8") }, // warm glass tint (was lilac)
         },
       }),
     [target],

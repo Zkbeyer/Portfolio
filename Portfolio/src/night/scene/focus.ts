@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { ANCHORS, WINDOW_CENTER, type Vec3 } from "./layout";
+import { ANCHORS, type Vec3 } from "./layout";
 import { prefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 
 export type FocusId = "monitor" | "pi" | "plane" | "telescope" | "notebook" | "cassette";
@@ -13,9 +13,9 @@ export const BASE_SHOT: CameraShot = { position: [0.05, 1.42, 3.2], target: [0.0
 export const SHOTS: Record<FocusId, CameraShot & { section?: string }> = {
   monitor: { position: [-0.22, 1.28, 0.5], target: ANCHORS.monitorsCenter, section: "projects" },
   pi: { position: [-1.0, 1.85, -0.2], target: ANCHORS.pi, section: "homelab" },
-  plane: { position: [1.1, 1.75, 0.7], target: [WINDOW_CENTER[0] + 0.2, WINDOW_CENTER[1] + 0.1, -3], section: "work" },
+  plane: { position: [1.5, 1.3, -0.65], target: ANCHORS.modelPlane, section: "work" },
   telescope: { position: [2.0, 1.35, 0.6], target: [ANCHORS.telescope[0], 1.0, ANCHORS.telescope[2]], section: "about" },
-  notebook: { position: [0.25, 1.5, 0.05], target: ANCHORS.notebook },
+  notebook: { position: [0.2, 1.28, -0.58], target: ANCHORS.notebook }, // close enough to read the resume
   cassette: { position: [1.35, 1.25, 0.1], target: ANCHORS.cassette },
 };
 

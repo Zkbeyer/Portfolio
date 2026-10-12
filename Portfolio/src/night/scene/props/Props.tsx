@@ -12,17 +12,19 @@ import { AccentLamps } from "./AccentLamps";
 import { ANCHORS } from "../layout";
 import { Hotspot, type HitBox } from "../Hotspot";
 import { useHotspotActive } from "../hotspots";
-import { PlaneHotspot } from "../window/PlaneHotspot";
+import { useFocus } from "../focus";
+import { ModelPlane } from "./ModelPlane";
 import { useAudioPlaying } from "../../audio/audioStore";
 import type { Vec3 } from "../layout";
 
 const offset = (a: Vec3, dx: number, dy: number, dz: number): Vec3 => [a[0] + dx, a[1] + dy, a[2] + dz];
 
 // Generous hit boxes around each interactive prop (world space, see layout.ts).
-const HIT: Record<"monitor" | "pi" | "notebook" | "cassette" | "telescope", HitBox> = {
+const HIT: Record<"monitor" | "pi" | "notebook" | "cassette" | "telescope" | "plane", HitBox> = {
   monitor: { center: ANCHORS.monitorsCenter, size: [1.5, 0.72, 0.26] },
   pi: { center: offset(ANCHORS.pi, 0, 0.035, 0), size: [0.24, 0.16, 0.18] },
   notebook: { center: offset(ANCHORS.notebook, 0, 0.03, 0), size: [0.44, 0.08, 0.34] },
+  plane: { center: offset(ANCHORS.modelPlane, 0, 0.08, 0.02), size: [0.3, 0.18, 0.26] },
   cassette: { center: offset(ANCHORS.cassette, 0, 0.05, 0), size: [0.4, 0.14, 0.32] },
   telescope: { center: [ANCHORS.telescope[0], 0.75, ANCHORS.telescope[2] - 0.05], size: [0.6, 1.5, 0.8] },
 };
@@ -32,6 +34,8 @@ export function Props() {
   const monitorActive = useHotspotActive("monitor");
   const notebookActive = useHotspotActive("notebook");
   const telescopeActive = useHotspotActive("telescope");
+  const planeActive = useHotspotActive("plane");
+  const notebookOpen = useFocus() === "notebook";
   const playing = useAudioPlaying();
 
   return (
@@ -43,7 +47,7 @@ export function Props() {
         <Pi />
       </Hotspot>
       <Hotspot id="notebook" hit={HIT.notebook} labelAt={offset(ANCHORS.notebook, 0, 0.1, 0.16)}>
-        <Notebook active={notebookActive} />
+        <Notebook active={notebookActive} open={notebookOpen} />
       </Hotspot>
       <Hotspot
         id="cassette"
@@ -56,7 +60,9 @@ export function Props() {
       <Hotspot id="telescope" hit={HIT.telescope} labelAt={offset(ANCHORS.telescope, -0.25, 1.55, 0.05)}>
         <Telescope active={telescopeActive} />
       </Hotspot>
-      <PlaneHotspot />
+      <Hotspot id="plane" hit={HIT.plane} labelAt={offset(ANCHORS.modelPlane, -0.02, 0.24, 0.03)}>
+        <ModelPlane active={planeActive} />
+      </Hotspot>
       <Lamp />
       <Books />
       <Plant />

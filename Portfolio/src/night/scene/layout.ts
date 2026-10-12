@@ -46,6 +46,8 @@ export const ANCHORS = {
   notebook: [0.2, DESK.topY, -0.98] as Vec3,
   /** The turntable on the record console (the "lofi" audio toggle; id kept as "cassette"). */
   cassette: [1.42, CONSOLE_TOP, -1.36] as Vec3,
+  /** Little vintage model plane on the window sill (the "work" hotspot; the real plane outside is an easter egg). */
+  modelPlane: [1.62, WINDOW.y0, WALL_Z + 0.07] as Vec3,
   /** Floor-standing telescope by the window. */
   telescope: [2.6, 0, -1.15] as Vec3,
 } as const;

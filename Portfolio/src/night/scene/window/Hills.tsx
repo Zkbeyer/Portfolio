@@ -24,10 +24,10 @@ type Ridge = {
 
 // Far → near. Tuned so each ridge shows above the next from the base shot, all inside the window.
 const RIDGES: Ridge[] = [
-  { z: -7.6, base: 2.2, amp: 1.25, freq: 0.5, color: "#4C4C6C", haze: 0.28, seed: 2, peaky: true },
-  { z: -6.0, base: 1.85, amp: 0.8, freq: 0.75, color: "#353A55", haze: 0.12, seed: 5, peaky: true },
-  { z: -4.6, base: 1.5, amp: 0.45, freq: 1.1, color: "#1E2336", haze: 0.04, seed: 9, lights: { count: 22, clusters: 3, depth: 0.3 } },
-  { z: -3.3, base: 1.15, amp: 0.32, freq: 1.5, color: "#0F121C", haze: 0, seed: 13, lights: { count: 14, clusters: 2, depth: 0.25 } },
+  { z: -7.6, base: 2.2, amp: 1.25, freq: 0.5, color: "#3A2622", haze: 0.32, seed: 2, peaky: true },
+  { z: -6.0, base: 1.85, amp: 0.8, freq: 0.75, color: "#2A1C1A", haze: 0.14, seed: 5, peaky: true },
+  { z: -4.6, base: 1.5, amp: 0.45, freq: 1.1, color: "#1A1312", haze: 0.04, seed: 9, lights: { count: 22, clusters: 3, depth: 0.3 } },
+  { z: -3.3, base: 1.15, amp: 0.32, freq: 1.5, color: "#0D0A0A", haze: 0, seed: 13, lights: { count: 14, clusters: 2, depth: 0.25 } },
 ];
 
 const X0 = -3;
