@@ -8,14 +8,14 @@ import { Matte, Rod } from "./parts";
 const TUBE = "#E9DCC3";
 const BRASS = "#C9A25E";
 const DARK = "#2A2724";
-const MOUNT_H = 0.25;
-const LEG_SPREAD = 0.12;
+const MOUNT_H = 0.98; // floor-standing tripod (round-3 layout)
+const LEG_SPREAD = 0.3;
 
 /** Where the telescope rests: up through the window at the sky above the skyline. */
 const AIM = new Vector3(WINDOW_CENTER[0] + 0.2, WINDOW_CENTER[1] + 0.9, WINDOW_CENTER[2] - 1.5);
 
 /**
- * Tabletop refractor on a tripod (→ about). It leans a little toward the cursor; `active` lets it
+ * Floor-standing refractor on a tripod by the window (→ about). It leans a little toward the cursor; `active` lets it
  * follow further.
  */
 export function Telescope({ active = false }: { active?: boolean }) {
@@ -51,7 +51,7 @@ export function Telescope({ active = false }: { active?: boolean }) {
     <group>
       {feet.map((f, i) => (
         <group key={i}>
-          <Rod from={mount} to={f} radius={0.006} segments={8}>
+          <Rod from={mount} to={f} radius={0.011} segments={8}>
             <Matte color={DARK} roughness={0.5} metalness={0.4} />
           </Rod>
           <mesh position={f}>
@@ -66,7 +66,7 @@ export function Telescope({ active = false }: { active?: boolean }) {
       </mesh>
 
       {/* the optical tube points along +z, so lookAt aims it */}
-      <group ref={tube} position={[x, y + MOUNT_H + 0.03, z]}>
+      <group ref={tube} position={[x, y + MOUNT_H + 0.03, z]} scale={1.25}>
         <mesh position={[0, 0, 0.06]} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[0.036, 0.03, 0.44, 24]} />
           <Matte color={TUBE} roughness={0.45} />

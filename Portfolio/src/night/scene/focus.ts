@@ -7,16 +7,16 @@ export type FocusId = "monitor" | "pi" | "plane" | "telescope" | "notebook" | "c
 export type CameraShot = { position: Vec3; target: Vec3 };
 
 /** Default framing: facing the desk and window, like the mockup. */
-export const BASE_SHOT: CameraShot = { position: [0, 1.45, 2.6], target: [0.15, 1.3, -1.6] };
+export const BASE_SHOT: CameraShot = { position: [0.05, 1.42, 3.2], target: [0.05, 1.22, -1.6] }; // pulled back for the round-3 layout
 
 /** Close-up for each interactive object; `section` is the HTML section it scrolls to. */
 export const SHOTS: Record<FocusId, CameraShot & { section?: string }> = {
   monitor: { position: [-0.22, 1.28, 0.5], target: ANCHORS.monitorsCenter, section: "projects" },
-  pi: { position: [-0.95, 1.95, -0.25], target: ANCHORS.pi, section: "homelab" },
+  pi: { position: [-1.0, 1.85, -0.2], target: ANCHORS.pi, section: "homelab" },
   plane: { position: [1.1, 1.75, 0.7], target: [WINDOW_CENTER[0] + 0.2, WINDOW_CENTER[1] + 0.1, -3], section: "work" },
-  telescope: { position: [1.7, 1.3, 0.55], target: [ANCHORS.telescope[0], 1.0, ANCHORS.telescope[2]], section: "about" },
-  notebook: { position: [1.25, 1.55, 0.15], target: ANCHORS.notebook },
-  cassette: { position: [1.8, 1.3, 0.2], target: ANCHORS.cassette },
+  telescope: { position: [2.0, 1.35, 0.6], target: [ANCHORS.telescope[0], 1.0, ANCHORS.telescope[2]], section: "about" },
+  notebook: { position: [0.25, 1.5, 0.05], target: ANCHORS.notebook },
+  cassette: { position: [1.35, 1.25, 0.1], target: ANCHORS.cassette },
 };
 
 let current: FocusId | null = null;

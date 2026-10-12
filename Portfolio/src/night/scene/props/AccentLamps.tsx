@@ -2,24 +2,23 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { AdditiveBlending, Color, Object3D, ShaderMaterial, SpotLight, Vector2 } from "three";
 import { PALETTE } from "../../palette";
-import { ANCHORS, DESK, SHELF, WALL_Z, type Vec3 } from "../layout";
+import { ANCHORS, CONSOLE, SHELF, WALL_Z, type Vec3 } from "../layout";
 import { useSceneTime } from "../../hooks/useSceneTime";
 import { useDisposable } from "../../hooks/useDisposable";
 import { setUniform } from "../window/uniforms";
 import { UV_VERT } from "../window/shaders";
 import { Matte } from "./parts";
 
-const Y = DESK.topY;
 
 /** Accent-lamp positions (world space). */
 const ACCENT = {
-  /** Sunset projector on the desk (front-left), throwing its disc onto the plaster wall. */
-  sunsetLamp: [-1.45, Y, -0.82] as Vec3,
-  sunsetDisc: { center: [-2.05, 1.4, WALL_Z + 0.004] as Vec3, radius: 0.46 },
-  lava: [-1.4, SHELF.center[1] + 0.022, SHELF.center[2] + 0.01] as Vec3,
-  mushroom: [0.68, Y, -1.34] as Vec3,
+  /** Sunset projector on the floor left of the desk, throwing its disc onto the plaster wall. */
+  sunsetLamp: [-1.72, 0, -0.78] as Vec3,
+  sunsetDisc: { center: [-2.05, 1.2, WALL_Z + 0.004] as Vec3, radius: 0.42 },
+  lava: [-1.86, SHELF.center[1] + 0.022, SHELF.center[2] + 0.01] as Vec3,
+  mushroom: [2.16, CONSOLE.topY, -1.38] as Vec3,
 } as const;
-const SUNSET_HEAD: Vec3 = [ACCENT.sunsetLamp[0], ACCENT.sunsetLamp[1] + 0.17, ACCENT.sunsetLamp[2]];
+const SUNSET_HEAD: Vec3 = [ACCENT.sunsetLamp[0], ACCENT.sunsetLamp[1] + 0.3, ACCENT.sunsetLamp[2]];
 
 // ── sunset projector ────────────────────────────────────────────────────────────
 
@@ -95,8 +94,8 @@ function SunsetLamp() {
         <cylinderGeometry args={[0.055, 0.06, 0.016, 24]} />
         <Matte color={PALETTE.charcoal} roughness={0.4} metalness={0.5} />
       </mesh>
-      <mesh position={[lx, ly + 0.085, lz]}>
-        <cylinderGeometry args={[0.006, 0.006, 0.15, 8]} />
+      <mesh position={[lx, ly + 0.15, lz]}>
+        <cylinderGeometry args={[0.007, 0.007, 0.28, 8]} />
         <Matte color={PALETTE.charcoal} roughness={0.4} metalness={0.5} />
       </mesh>
       <group position={head} quaternion={aim}>

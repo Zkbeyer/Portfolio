@@ -3,21 +3,23 @@ import { useFrame } from "@react-three/fiber";
 import { RoundedBox } from "@react-three/drei";
 import { Color, Group, MeshBasicMaterial } from "three";
 import { PALETTE } from "../../palette";
-import { DESK, SHELF, type Vec3 } from "../layout";
+import { CONSOLE, DESK, SHELF, WALL_Z, WINDOW, type Vec3 } from "../layout";
 import { useSceneTime } from "../../hooks/useSceneTime";
 import { useDisposable } from "../../hooks/useDisposable";
 import { Matte, Rod } from "./parts";
+import { seeded } from "./seeded";
 
 const Y = DESK.topY;
 const BRASS = PALETTE.brass;
 
 /** Positions for the decor (world space). Kept clear of the hotspot props in layout.ANCHORS. */
 const SPOTS = {
-  bonsai: [-1.22, Y, -1.2] as Vec3,
-  pencils: [-1.0, Y, -0.86] as Vec3,
-  candle: [1.13, Y, -1.12] as Vec3,
-  headphones: [1.6, Y, -1.36] as Vec3,
-  camera: [-1.19, SHELF.center[1] + 0.022, SHELF.center[2] + 0.03] as Vec3,
+  bonsai: [2.12, WINDOW.y0, WALL_Z + 0.08] as Vec3, // on the window sill
+  pencils: [-1.3, Y, -1.08] as Vec3,
+  candle: [1.15, WINDOW.y0, WALL_Z + 0.09] as Vec3, // window sill, left
+  headphones: [1.85, CONSOLE.topY, -1.42] as Vec3,
+  camera: [-1.6, SHELF.center[1] + 0.022, SHELF.center[2] + 0.03] as Vec3,
+  monstera: [-2.3, 0, -1.25] as Vec3, // silhouetted against the sunset disc
 } as const;
 
 /** Small bonsai: shallow charcoal tray, twisting trunk, flat-shaded foliage pads. */
@@ -191,11 +193,56 @@ function FilmCamera() {
   );
 }
 
+/** Monstera in a cream ceramic pot on tapered walnut legs (floor, left corner). */
+function Monstera() {
+  const [x, y, z] = SPOTS.monstera;
+  const leaves = useMemo(() => {
+    const rnd = seeded(77);
+    return Array.from({ length: 11 }, (_, i) => {
+      const a = (i / 11) * Math.PI * 2 + rnd() * 0.4;
+      const h = 0.55 + rnd() * 0.55;
+      const out = 0.12 + rnd() * 0.22;
+      const tip: Vec3 = [Math.cos(a) * out, h, Math.sin(a) * out * 0.7];
+      return { tip, a, size: 0.13 + rnd() * 0.08, tilt: 0.5 + rnd() * 0.5, tone: i % 3 };
+    });
+  }, []);
+  const tones = ["#2F4A2C", "#3A5734", "#26401F"];
+  return (
+    <group position={[x, y, z]}>
+      {/* plant stand: tapered legs + cream pot */}
+      {[0, 1, 2, 3].map((i) => {
+        const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
+        return (
+          <Rod key={i} from={[Math.cos(a) * 0.16, 0, Math.sin(a) * 0.16]} to={[Math.cos(a) * 0.11, 0.2, Math.sin(a) * 0.11]} radius={0.008} radiusTop={0.012}>
+            <Matte color={PALETTE.walnutDark} roughness={0.6} />
+          </Rod>
+        );
+      })}
+      <mesh position={[0, 0.32, 0]}>
+        <cylinderGeometry args={[0.16, 0.12, 0.24, 28]} />
+        <Matte color={PALETTE.linen} roughness={0.85} />
+      </mesh>
+      {leaves.map((l, i) => (
+        <group key={i}>
+          <Rod from={[0, 0.42, 0]} to={[l.tip[0] * 0.9, 0.42 + l.tip[1] * 0.92, l.tip[2] * 0.9]} radius={0.005} segments={5}>
+            <Matte color="#3E5A36" />
+          </Rod>
+          <mesh position={[l.tip[0], 0.42 + l.tip[1], l.tip[2]]} rotation={[-l.tilt, -l.a + Math.PI / 2, 0]} scale={[1, 1.15, 1]}>
+            <circleGeometry args={[l.size, 14]} />
+            <meshStandardMaterial color={tones[l.tone]} roughness={0.7} side={2} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  );
+}
+
 /** Non-interactive vintage/fun decor (R5, revised 2026-10-12 after Zack's notes: no print, clock or vase). */
 export function Decor() {
   return (
     <group>
       <FilmCamera />
+      <Monstera />
       <Bonsai />
       <PencilCup />
       <Candle />

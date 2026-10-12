@@ -79,25 +79,28 @@ export function floorTexture(seed = 11) {
   return finish(c, [3, 2]);
 }
 
-/** Cream wool rug with a reddish-orange double border band (the accent). */
+/** Vintage checker rug: rust and cream squares inside a dark border (Zack's Pinterest board). */
 export function rugTexture(seed = 5) {
-  const W = 512;
+  const W = 480;
   const H = 320;
   const { c, ctx } = canvas(W, H);
   const rnd = seeded(seed);
-  ctx.fillStyle = PALETTE.linen;
+  const border = 18;
+  ctx.fillStyle = "#3A2A20";
   ctx.fillRect(0, 0, W, H);
-  // wool flecks
-  for (let i = 0; i < 2600; i++) {
-    ctx.fillStyle = rnd() > 0.5 ? "rgba(150,132,108,0.12)" : "rgba(255,250,240,0.18)";
+  const cols = 9;
+  const rows = 6;
+  const cw = (W - border * 2) / cols;
+  const ch = (H - border * 2) / rows;
+  for (let r = 0; r < rows; r++)
+    for (let q = 0; q < cols; q++) {
+      ctx.fillStyle = (r + q) % 2 === 0 ? "#B5502F" : PALETTE.linen;
+      ctx.fillRect(border + q * cw, border + r * ch, cw + 0.5, ch + 0.5);
+    }
+  // wool flecks + slightly wobbly hand-tufted look
+  for (let i = 0; i < 3200; i++) {
+    ctx.fillStyle = rnd() > 0.5 ? "rgba(60,40,30,0.12)" : "rgba(255,248,236,0.12)";
     ctx.fillRect(rnd() * W, rnd() * H, 2, 1 + rnd() * 2);
   }
-  const band = (inset: number, w: number, color: string) => {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = w;
-    ctx.strokeRect(inset, inset, W - inset * 2, H - inset * 2);
-  };
-  band(22, 10, PALETTE.accent);
-  band(38, 4, PALETTE.accentDeep);
   return finish(c);
 }

@@ -126,7 +126,7 @@ function Riser() {
 
 /**
  * Dual-monitor setup (→ projects): editor on the landscape main screen, a log-tailing terminal on the
- * portrait second screen angled in from the left, on a walnut riser; keyboard + mouse on a felt mat.
+ * portrait second screen angled in from the right, on a walnut riser; keyboard + mouse on a felt mat.
  */
 export function Monitor({ active = false }: { active?: boolean }) {
   const time = useSceneTime();
@@ -147,7 +147,7 @@ export function Monitor({ active = false }: { active?: boolean }) {
     <group>
       <Riser />
       <Screen center={ANCHORS.monitorScreen} size={SCREEN} material={editor} baseY={baseY} />
-      <Screen center={ANCHORS.monitor2Screen} size={SCREEN2} rotationY={0.42} material={terminal} baseY={baseY} />
+      <Screen center={ANCHORS.monitor2Screen} size={SCREEN2} rotationY={-0.42} material={terminal} baseY={baseY} />
       <DeskMat />
       <Keyboard />
       <Mouse />
@@ -155,7 +155,7 @@ export function Monitor({ active = false }: { active?: boolean }) {
   );
 }
 
-const MAT = { x: 0.08, z: -0.86, w: 0.92, d: 0.34 } as const;
+const MAT = { x: ANCHORS.monitor[0] + 0.18, z: -0.88, w: 0.82, d: 0.32 } as const;
 
 function DeskMat() {
   return (
@@ -173,7 +173,7 @@ const KEYCAP_DARK = "#A79E8E";
 
 /** Retro keyboard: cream keycaps, greige modifiers, reddish-orange Esc and Enter. One instanced draw call. */
 function Keyboard() {
-  const x = ANCHORS.monitor[0] - 0.05;
+  const x = ANCHORS.monitor[0] + 0.05;
   const keys = useRef<InstancedMesh>(null);
   const count = KEY_ROWS * KEY_COLS - (SPACE.to - SPACE.from + 1);
 
@@ -200,7 +200,7 @@ function Keyboard() {
   }, []);
 
   return (
-    <group position={[x, DESK.topY + 0.004, -0.86]} rotation={[0.04, 0, 0]}>
+    <group position={[x, DESK.topY + 0.004, -0.88]} rotation={[0.04, 0, 0]}>
       <RoundedBox args={[0.44, 0.016, 0.14]} radius={0.006} smoothness={2} position={[0, 0.008, 0]}>
         <Matte color={PALETTE.greige} roughness={0.7} />
       </RoundedBox>

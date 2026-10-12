@@ -7,7 +7,7 @@ import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 const BASE_FOV = 42;
 const MAX_FOV = 70;
 // Half-width of the room (desk + window) that should stay in frame at the base shot.
-const KEEP_HALF_WIDTH = 2.5;
+const KEEP_HALF_WIDTH = 2.7;
 const PARALLAX = { x: 0.18, y: 0.08 };
 
 /**

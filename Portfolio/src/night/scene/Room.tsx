@@ -128,8 +128,9 @@ function Desk() {
     );
   }, [width, depth, centerZ, underY]);
 
+  // everything below is relative to the desk's centre line
   return (
-    <group>
+    <group position={[DESK.centerX, 0, 0]}>
       <RoundedBox args={[width, 0.045, depth]} radius={0.016} smoothness={3} position={[0, topY - 0.0225, centerZ]}>
         <Mat color={PALETTE.walnut} roughness={0.6} />
       </RoundedBox>
@@ -150,24 +151,24 @@ function Desk() {
         </group>
       ))}
       {/* hanging drawer (left), accent front + brass pull */}
-      <group position={[-1.95, underY - 0.065, centerZ + 0.02]}>
+      <group position={[-width / 2 + 0.45, underY - 0.065, centerZ + 0.02]}>
         <mesh>
-          <boxGeometry args={[0.72, 0.12, depth - 0.12]} />
+          <boxGeometry args={[0.6, 0.12, depth - 0.12]} />
           <Mat color={PALETTE.walnut} roughness={0.65} />
         </mesh>
-        <RoundedBox args={[0.68, 0.1, 0.012]} radius={0.004} smoothness={2} position={[0, 0, (depth - 0.12) / 2 + 0.006]}>
+        <RoundedBox args={[0.56, 0.1, 0.012]} radius={0.004} smoothness={2} position={[0, 0, (depth - 0.12) / 2 + 0.006]}>
           <Mat color={PALETTE.accent} roughness={0.7} />
         </RoundedBox>
         <mesh position={[0, -0.005, (depth - 0.12) / 2 + 0.018]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.006, 0.006, 0.14, 10]} />
-          <meshStandardMaterial color="#B8924A" metalness={0.85} roughness={0.3} />
+          <cylinderGeometry args={[0.006, 0.006, 0.12, 10]} />
+          <meshStandardMaterial color={PALETTE.brass} metalness={0.85} roughness={0.3} />
         </mesh>
       </group>
     </group>
   );
 }
 
-/** Floating light-oak shelf (no visible brackets). */
+/** Floating wood shelf (no visible brackets). */
 function Shelf() {
   const [x, y, z] = SHELF.center;
   return (

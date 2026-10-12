@@ -5,11 +5,11 @@ import { Plant } from "./Plant";
 import { Mug } from "./Mug";
 import { Pi } from "./Pi";
 import { Notebook } from "./Notebook";
-import { Cassette } from "./Cassette";
+import { RecordConsole, Turntable } from "./RecordConsole";
 import { Telescope } from "./Telescope";
 import { Decor } from "./Decor";
 import { AccentLamps } from "./AccentLamps";
-import { ANCHORS, DESK } from "../layout";
+import { ANCHORS } from "../layout";
 import { Hotspot, type HitBox } from "../Hotspot";
 import { useHotspotActive } from "../hotspots";
 import { PlaneHotspot } from "../window/PlaneHotspot";
@@ -23,8 +23,8 @@ const HIT: Record<"monitor" | "pi" | "notebook" | "cassette" | "telescope", HitB
   monitor: { center: ANCHORS.monitorsCenter, size: [1.5, 0.72, 0.26] },
   pi: { center: offset(ANCHORS.pi, 0, 0.035, 0), size: [0.24, 0.16, 0.18] },
   notebook: { center: offset(ANCHORS.notebook, 0, 0.03, 0), size: [0.44, 0.08, 0.34] },
-  cassette: { center: offset(ANCHORS.cassette, 0, 0.075, 0), size: [0.26, 0.18, 0.14] },
-  telescope: { center: [ANCHORS.telescope[0], DESK.topY + 0.24, ANCHORS.telescope[2] - 0.06], size: [0.3, 0.48, 0.6] },
+  cassette: { center: offset(ANCHORS.cassette, 0, 0.05, 0), size: [0.4, 0.14, 0.32] },
+  telescope: { center: [ANCHORS.telescope[0], 0.75, ANCHORS.telescope[2] - 0.05], size: [0.6, 1.5, 0.8] },
 };
 
 /** Everything on the desk and shelf. Positions come from layout.ts ANCHORS; interactive ones are Hotspots. */
@@ -42,18 +42,18 @@ export function Props() {
       <Hotspot id="pi" hit={HIT.pi} labelAt={offset(ANCHORS.pi, 0, 0.2, 0.02)}>
         <Pi />
       </Hotspot>
-      <Hotspot id="notebook" hit={HIT.notebook} labelAt={offset(ANCHORS.notebook, -0.1, 0.09, 0.16)}>
+      <Hotspot id="notebook" hit={HIT.notebook} labelAt={offset(ANCHORS.notebook, 0, 0.1, 0.16)}>
         <Notebook active={notebookActive} />
       </Hotspot>
       <Hotspot
         id="cassette"
         hit={HIT.cassette}
-        labelAt={offset(ANCHORS.cassette, 0, 0.25, 0)}
+        labelAt={offset(ANCHORS.cassette, 0, 0.2, 0.05)}
         labelText={playing ? "lofi: on" : "lofi: off"}
       >
-        <Cassette playing={playing} />
+        <Turntable playing={playing} />
       </Hotspot>
-      <Hotspot id="telescope" hit={HIT.telescope} labelAt={offset(ANCHORS.telescope, -0.2, 0.62, 0.05)}>
+      <Hotspot id="telescope" hit={HIT.telescope} labelAt={offset(ANCHORS.telescope, -0.25, 1.55, 0.05)}>
         <Telescope active={telescopeActive} />
       </Hotspot>
       <PlaneHotspot />
@@ -61,6 +61,7 @@ export function Props() {
       <Books />
       <Plant />
       <Mug />
+      <RecordConsole />
       <Decor />
       <AccentLamps />
     </group>
