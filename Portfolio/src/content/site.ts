@@ -59,7 +59,7 @@ export const person = {
     src: asset("assets/zack-portrait.webp"),
     alt: "Zack in an olive sweatshirt, sitting on a concrete step in front of a white garage door, smiling",
   },
-  interests: ["skiing", "camping", "hiking", "nature photography", "space weather"],
+  interests: ["gym", "gaming", "outdoors", "technology"], // Zack, 2026-10-13
 } as const;
 
 export const experience: Experience[] = [

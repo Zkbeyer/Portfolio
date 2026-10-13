@@ -1,15 +1,16 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import "@fontsource-variable/fraunces/wght.css";
 import "@fontsource-variable/dm-sans/wght.css";
 import "@fontsource/caveat/latin-600.css";
 import "@fontsource/dm-mono/latin-400.css";
-import { person } from "../content/site";
+import { asset, person } from "../content/site";
+import { hasWebGL } from "./hooks/webgl";
+import { CanvasBoundary } from "./ui/CanvasBoundary";
 import { initAudioEngine } from "./audio/engine";
 import { SiteNav } from "./ui/SiteNav";
 import { Subtitles } from "./ui/Subtitles";
 import { HERO_META, HERO_ROLE, INTRO_LINES } from "./ui/copy";
 import { DetailPanel } from "./ui/DetailPanel";
-import { Eyepiece } from "./ui/Eyepiece";
 import { ScrollCue, Tracks } from "./ui/Tracks";
 import { closePanel, getPanel, isPanelId, usePanel } from "./ui/panelStore";
 import { goToPanel } from "./scene/hotspots";
@@ -38,13 +39,19 @@ export default function NightApp() {
   useHashPanels();
   useRoomKeys();
   const panel = usePanel();
+  // No WebGL (or the room crashed): the poster stays as a still of the room and the nav carries the site.
+  const [room, setRoom] = useState(hasWebGL);
   return (
     <main className="night">
       <section className="night-hero" aria-label="Intro" inert={panel !== null}>
-        <div className="night-hero__stage" aria-hidden="true">
-          <Suspense fallback={null}>
-            <NightCanvas />
-          </Suspense>
+        <div className="night-hero__stage" aria-hidden="true" style={{ backgroundImage: `url(${asset("night/poster.webp")})` }}>
+          {room && (
+            <CanvasBoundary onFail={() => setRoom(false)}>
+              <Suspense fallback={null}>
+                <NightCanvas />
+              </Suspense>
+            </CanvasBoundary>
+          )}
         </div>
         <header className="night-top">
           <div className="night-top__id">
@@ -55,8 +62,7 @@ export default function NightApp() {
           <SiteNav />
         </header>
         <p className="sr-only">{INTRO_LINES.join(" ")}</p>
-        <Eyepiece />
-        <Subtitles />
+        <Subtitles still={!room} />
         <ScrollCue />
       </section>
       <div inert={panel !== null}>

@@ -11,7 +11,7 @@ export const BASE_SHOT: CameraShot = { position: [0.05, 1.42, 3.2], target: [0.0
 /** Close-up for each interactive object (the "look closer" step; a second click opens its detail panel). */
 export const SHOTS: Record<FocusId, CameraShot> = {
   monitor: { position: [-0.3, 1.2, -0.15], target: [-0.3, 1.17, -1.34] }, // close enough to read the playlist
-  pi: { position: [-0.95, 1.45, -0.12], target: [-0.95, 1.45, -1.4] }, // the Pi + its terminal on the main screen
+  pi: { position: [-1.4, 2.0, -1.0], target: [-1.4, 1.95, -1.42] }, // the Pi, its status display and the sticky note
   plane: { position: [1.74, 1.2, -0.88], target: [1.77, 1.1, -1.52] }, // plane + boarding pass on the sill
   telescope: { position: [2.0, 1.35, 0.6], target: [ANCHORS.telescope[0], 1.0, ANCHORS.telescope[2]] },
   notebook: { position: [0.2, 1.28, -0.58], target: ANCHORS.notebook }, // close enough to read the resume

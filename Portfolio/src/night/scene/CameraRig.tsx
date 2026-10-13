@@ -10,6 +10,8 @@ const MAX_FOV = 70;
 // Half-width of the room (desk + window) that should stay in frame at the base shot.
 const KEEP_HALF_WIDTH = 2.7;
 const PARALLAX = { x: 0.18, y: 0.08 };
+/** Horizontal half-FOV (tan) the close-ups were framed at: 42° vertical on a 16:10 screen. */
+const REF_TAN_HALF_H = Math.tan(MathUtils.degToRad(BASE_FOV / 2)) * 1.6;
 
 /**
  * Base framing + gentle mouse parallax. Eases to a close-up when `focusOn(id)` is called,
@@ -27,6 +29,8 @@ export function CameraRig() {
   // Portrait viewports crop the room; slide the base shot toward the monitor/window side.
   const portraitShift = useRef(0);
   const targetFov = useRef(BASE_FOV);
+  // Close-ups on narrow screens: pull back along the view line so the subject keeps its width.
+  const closeUpPullback = useRef(1);
 
   // Responsive FOV: widen on narrow viewports so the desk still reads, capped for portrait.
   useEffect(() => {
@@ -36,6 +40,8 @@ export function CameraRig() {
     const halfH = Math.atan(KEEP_HALF_WIDTH / distance);
     const needed = MathUtils.radToDeg(2 * Math.atan(Math.tan(halfH) / aspect));
     targetFov.current = MathUtils.clamp(Math.max(BASE_FOV, needed), BASE_FOV, MAX_FOV);
+    const tanHalfH = Math.tan(MathUtils.degToRad(targetFov.current / 2)) * aspect;
+    closeUpPullback.current = MathUtils.clamp(REF_TAN_HALF_H / tanHalfH, 1, 2);
   }, [size.width, size.height]);
 
   // Escape or returning to the top of the page clears focus.
@@ -67,8 +73,9 @@ export function CameraRig() {
     const py = reduced || focus ? 0 : state.pointer.y * PARALLAX.y;
 
     const shift = focus ? 0 : portraitShift.current;
-    desiredPos.current.set(shot.position[0] + px + shift, shot.position[1] + py, shot.position[2]);
     desiredLook.current.set(shot.target[0] + shift, shot.target[1], shot.target[2]);
+    desiredPos.current.set(shot.position[0] + px + shift, shot.position[1] + py, shot.position[2]);
+    if (focus) desiredPos.current.sub(desiredLook.current).multiplyScalar(closeUpPullback.current).add(desiredLook.current);
 
     // Reduced motion: snap instead of easing.
     const lambda = reduced ? 1e3 : focus ? 3 : 2.4;

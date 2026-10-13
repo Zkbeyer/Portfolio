@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { RoundedBox } from "@react-three/drei";
 import { CanvasTexture, CatmullRomCurve3, Color, MathUtils, MeshBasicMaterial, PointLight, SRGBColorSpace, Vector3 } from "three";
@@ -7,6 +7,8 @@ import { ANCHORS, DESK, SHELF, WALL_Z } from "../layout";
 import { useSceneTime } from "../../hooks/useSceneTime";
 import { useDisposable } from "../../hooks/useDisposable";
 import { Matte } from "./parts";
+import { HOMELAB_PODS, PLAYLIST_SIZE, homelabScreen } from "./screenTextures";
+import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 
 const CASE = { w: 0.13, h: 0.046, d: 0.095 } as const;
 const LID_H = 0.013;
@@ -52,9 +54,58 @@ function stickyTexture() {
 }
 
 /**
- * The homelab: a Raspberry Pi 5 in the red-and-white case on the shelf, a cable down the wall and a
- * sticky note ("status: running") on the shelf edge. The LED is a steady green with activity flicker.
+ * The homelab: a Raspberry Pi 5 in the red-and-white case on the shelf with a little status display
+ * beside it (kubectl get pods), a cable down the wall and a sticky note ("status: running") on the shelf edge. The LED is a steady green with activity flicker.
  */
+/** Little 5" status display beside the Pi (the homelab's "look closer" content). */
+const DISPLAY = { w: 0.14, x: -0.16, tilt: -0.22 } as const;
+
+function PiDisplay({ focused }: { focused: boolean }) {
+  const reduced = usePrefersReducedMotion();
+  const [screen] = useState(() => homelabScreen(HOMELAB_PODS.length));
+  const material = useDisposable(
+    () => new MeshBasicMaterial({ map: screen.texture, toneMapped: false, color: new Color(0.9, 0.9, 0.9) }),
+    [],
+  );
+  useEffect(() => () => screen.dispose(), [screen]);
+
+  // on focus the terminal "prints" again, one pod per beat (the Pi LED flashes with each line)
+  useEffect(() => {
+    if (!focused || reduced) {
+      screen.draw(HOMELAB_PODS.length);
+      return;
+    }
+    screen.draw(0);
+    const timers = Array.from({ length: HOMELAB_PODS.length }, (_, i) =>
+      window.setTimeout(() => {
+        screen.draw(i + 1);
+        window.dispatchEvent(new CustomEvent("night:pod-line"));
+      }, 650 + i * 380),
+    );
+    return () => timers.forEach(window.clearTimeout);
+  }, [focused, reduced, screen]);
+
+  const h = (DISPLAY.w * PLAYLIST_SIZE.h) / PLAYLIST_SIZE.w;
+  return (
+    <group position={[DISPLAY.x, 0, 0.01]} rotation={[0, 0.12, 0]}>
+      {/* foot + tilted bezel */}
+      <mesh position={[0, 0.006, 0.01]}>
+        <boxGeometry args={[0.08, 0.012, 0.05]} />
+        <Matte color="#2A2724" roughness={0.6} />
+      </mesh>
+      <group position={[0, 0.012 + h / 2 + 0.008, 0]} rotation={[DISPLAY.tilt, 0, 0]}>
+        <mesh position={[0, 0, -0.006]}>
+          <boxGeometry args={[DISPLAY.w + 0.014, h + 0.014, 0.01]} />
+          <Matte color="#2A2724" roughness={0.55} />
+        </mesh>
+        <mesh position={[0, 0, 0.0002]} material={material}>
+          <planeGeometry args={[DISPLAY.w, h]} />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
 export function Pi({ focused = false }: { focused?: boolean }) {
   const time = useSceneTime();
   const [x, y, z] = ANCHORS.pi;
@@ -97,6 +148,9 @@ export function Pi({ focused = false }: { focused?: boolean }) {
 
   return (
     <group>
+      <group position={[x, y, z]}>
+        <PiDisplay focused={focused} />
+      </group>
       <group position={[x, y, z]} rotation={[0, 0.22, 0]}>
         <RoundedBox args={[CASE.w, CASE.h - LID_H, CASE.d]} radius={0.006} smoothness={2} position={[0, (CASE.h - LID_H) / 2, 0]}>
           <Matte color={PALETTE.piRed} roughness={0.45} />

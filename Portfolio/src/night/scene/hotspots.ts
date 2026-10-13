@@ -19,6 +19,8 @@ export type HotspotInfo = {
   hint: string;
   /** Optional different line once the camera has moved in (focused). */
   focusHint?: string;
+  /** Touch-screen version of `focusHint` (no hover, no arrow keys). */
+  touchHint?: string;
   /** Optional different handwritten label while focused. */
   focusLabel?: string;
   /** Detail panel the second click (or the Open button) opens, if any. */
@@ -33,6 +35,7 @@ export const HOTSPOTS: Record<HotspotId, HotspotInfo> = {
     label: "projects",
     hint: `On the monitor: ${numberWord(projects.length)} projects, queued up like a playlist.`,
     focusHint: "Pick a track (hover or ↑ ↓), then click it to open.",
+    touchHint: "Tap a track on the screen, or Open projects.",
     focusLabel: "open projects ↗",
     panel: "projects",
     openLabel: "Open projects",
@@ -59,7 +62,7 @@ export const HOTSPOTS: Record<HotspotId, HotspotInfo> = {
     id: "telescope",
     label: "about",
     hint: "Look through the telescope for a little about me.",
-    focusHint: "Through the eyepiece: a few things I love. Click the sky to read about me.",
+    focusHint: "Click the telescope again to read about me.",
     focusLabel: "open about ↗",
     panel: "about",
     openLabel: "Open about",

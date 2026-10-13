@@ -10,6 +10,9 @@ export const INTRO_LINES = [
   "Everything here is a link. Look around.",
 ] as const;
 
+/** Intro when the 3D room can't run (no WebGL): the picture is a still, so point at the menu instead. */
+export const STILL_INTRO_LINES = [INTRO_LINES[0], "Use the menu to look around."] as const;
+
 /** "Backend & platform software engineer" */
 export const HERO_ROLE = `${person.focus} ${person.title.toLowerCase()}`;
 
