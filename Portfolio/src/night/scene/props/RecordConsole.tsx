@@ -143,6 +143,8 @@ function labelTexture() {
  * Vintage turntable on the console (→ lofi audio toggle). With `playing`, the platter spins up to
  * 33⅓ and the tonearm swings onto the record; the power light glows.
  */
+const ARM_PLAY = -0.44;
+
 export function Turntable({ playing = false }: { playing?: boolean }) {
   const time = useSceneTime();
   const platter = useRef<Group>(null);
@@ -163,7 +165,9 @@ export function Turntable({ playing = false }: { playing?: boolean }) {
     speed.current = MathUtils.damp(speed.current, playing ? 1 : 0, 2.5, d);
     angle.current -= dt * speed.current * 3.49; // 33⅓ rpm
     if (platter.current) platter.current.rotation.y = angle.current;
-    if (arm.current) arm.current.rotation.y = MathUtils.damp(arm.current.rotation.y, playing ? 0.42 : 0, 3, d);
+    // swings in over the record (negative = clockwise from above): -0.44 rad puts the stylus on the
+    // outer groove (~0.10 from the spindle); +0.42 used to swing it away from the platter
+    if (arm.current) arm.current.rotation.y = MathUtils.damp(arm.current.rotation.y, playing ? ARM_PLAY : 0, 3, d);
     led.color.copy(ledBase).multiplyScalar(0.1 + speed.current * 2.6);
   });
 
