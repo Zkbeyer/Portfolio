@@ -1,6 +1,5 @@
 import { useSyncExternalStore } from "react";
 import { ANCHORS, type Vec3 } from "./layout";
-import { prefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 
 export type FocusId = "monitor" | "pi" | "plane" | "telescope" | "notebook" | "cassette";
 
@@ -9,19 +8,18 @@ export type CameraShot = { position: Vec3; target: Vec3 };
 /** Default framing: facing the desk and window, like the mockup. */
 export const BASE_SHOT: CameraShot = { position: [0.05, 1.42, 3.2], target: [0.05, 1.22, -1.6] }; // pulled back for the round-3 layout
 
-/** Close-up for each interactive object; `section` is the HTML section it scrolls to. */
-export const SHOTS: Record<FocusId, CameraShot & { section?: string }> = {
-  monitor: { position: [-0.22, 1.28, 0.5], target: ANCHORS.monitorsCenter, section: "projects" },
-  pi: { position: [-1.0, 1.85, -0.2], target: ANCHORS.pi, section: "homelab" },
-  plane: { position: [1.5, 1.3, -0.65], target: ANCHORS.modelPlane, section: "work" },
-  telescope: { position: [2.0, 1.35, 0.6], target: [ANCHORS.telescope[0], 1.0, ANCHORS.telescope[2]], section: "about" },
+/** Close-up for each interactive object (the "look closer" step; a second click opens its detail panel). */
+export const SHOTS: Record<FocusId, CameraShot> = {
+  monitor: { position: [-0.22, 1.28, 0.5], target: ANCHORS.monitorsCenter },
+  pi: { position: [-1.0, 1.85, -0.2], target: ANCHORS.pi },
+  plane: { position: [1.74, 1.2, -0.88], target: [1.77, 1.1, -1.52] }, // plane + boarding pass on the sill
+  telescope: { position: [2.0, 1.35, 0.6], target: [ANCHORS.telescope[0], 1.0, ANCHORS.telescope[2]] },
   notebook: { position: [0.2, 1.28, -0.58], target: ANCHORS.notebook }, // close enough to read the resume
   cassette: { position: [1.35, 1.25, 0.1], target: ANCHORS.cassette },
 };
 
 let current: FocusId | null = null;
 const listeners = new Set<() => void>();
-let scrollTimer: number | undefined;
 
 function emit() {
   listeners.forEach((l) => l());
@@ -31,20 +29,11 @@ export function getFocus() {
   return current;
 }
 
-/**
- * Ease the camera to an object. With `scroll`, follow up by scrolling to its section
- * (immediately when the user prefers reduced motion).
- */
-export function focusOn(id: FocusId | null, opts: { scroll?: boolean } = {}) {
+/** Ease the camera to an object's close-up (or back to the base shot with `null`). No page scroll. */
+export function focusOn(id: FocusId | null) {
+  if (current === id) return;
   current = id;
   emit();
-  window.clearTimeout(scrollTimer);
-  const section = id ? SHOTS[id].section : undefined;
-  if (!opts.scroll || !section) return;
-  const reduced = prefersReducedMotion();
-  scrollTimer = window.setTimeout(() => {
-    document.getElementById(section)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
-  }, reduced ? 0 : 650);
 }
 
 function subscribe(cb: () => void) {

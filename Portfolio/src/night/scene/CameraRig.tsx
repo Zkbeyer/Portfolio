@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { MathUtils, PerspectiveCamera, Vector3 } from "three";
 import { BASE_SHOT, SHOTS, focusOn, getFocus } from "./focus";
+import { getPanel } from "../ui/panelStore";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 
 const BASE_FOV = 42;
@@ -40,7 +41,8 @@ export function CameraRig() {
   // Escape or returning to the top of the page clears focus.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && getFocus()) focusOn(null);
+      // with a detail panel open, Esc closes the panel only (DetailPanel handles it)
+      if (e.key === "Escape" && getFocus() && !getPanel()) focusOn(null);
     };
     const onScroll = () => {
       if (window.scrollY < 8 && getFocus()) focusOn(null);

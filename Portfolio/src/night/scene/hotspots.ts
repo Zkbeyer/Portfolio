@@ -3,6 +3,7 @@ import { person, projects } from "../../content/site";
 import { toggleAudio } from "../audio/audioStore";
 import { focusOn, getFocus, useFocus, type FocusId } from "./focus";
 import { numberWord } from "../ui/copy";
+import { openPanel, type PanelId } from "../ui/panelStore";
 
 /**
  * Every clickable object in the room, shared by the 3D hotspots (scene/Hotspot.tsx), the subtitles
@@ -20,8 +21,10 @@ export type HotspotInfo = {
   focusHint?: string;
   /** Optional different handwritten label while focused. */
   focusLabel?: string;
-  /** In-page section the object leads to, if any. */
-  section?: string;
+  /** Detail panel the second click (or the Open button) opens, if any. */
+  panel?: PanelId;
+  /** Text for the visible "Open" button while focused. */
+  openLabel?: string;
 };
 
 export const HOTSPOTS: Record<HotspotId, HotspotInfo> = {
@@ -29,25 +32,37 @@ export const HOTSPOTS: Record<HotspotId, HotspotInfo> = {
     id: "monitor",
     label: "projects",
     hint: `On the monitor: ${numberWord(projects.length)} projects, queued up like a playlist.`,
-    section: "projects",
+    focusHint: "Click the screens again to open the projects.",
+    focusLabel: "open projects ↗",
+    panel: "projects",
+    openLabel: "Open projects",
   },
   pi: {
     id: "pi",
     label: "homelab",
     hint: "The little red box on the shelf runs my homelab.",
-    section: "homelab",
+    focusHint: "Click the Pi again to open the homelab.",
+    focusLabel: "open homelab ↗",
+    panel: "homelab",
+    openLabel: "Open homelab",
   },
   plane: {
     id: "plane",
     label: "work",
     hint: `The model plane: where I’ve worked, and ${person.next.org} next.`,
-    section: "work",
+    focusHint: `Boarding pass: Mizzou to ${person.next.org}, ${person.next.when}. Click again for the whole trip.`,
+    focusLabel: "open work ↗",
+    panel: "work",
+    openLabel: "Open work",
   },
   telescope: {
     id: "telescope",
     label: "about",
     hint: "Look through the telescope for a little about me.",
-    section: "about",
+    focusHint: "Click the telescope again to read about me.",
+    focusLabel: "open about ↗",
+    panel: "about",
+    openLabel: "Open about",
   },
   notebook: {
     id: "notebook",
@@ -55,6 +70,7 @@ export const HOTSPOTS: Record<HotspotId, HotspotInfo> = {
     hint: "My resume is open in the notebook.",
     focusHint: "Click the page to open the PDF.",
     focusLabel: "open the pdf ↗",
+    openLabel: "Open the PDF",
   },
   cassette: {
     id: "cassette",
@@ -63,20 +79,40 @@ export const HOTSPOTS: Record<HotspotId, HotspotInfo> = {
   },
 };
 
-/** What a click (or tap) on an object does. Must run inside the user gesture (window.open, audio unlock). */
+/**
+ * What a click (or tap) on an object does. Two steps for every object (Round 6): the first click looks
+ * closer (camera focus, the object shows its content in the room); a click on the focused object opens
+ * the zoomed-in page — the detail panel, or the PDF for the notebook. Must run inside the user gesture
+ * (window.open, audio unlock).
+ */
 export function activateHotspot(id: HotspotId) {
-  switch (id) {
-    case "notebook":
-      // first click moves in to read the pages; clicking the open notebook opens the PDF
-      if (getFocus() === "notebook") window.open(person.links.resume, "_blank", "noopener");
-      else focusOn("notebook");
-      return;
-    case "cassette":
-      toggleAudio();
-      return;
-    default:
-      focusOn(id, { scroll: true });
+  if (id === "cassette") {
+    toggleAudio();
+    return;
   }
+  if (getFocus() === id) openFocused(id);
+  else focusOn(id);
+}
+
+/** The second step for a focused object: its panel, or the resume PDF for the notebook. */
+export function openFocused(id: HotspotId) {
+  if (id === "notebook") {
+    window.open(person.links.resume, "_blank", "noopener");
+    return;
+  }
+  const panel = HOTSPOTS[id].panel;
+  if (panel) openPanel(panel);
+}
+
+/** The object that leads to a panel (nav links and #hash deep links focus it behind the panel). */
+export function hotspotForPanel(panel: PanelId): HotspotId {
+  return (Object.keys(HOTSPOTS) as HotspotId[]).find((id) => HOTSPOTS[id].panel === panel) ?? "notebook";
+}
+
+/** Jump straight to a panel (nav link, deep link): focus its object in the room, then open the panel. */
+export function goToPanel(panel: PanelId) {
+  focusOn(hotspotForPanel(panel));
+  openPanel(panel);
 }
 
 // ── hover store (which object the pointer is over) ─────────────────────────────
