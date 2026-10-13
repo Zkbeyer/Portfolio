@@ -17,6 +17,7 @@ import { ModelPlane } from "./ModelPlane";
 import { BoardingPass } from "./BoardingPass";
 import { useAudioPlaying } from "../../audio/audioStore";
 import { StaticMerge } from "../StaticMerge";
+import { AccentChair, HangingPlant, PaperFloorLamp } from "./BoardExtras";
 import type { Vec3 } from "../layout";
 
 const offset = (a: Vec3, dx: number, dy: number, dz: number): Vec3 => [a[0] + dx, a[1] + dy, a[2] + dz];
@@ -72,7 +73,10 @@ export function Props() {
         <Books />
         <RecordConsole />
         <Decor />
+        <AccentChair />
+        <HangingPlant />
       </StaticMerge>
+      <PaperFloorLamp />
       <Plant />
       <Mug />
       <AccentLamps />
