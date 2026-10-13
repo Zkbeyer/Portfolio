@@ -9,6 +9,9 @@ import { PLAYLIST, shuffledOrder } from "./playlist";
  * Playlist: two <audio> "decks" so tracks crossfade. The queue is a shuffle of every track; when it
  * runs out a new shuffle starts (never with the song that just ended). Only the playing track is
  * downloaded, plus the next one ~15s before the crossfade. A track that fails to load is skipped.
+ * Safari only lets an element start from a timer if it was started inside a click once, so both
+ * decks are unlocked in the click that turns sound on; if a deck is still refused, the playlist
+ * carries on with one deck (no crossfade).
  *
  * Rain = looped noise through two filters (a soft high hiss + a low body, slowly breathing) plus
  * individual drops: tiny filtered noise bursts at random pitch/pan, scheduled a little ahead.
@@ -20,13 +23,16 @@ const BASE = import.meta.env.BASE_URL;
 const XFADE = 3;
 /** Start downloading the next track this many seconds before the crossfade. */
 const PRELOAD_AHEAD = 15;
+/** A few ms of silence, used to unlock a deck that has nothing loaded yet (see `unlockDecks`). */
+const SILENCE = "data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YZABAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA";
 
 const MASTER = 0.9;
 const MUSIC = 0.5;
 const FADE_IN = 1.2;
 const FADE_OUT = 0.6;
 
-type Deck = { el: HTMLAudioElement; gain: GainNode; track: number | null };
+/** `blocked`: the browser refused to start this deck without a click — fall back to one deck. */
+type Deck = { el: HTMLAudioElement; gain: GainNode; track: number | null; blocked: boolean };
 
 type Graph = {
   ctx: AudioContext;
@@ -128,7 +134,7 @@ function build(): Graph | null {
     const gain = ctx.createGain();
     gain.gain.value = 0;
     ctx.createMediaElementSource(el).connect(gain).connect(warm);
-    const deck: Deck = { el, gain, track: null };
+    const deck: Deck = { el, gain, track: null, blocked: false };
     // backups for the tick-driven crossfade (e.g. timers throttled): move on when the active deck ends/fails
     el.addEventListener("ended", () => {
       if (active === i && !xfading) advance();
@@ -179,14 +185,52 @@ function play(g: Graph, deck: Deck, track: number, fade: number) {
   deck.gain.gain.cancelScheduledValues(now);
   deck.gain.gain.setValueAtTime(fade ? 0 : 1, now);
   if (fade) deck.gain.gain.linearRampToValueAtTime(1, now + fade);
-  void deck.el.play().catch(() => {});
+  void deck.el.play().catch((err: unknown) => {
+    if ((err as DOMException | null)?.name === "NotAllowedError") onBlocked(g, deck, track);
+  });
   last = track;
 }
 
-/** Crossfade from the active deck to the next track on the other deck. */
+/**
+ * Safari (and some other browsers) only let an <audio> element start by itself if it was first
+ * started inside a click/keypress. If the next deck is refused anyway, play the track on the deck
+ * that is allowed (no crossfade from then on).
+ */
+function onBlocked(g: Graph, deck: Deck, track: number) {
+  deck.blocked = true;
+  const other = g.decks[g.decks[0] === deck ? 1 : 0];
+  if (other.blocked) return; // nothing may play — leave the rain on its own
+  window.clearTimeout(xfadeTimer);
+  xfading = false;
+  deck.gain.gain.setValueAtTime(0, g.ctx.currentTime);
+  active = g.decks.indexOf(other);
+  play(g, other, track, 0);
+}
+
+/**
+ * Called inside the click/keypress that turns sound on: start + immediately pause the idle deck,
+ * which is what Safari needs to allow it to start later from a timer (for the crossfade). Its gain
+ * is 0, so nothing is heard.
+ */
+function unlockDecks(g: Graph) {
+  const idle = g.decks[1 - active];
+  if (idle.blocked || !idle.el.paused) return;
+  if (!idle.el.src) {
+    idle.el.preload = "auto";
+    idle.el.src = SILENCE;
+  }
+  void idle.el.play().catch(() => {});
+  idle.el.pause();
+}
+
+/** Next track: crossfade to it on the other deck (or straight on this deck in one-deck mode). */
 function advance(fade = XFADE) {
   const g = graph;
   if (!g) return;
+  if (g.decks[1 - active].blocked) {
+    play(g, g.decks[active], takeNext(), 0);
+    return;
+  }
   const from = g.decks[active];
   active = 1 - active;
   const to = g.decks[active];
@@ -220,8 +264,9 @@ function watchTrack(g: Graph) {
   const { duration, currentTime } = deck.el;
   if (xfading || deck.track === null || !Number.isFinite(duration) || deck.el.paused) return;
   const left = duration - currentTime;
-  if (left < XFADE + PRELOAD_AHEAD) load(g.decks[1 - active], peekNext(), "auto");
-  if (left <= XFADE) advance();
+  const next = g.decks[1 - active];
+  if (left < XFADE + PRELOAD_AHEAD && !next.blocked) load(next, peekNext(), "auto");
+  if (left <= XFADE && !next.blocked) advance(); // one-deck mode waits for "ended" instead
 }
 
 /** One drop (or, with `crackle`, one vinyl click) at time `t`. */
@@ -274,6 +319,7 @@ function start() {
   // resume() and play() must be called inside the click/keypress that turned audio on
   void g.ctx.resume();
   const deck = g.decks[active];
+  unlockDecks(g);
   if (deck.track === null) play(g, deck, takeNext(), 0); // first track of the visit
   else if (failures < PLAYLIST.length) void deck.el.play().catch(() => {});
   const now = g.ctx.currentTime;
