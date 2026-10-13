@@ -14,6 +14,7 @@ import { Hotspot, type HitBox } from "../Hotspot";
 import { useHotspotActive } from "../hotspots";
 import { useFocus } from "../focus";
 import { ModelPlane } from "./ModelPlane";
+import { BoardingPass } from "./BoardingPass";
 import { useAudioPlaying } from "../../audio/audioStore";
 import type { Vec3 } from "../layout";
 
@@ -24,7 +25,7 @@ const HIT: Record<"monitor" | "pi" | "notebook" | "cassette" | "telescope" | "pl
   monitor: { center: ANCHORS.monitorsCenter, size: [1.5, 0.72, 0.26] },
   pi: { center: offset(ANCHORS.pi, 0, 0.035, 0), size: [0.24, 0.16, 0.18] },
   notebook: { center: offset(ANCHORS.notebook, 0, 0.03, 0), size: [0.44, 0.08, 0.34] },
-  plane: { center: offset(ANCHORS.modelPlane, 0, 0.08, 0.02), size: [0.3, 0.18, 0.26] },
+  plane: { center: offset(ANCHORS.modelPlane, 0.12, 0.08, 0.03), size: [0.54, 0.18, 0.26] }, // plane + boarding pass
   cassette: { center: offset(ANCHORS.cassette, 0, 0.05, 0), size: [0.4, 0.14, 0.32] },
   telescope: { center: [ANCHORS.telescope[0], 0.75, ANCHORS.telescope[2] - 0.05], size: [0.6, 1.5, 0.8] },
 };
@@ -35,7 +36,8 @@ export function Props() {
   const notebookActive = useHotspotActive("notebook");
   const telescopeActive = useHotspotActive("telescope");
   const planeActive = useHotspotActive("plane");
-  const notebookOpen = useFocus() === "notebook";
+  const focus = useFocus();
+  const notebookOpen = focus === "notebook";
   const playing = useAudioPlaying();
 
   return (
@@ -62,6 +64,7 @@ export function Props() {
       </Hotspot>
       <Hotspot id="plane" hit={HIT.plane} labelAt={offset(ANCHORS.modelPlane, -0.02, 0.24, 0.03)}>
         <ModelPlane active={planeActive} />
+        <BoardingPass open={focus === "plane"} hover={planeActive} />
       </Hotspot>
       <Lamp />
       <Books />
