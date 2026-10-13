@@ -61,8 +61,8 @@ export const HOTSPOTS: Record<HotspotId, HotspotInfo> = {
   telescope: {
     id: "telescope",
     label: "about",
-    hint: "Look through the telescope for a little about me.",
-    focusHint: "Click the telescope again to read about me.",
+    hint: "The telescope: a little about me.",
+    focusHint: "A few stickers about me. Click the telescope again to read more.",
     focusLabel: "open about ↗",
     panel: "about",
     openLabel: "Open about",

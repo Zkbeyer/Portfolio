@@ -60,8 +60,8 @@ export function Props() {
       >
         <Turntable playing={playing} />
       </Hotspot>
-      <Hotspot id="telescope" hit={HIT.telescope} labelAt={offset(ANCHORS.telescope, -0.25, 1.55, 0.05)}>
-        <Telescope active={telescopeActive} />
+      <Hotspot id="telescope" hit={HIT.telescope} labelAt={offset(ANCHORS.telescope, -0.25, 1.4, 0.05)}>
+        <Telescope active={telescopeActive} focused={focus === "telescope"} />
       </Hotspot>
       <Hotspot id="plane" hit={HIT.plane} labelAt={offset(ANCHORS.modelPlane, -0.02, 0.24, 0.03)}>
         <ModelPlane active={planeActive} />
