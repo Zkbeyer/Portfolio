@@ -9,8 +9,10 @@ import { SiteNav } from "./ui/SiteNav";
 import { Subtitles } from "./ui/Subtitles";
 import { HERO_META, HERO_ROLE, INTRO_LINES } from "./ui/copy";
 import { DetailPanel } from "./ui/DetailPanel";
+import { Eyepiece } from "./ui/Eyepiece";
 import { closePanel, getPanel, isPanelId, usePanel } from "./ui/panelStore";
 import { goToPanel } from "./scene/hotspots";
+import { useRoomKeys } from "./ui/useRoomKeys";
 import "./night.css";
 
 // three.js + the scene load in their own chunk after the HTML shell paints.
@@ -33,6 +35,7 @@ function useHashPanels() {
 export default function NightApp() {
   useEffect(initAudioEngine, []);
   useHashPanels();
+  useRoomKeys();
   const panel = usePanel();
   return (
     <main className="night">
@@ -51,6 +54,7 @@ export default function NightApp() {
           <SiteNav />
         </header>
         <p className="sr-only">{INTRO_LINES.join(" ")}</p>
+        <Eyepiece />
         <Subtitles />
       </section>
       <DetailPanel />

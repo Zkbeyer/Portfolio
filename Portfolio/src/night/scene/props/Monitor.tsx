@@ -1,7 +1,8 @@
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { RoundedBox } from "@react-three/drei";
-import { Color, InstancedMesh, MathUtils, Matrix4, ShaderMaterial, Vector2 } from "three";
+import { Color, InstancedMesh, MathUtils, Matrix4, MeshBasicMaterial, ShaderMaterial, Vector2, type Material } from "three";
+import type { ThreeEvent } from "@react-three/fiber";
 import { PALETTE } from "../../palette";
 import { ANCHORS, DESK, RISER, type Vec3 } from "../layout";
 import { useSceneTime } from "../../hooks/useSceneTime";
@@ -10,6 +11,9 @@ import { setUniform } from "../window/uniforms";
 import { UV_VERT } from "../window/shaders";
 import { CODE_FRAG } from "./shaders";
 import { Matte } from "./parts";
+import { HOMELAB_PODS, type CanvasScreen, detailScreen, homelabScreen, playlistRowAt, playlistScreen } from "./screenTextures";
+import { setProjectCursor, useProjectCursor } from "../../ui/projectCursor";
+import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 
 export const SCREEN = { width: 0.66, height: 0.39 } as const;
 const SCREEN2 = { width: 0.34, height: 0.58 } as const;
@@ -73,12 +77,14 @@ function Screen({
   rotationY = 0,
   material,
   baseY,
+  onPointerMove,
 }: {
   center: Vec3;
   size: { width: number; height: number };
   rotationY?: number;
-  material: ShaderMaterial;
+  material: Material;
   baseY: number;
+  onPointerMove?: (e: ThreeEvent<PointerEvent>) => void;
 }) {
   const bw = size.width + BEZEL_PAD.side * 2;
   const bh = size.height + BEZEL_PAD.side + BEZEL_PAD.bottom;
@@ -88,7 +94,7 @@ function Screen({
       <RoundedBox args={[bw, bh, BEZEL_PAD.depth]} radius={0.012} smoothness={3} position={[0, (BEZEL_PAD.side - BEZEL_PAD.bottom) / 2, -BEZEL_PAD.depth / 2 - 0.004]}>
         <Matte color={BEZEL} roughness={0.55} />
       </RoundedBox>
-      <mesh position={[0, 0, 0.0005]} material={material}>
+      <mesh position={[0, 0, 0.0005]} material={material} onPointerMove={onPointerMove}>
         <planeGeometry args={[size.width, size.height]} />
       </mesh>
       {/* neck + round oak foot */}
@@ -124,16 +130,59 @@ function Riser() {
   );
 }
 
+/** What the screens show: idle code, the project playlist (monitor focused) or the homelab terminal (Pi focused). */
+export type MonitorMode = "code" | "projects" | "homelab";
+
+/** Canvas screen in a basic material (unlit, like a real display; kept under the bloom threshold). */
+function useScreenMaterial<T>(make: () => CanvasScreen<T>) {
+  const [screen] = useState(make);
+  const material = useDisposable(() => new MeshBasicMaterial({ map: screen.texture, toneMapped: false, color: new Color(0.92, 0.92, 0.92) }), []);
+  useEffect(() => () => screen.dispose(), [screen]);
+  return { screen, material };
+}
+
 /**
  * Dual-monitor setup (→ projects): editor on the landscape main screen, a log-tailing terminal on the
  * portrait second screen angled in from the right, on a walnut riser; keyboard + mouse on a felt mat.
+ * Focused, the main screen becomes the project playlist (hover a row or use ↑/↓ to highlight it) and
+ * the portrait screen shows the highlighted project; with the Pi focused, the main screen runs the
+ * homelab terminal.
  */
-export function Monitor({ active = false }: { active?: boolean }) {
+export function Monitor({ active = false, mode = "code" }: { active?: boolean; mode?: MonitorMode }) {
   const time = useSceneTime();
+  const reduced = usePrefersReducedMotion();
   const gain = useRef(1);
   const editor = useCodeMaterial([52, 19], EDITOR, 1);
   const terminal = useCodeMaterial([28, 44], TERMINAL, 1.7);
+  const cursor = useProjectCursor();
+  const playlist = useScreenMaterial(() => playlistScreen(cursor));
+  const detail = useScreenMaterial(() => detailScreen(cursor));
+  const homelab = useScreenMaterial(() => homelabScreen(0));
   const baseY = DESK.topY + RISER.height;
+
+  useEffect(() => {
+    playlist.screen.draw(cursor);
+    detail.screen.draw(cursor);
+  }, [cursor, playlist.screen, detail.screen]);
+
+  // homelab terminal "prints" one pod per beat after the camera arrives
+  useEffect(() => {
+    if (mode !== "homelab") {
+      homelab.screen.draw(0);
+      return;
+    }
+    if (reduced) {
+      homelab.screen.draw(HOMELAB_PODS.length);
+      return;
+    }
+    const timers = Array.from({ length: HOMELAB_PODS.length }, (_, i) =>
+      window.setTimeout(() => {
+        homelab.screen.draw(i + 1);
+        window.dispatchEvent(new CustomEvent("night:pod-line"));
+      }, 700 + i * 380),
+    );
+    return () => timers.forEach(window.clearTimeout);
+  }, [mode, reduced, homelab.screen]);
 
   useFrame((_, delta) => {
     gain.current = MathUtils.damp(gain.current, active ? 1.35 : 1, 6, Math.min(delta, 0.1));
@@ -143,11 +192,19 @@ export function Monitor({ active = false }: { active?: boolean }) {
     }
   });
 
+  const main = mode === "projects" ? playlist.material : mode === "homelab" ? homelab.material : editor;
+  const side = mode === "projects" ? detail.material : terminal;
+  const pick = (e: ThreeEvent<PointerEvent>) => {
+    if (mode !== "projects" || !e.uv) return;
+    const row = playlistRowAt(e.uv.x, e.uv.y);
+    if (row !== null) setProjectCursor(row);
+  };
+
   return (
     <group>
       <Riser />
-      <Screen center={ANCHORS.monitorScreen} size={SCREEN} material={editor} baseY={baseY} />
-      <Screen center={ANCHORS.monitor2Screen} size={SCREEN2} rotationY={-0.42} material={terminal} baseY={baseY} />
+      <Screen center={ANCHORS.monitorScreen} size={SCREEN} material={main} baseY={baseY} onPointerMove={pick} />
+      <Screen center={ANCHORS.monitor2Screen} size={SCREEN2} rotationY={-0.42} material={side} baseY={baseY} />
       <DeskMat />
       <Keyboard />
       <Mouse />

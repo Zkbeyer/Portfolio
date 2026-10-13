@@ -1,12 +1,11 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { RoundedBox } from "@react-three/drei";
-import { CatmullRomCurve3, Color, MeshBasicMaterial, PointLight, Vector3 } from "three";
+import { CanvasTexture, CatmullRomCurve3, Color, MathUtils, MeshBasicMaterial, PointLight, SRGBColorSpace, Vector3 } from "three";
 import { PALETTE } from "../../palette";
-import { ANCHORS, DESK, WALL_Z } from "../layout";
+import { ANCHORS, DESK, SHELF, WALL_Z } from "../layout";
 import { useSceneTime } from "../../hooks/useSceneTime";
 import { useDisposable } from "../../hooks/useDisposable";
-import { LED_COLORS, useHomelabStatus, type HomelabState } from "../../status/homelabStatus";
 import { Matte } from "./parts";
 
 const CASE = { w: 0.13, h: 0.046, d: 0.095 } as const;
@@ -14,33 +13,64 @@ const LID_H = 0.013;
 const LID = "#EFE6D6";
 const PORT = "#161412";
 
-/** LED brightness over time for each state: steady with activity flicker, slow breathe, or alarm blink. */
-function ledLevel(state: HomelabState, t: number) {
-  switch (state) {
-    case "healthy": {
-      // mostly steady, with short bursts of "disk activity"
-      const burst = Math.sin(t * 0.9) > 0.55 ? (Math.sin(t * 37) > 0 ? 0.45 : 1) : 1;
-      return 2.6 * burst;
-    }
-    case "unknown":
-      return 0.9 + 1.4 * (0.5 + 0.5 * Math.sin(t * 1.6));
-    case "down":
-      return (t % 1) < 0.5 ? 3.2 : 0.15;
-  }
+/**
+ * LED level: steady green with short bursts of "disk activity" (no live status — Zack, 2026-10-12),
+ * plus `pulse`, a flash for each line the homelab terminal prints while the Pi is focused.
+ */
+function ledLevel(t: number, pulse: number) {
+  const burst = Math.sin(t * 0.9) > 0.55 ? (Math.sin(t * 37) > 0 ? 0.45 : 1) : 1;
+  return 2.6 * burst + 3 * pulse;
+}
+
+/** Handwritten sticky note for the shelf edge under the Pi. */
+function stickyTexture() {
+  const c = document.createElement("canvas");
+  c.width = 256;
+  c.height = 220;
+  const tex = new CanvasTexture(c);
+  tex.colorSpace = SRGBColorSpace;
+  const draw = () => {
+    const ctx = c.getContext("2d")!;
+    ctx.fillStyle = "#F2D27A";
+    ctx.fillRect(0, 0, 256, 220);
+    ctx.fillStyle = "rgba(0,0,0,0.06)";
+    ctx.fillRect(0, 0, 256, 34);
+    ctx.fillStyle = "#3A2E22";
+    ctx.font = '600 44px "Caveat", "Segoe Print", cursive';
+    ctx.fillText("homelab", 26, 92);
+    ctx.font = '600 38px "Caveat", "Segoe Print", cursive';
+    ctx.fillText("status: running", 22, 150);
+    ctx.fillStyle = PALETTE.led;
+    ctx.beginPath();
+    ctx.arc(222, 138, 9, 0, Math.PI * 2);
+    ctx.fill();
+    tex.needsUpdate = true;
+  };
+  draw();
+  document.fonts?.load('600 40px "Caveat"').then(draw).catch(() => {});
+  return tex;
 }
 
 /**
- * The homelab: a Raspberry Pi 5 in the red-and-white case on the shelf. Its status LED follows the
- * live status endpoint — green healthy, amber unknown (or unreachable), red down.
+ * The homelab: a Raspberry Pi 5 in the red-and-white case on the shelf, a cable down the wall and a
+ * sticky note ("status: running") on the shelf edge. The LED is a steady green with activity flicker.
  */
-export function Pi() {
+export function Pi({ focused = false }: { focused?: boolean }) {
   const time = useSceneTime();
-  const { state } = useHomelabStatus();
   const [x, y, z] = ANCHORS.pi;
   const light = useRef<PointLight>(null);
+  const pulse = useRef(0);
 
-  const base = useMemo(() => new Color(LED_COLORS[state]), [state]);
+  const base = useMemo(() => new Color(PALETTE.led), []);
   const led = useDisposable(() => new MeshBasicMaterial({ toneMapped: false }), []);
+  const sticky = useDisposable(stickyTexture, []);
+
+  useEffect(() => {
+    if (!focused) return;
+    const onLine = () => (pulse.current = 1);
+    window.addEventListener("night:pod-line", onLine);
+    return () => window.removeEventListener("night:pod-line", onLine);
+  }, [focused]);
 
   const cable = useMemo(
     () =>
@@ -54,8 +84,9 @@ export function Pi() {
     [x, y, z],
   );
 
-  useFrame(() => {
-    const level = ledLevel(state, time.current);
+  useFrame((_, delta) => {
+    pulse.current = MathUtils.damp(pulse.current, 0, 7, Math.min(delta, 0.1));
+    const level = ledLevel(time.current, pulse.current);
     led.color.copy(base).multiplyScalar(level);
     const l = light.current;
     if (l) {
@@ -99,6 +130,11 @@ export function Pi() {
         </mesh>
         <pointLight ref={light} position={[-0.048, 0.02, CASE.d / 2 + 0.03]} distance={0.45} decay={2} />
       </group>
+      {/* sticky note on the shelf's front edge, just under the Pi */}
+      <mesh position={[x - 0.02, SHELF.center[1] + 0.0225 - 0.037, SHELF.center[2] + SHELF.depth / 2 + 0.003]} rotation={[0, 0, -0.06]}>
+        <planeGeometry args={[0.085, 0.073]} />
+        <meshStandardMaterial map={sticky} roughness={0.9} emissiveMap={sticky} emissive="#ffffff" emissiveIntensity={0.18} />
+      </mesh>
       <mesh>
         <tubeGeometry args={[cable, 32, 0.003, 6, false]} />
         <Matte color="#2A2724" roughness={0.6} />

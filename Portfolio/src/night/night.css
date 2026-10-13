@@ -294,6 +294,7 @@ body {
 
 .night-subs {
   position: absolute;
+  z-index: 26; /* above the telescope eyepiece */
   left: 16px;
   right: 16px;
   bottom: clamp(28px, 7vh, 64px);
@@ -591,14 +592,27 @@ html.night-panel-open body {
   align-items: start;
 }
 
-.ns-about__photo {
-  width: 100%;
-  height: auto;
-  padding: 10px 10px 34px;
+.ns-about__polaroid {
+  margin: 0;
+  padding: 10px 10px 8px;
   background: #f4eee3;
   border-radius: 3px;
   transform: rotate(-2deg);
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4);
+}
+
+.ns-about__photo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ns-about__polaroid figcaption {
+  padding: 8px 4px 2px;
+  font-size: 24px;
+  line-height: 1;
+  text-align: center;
+  color: #3a2e22;
 }
 
 .ns-about h3 {
@@ -610,7 +624,7 @@ html.night-panel-open body {
   .ns-about {
     grid-template-columns: 1fr;
   }
-  .ns-about__photo {
+  .ns-about__polaroid {
     max-width: 240px;
   }
 }
@@ -836,4 +850,315 @@ html.night-panel-open body {
   .ns-pass__barcode {
     height: 28px;
   }
+}
+
+/* ── projects: playlist + track ─────────────────────────────────────────── */
+
+.ns-projects {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) 1fr;
+  gap: clamp(20px, 4vw, 48px);
+  align-items: start;
+}
+
+.ns-playlist {
+  position: sticky;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--ns-hairline);
+}
+
+.ns-playlist__track {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 10px;
+  font: inherit;
+  text-align: left;
+  color: var(--ns-lilac);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--ns-hairline);
+  cursor: pointer;
+}
+
+.ns-playlist__track:hover {
+  color: var(--ns-cream);
+  background: rgba(243, 236, 224, 0.04);
+}
+
+.ns-playlist__track[aria-current="true"] {
+  color: var(--ns-cream);
+  background: rgba(209, 73, 42, 0.16);
+  box-shadow: inset 3px 0 0 var(--ns-accent);
+}
+
+.ns-playlist__track:focus-visible {
+  outline: 2px solid var(--ns-lamp);
+  outline-offset: -2px;
+}
+
+.ns-playlist__num,
+.ns-playlist__status {
+  font-family: var(--ns-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ns-muted);
+}
+
+.ns-playlist__track[aria-current="true"] .ns-playlist__num {
+  color: var(--ns-lamp);
+}
+
+.ns-playlist__name {
+  font-weight: 600;
+}
+
+.ns-track {
+  max-width: 65ch;
+  animation: night-sub-in 260ms ease-out both;
+}
+
+.ns-track p {
+  margin: 0 0 12px;
+  color: var(--ns-lilac);
+}
+
+.ns-track .ns-lede {
+  color: var(--ns-cream);
+}
+
+.ns-track__name {
+  margin: 0 0 4px;
+  font-size: clamp(28px, 3.4vw, 40px);
+  line-height: 1.05;
+}
+
+.ns-track__shot {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 8px 0 18px;
+  border-radius: 10px;
+  border: 1px solid var(--ns-hairline);
+}
+
+@media (max-width: 720px) {
+  .ns-projects {
+    grid-template-columns: 1fr;
+  }
+  .ns-playlist {
+    position: static;
+  }
+}
+
+/* ── homelab: architecture diagram ─────────────────────────────────────── */
+
+.ns-arch {
+  --line: rgba(243, 236, 224, 0.28);
+  display: grid;
+  justify-items: center;
+  gap: 26px;
+  margin: 30px 0 8px;
+  padding: clamp(18px, 3vw, 30px);
+  border: 1px dashed var(--ns-hairline);
+  border-radius: 14px;
+  background: repeating-linear-gradient(0deg, transparent 0 23px, rgba(243, 236, 224, 0.03) 23px 24px),
+    repeating-linear-gradient(90deg, transparent 0 23px, rgba(243, 236, 224, 0.03) 23px 24px);
+}
+
+.ns-arch__node {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  min-width: 200px;
+  padding: 12px 16px;
+  text-align: center;
+  background: #2a221b;
+  border: 1px solid var(--ns-hairline);
+  border-radius: 10px;
+}
+
+.ns-arch__node .ns-meta {
+  margin: 0;
+  font-size: 11px;
+}
+
+.ns-arch__node strong {
+  font-weight: 600;
+  color: var(--ns-cream);
+}
+
+.ns-arch__node span:not(.ns-meta) {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--ns-lilac);
+}
+
+.ns-arch__node--host {
+  border-color: rgba(196, 80, 94, 0.7);
+}
+
+.ns-arch__node--k3s {
+  border-color: var(--ns-lamp);
+}
+
+/* connector down from host and k3s */
+.ns-arch__node--host::after,
+.ns-arch__node--k3s::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 1px;
+  height: 26px;
+  background: var(--line);
+}
+
+.ns-arch__workloads {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+  padding: 14px 0 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.ns-arch__workloads .ns-arch__node {
+  min-width: 0;
+}
+
+.ns-arch__workloads .ns-arch__node::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 1px;
+  height: 14px;
+  background: var(--line);
+}
+
+@media (max-width: 720px) {
+  .ns-arch__workloads {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .ns-arch__workloads {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── telescope eyepiece ─────────────────────────────────────────────────── */
+
+.night-eyepiece {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  display: grid;
+  place-items: center;
+  padding-bottom: 12vh;
+  /* the room goes dark around the eyepiece */
+  background: radial-gradient(circle at 50% 44%, transparent 0 min(31vh, 38vw), rgba(8, 7, 9, 0.92) calc(min(31vh, 38vw) + 40px));
+  cursor: pointer;
+  animation: night-fade 600ms ease-out 650ms both;
+}
+
+.night-eyepiece__view {
+  width: min(62vh, 76vw);
+  height: min(62vh, 76vw);
+  border-radius: 50%;
+  box-shadow: 0 0 0 6px #1b1714, 0 0 0 9px rgba(255, 201, 138, 0.25), 0 0 80px rgba(0, 0, 0, 0.8);
+  animation: night-eyepiece-in 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 650ms both;
+}
+
+.night-eyepiece__star {
+  fill: #f3ecdf;
+  animation: night-twinkle 4s ease-in-out infinite alternate;
+}
+
+.night-eyepiece__con {
+  animation: night-fade 900ms ease-out both;
+}
+
+.night-eyepiece__con line {
+  stroke: rgba(255, 201, 138, 0.55);
+  stroke-width: 2;
+}
+
+.night-eyepiece__con circle {
+  fill: #fff4dc;
+  filter: drop-shadow(0 0 6px rgba(255, 220, 160, 0.9));
+}
+
+.night-eyepiece__con text {
+  font-family: var(--ns-font-mono);
+  font-size: 26px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: var(--ns-lamp);
+}
+
+.night-eyepiece__rim {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.6);
+  stroke-width: 30;
+}
+
+.night-eyepiece__reticle {
+  stroke: rgba(255, 201, 138, 0.35);
+  stroke-width: 2;
+}
+
+@keyframes night-eyepiece-in {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+}
+
+@keyframes night-twinkle {
+  to {
+    opacity: 0.15;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .night-eyepiece,
+  .night-eyepiece__view,
+  .night-eyepiece__con,
+  .night-eyepiece__star {
+    animation: none !important;
+  }
+}
+
+.ns-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 18px;
+  margin: 0;
+}
+
+.ns-facts dt {
+  font-family: var(--ns-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ns-muted);
+  padding-top: 3px;
+}
+
+.ns-facts dd {
+  margin: 0;
+  color: var(--ns-lilac);
 }

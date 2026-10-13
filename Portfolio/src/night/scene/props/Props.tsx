@@ -32,21 +32,21 @@ const HIT: Record<"monitor" | "pi" | "notebook" | "cassette" | "telescope" | "pl
 
 /** Everything on the desk and shelf. Positions come from layout.ts ANCHORS; interactive ones are Hotspots. */
 export function Props() {
+  const focus = useFocus();
   const monitorActive = useHotspotActive("monitor");
   const notebookActive = useHotspotActive("notebook");
   const telescopeActive = useHotspotActive("telescope");
   const planeActive = useHotspotActive("plane");
-  const focus = useFocus();
   const notebookOpen = focus === "notebook";
   const playing = useAudioPlaying();
 
   return (
     <group>
       <Hotspot id="monitor" hit={HIT.monitor} labelAt={offset(ANCHORS.monitorsCenter, 0, 0.45, 0)}>
-        <Monitor active={monitorActive} />
+        <Monitor active={monitorActive} mode={focus === "monitor" ? "projects" : focus === "pi" ? "homelab" : "code"} />
       </Hotspot>
       <Hotspot id="pi" hit={HIT.pi} labelAt={offset(ANCHORS.pi, 0, 0.2, 0.02)}>
-        <Pi />
+        <Pi focused={focus === "pi"} />
       </Hotspot>
       <Hotspot id="notebook" hit={HIT.notebook} labelAt={offset(ANCHORS.notebook, 0, 0.1, 0.16)}>
         <Notebook active={notebookActive} open={notebookOpen} />

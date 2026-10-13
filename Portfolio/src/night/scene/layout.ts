@@ -49,7 +49,7 @@ export const ANCHORS = {
   /** Little vintage model plane on the window sill (the "work" hotspot; the real plane outside is an easter egg). */
   modelPlane: [1.62, WINDOW.y0, WALL_Z + 0.07] as Vec3,
   /** Floor-standing telescope by the window. */
-  telescope: [2.6, 0, -1.15] as Vec3,
+  telescope: [2.45, 0, -0.95] as Vec3, // nudged in so it stays in frame with mouse parallax
 } as const;
 
 // Restyle (P4.5): Japandi oak slat panel framing the monitors,
