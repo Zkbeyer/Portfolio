@@ -74,8 +74,16 @@ body {
   white-space: nowrap;
 }
 
+/* drei <Html> wrapper around each label: must not catch the pointer either */
+.night-label-anchor {
+  pointer-events: none;
+}
+
 .night-label {
   display: block;
+  /* never steal the pointer from the object underneath (the resume label sits over the notebook) */
+  pointer-events: none;
+  user-select: none;
   font-family: "Kalam", cursive;
   font-size: clamp(15px, 1.35vw, 20px);
   line-height: 1;
