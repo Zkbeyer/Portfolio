@@ -77,66 +77,6 @@ void main() {
 }
 `;
 
-export const SKYLINE_VERT = /* glsl */ `
-attribute vec2 aSize;
-attribute float aSeed;
-varying vec2 vLocal;
-varying vec2 vSize;
-varying float vSeed;
-void main() {
-  vLocal = uv * aSize;
-  vSize = aSize;
-  vSeed = aSeed;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-}
-`;
-
-/**
- * Building faces with a grid of windows. A seeded fraction are lit (warm, a few cool TV-blue),
- * and a handful slowly switch on and off so the city feels inhabited at 2am.
- */
-export const SKYLINE_FRAG = /* glsl */ `
-uniform vec3 uBase;
-uniform vec3 uFog;
-uniform float uFogAmt;
-uniform vec3 uLit;
-uniform vec3 uCool;
-uniform float uLitAmt;
-uniform float uBright;
-uniform vec2 uCell;
-uniform float uTime;
-varying vec2 vLocal;
-varying vec2 vSize;
-varying float vSeed;
-${HASH_GLSL}
-void main() {
-  vec3 col = mix(uBase, uFog, uFogAmt);
-  // faint lighter cap so stacked silhouettes separate
-  col += 0.025 * smoothstep(vSize.y - 0.03, vSize.y, vLocal.y);
-
-  const float MARGIN = 0.06;
-  vec2 g = (vLocal - vec2(MARGIN, 0.0)) / uCell;
-  vec2 id = floor(g);
-  vec2 f = fract(g);
-  float fits = step(MARGIN, vLocal.x)
-    * step((id.x + 1.0) * uCell.x + MARGIN, vSize.x - MARGIN * 0.5)
-    * step((id.y + 1.0) * uCell.y, vSize.y - 0.08);
-  float pane = step(0.22, f.x) * step(f.x, 0.78) * step(0.28, f.y) * step(f.y, 0.8);
-
-  vec2 key = id + vSeed * 17.31;
-  float h = hash21(key);
-  float lit = step(1.0 - uLitAmt, h);
-  float sometimes = step(0.965, hash21(key * 1.37 + 4.2));
-  lit = mix(lit, step(0.55, fract(uTime * 0.035 + h * 7.0)), sometimes);
-
-  vec3 warm = uLit * (0.65 + 0.5 * hash21(key + 3.3));
-  vec3 lamp = mix(warm, uCool, step(0.88, hash21(key + 8.8)));
-  col = mix(col, lamp * uBright, pane * lit * fits);
-
-  gl_FragColor = vec4(col, 1.0);
-}
-`;
-
 /**
  * Rain on the window pane. The outside world is rendered to a mip-mapped texture each frame;
  * the glass samples it in screen space. Fogged glass reads a blurrier mip level, while drops and
