@@ -1,12 +1,14 @@
 import { isAudioPlaying, readAudioPref, setAudioPlaying, subscribeAudio } from "./audioStore";
+import { PLAYLIST, setNowPlaying, shuffledOrder } from "./playlist";
 
 /**
- * The audio engine behind the turntable: procedural rain (WebAudio, no file) + one looping lofi
- * track. Nothing is created until the visitor turns it on, so the page never makes a sound (or
- * downloads the track) by itself.
+ * The audio engine behind the turntable: procedural rain (WebAudio, no file) + a shuffled lo-fi
+ * playlist (`playlist.ts`). Nothing is created until the visitor turns it on, so the page never
+ * makes a sound (or downloads a track) by itself.
  *
- * Track: `public/audio/lofi.mp3` (Zack supplies a royalty-free one); until it exists the element
- * falls back to `home-ambient.mp3` on its first load error.
+ * Playlist: two <audio> "decks" so tracks crossfade. The queue is a shuffle of every track; when it
+ * runs out a new shuffle starts (never with the song that just ended). Only the playing track is
+ * downloaded, plus the next one ~15s before the crossfade. A track that fails to load is skipped.
  *
  * Rain = looped noise through two filters (a soft high hiss + a low body, slowly breathing) plus
  * individual drops: tiny filtered noise bursts at random pitch/pan, scheduled a little ahead.
@@ -14,13 +16,17 @@ import { isAudioPlaying, readAudioPref, setAudioPlaying, subscribeAudio } from "
  */
 
 const BASE = import.meta.env.BASE_URL;
-const TRACK = `${BASE}audio/lofi.mp3`;
-const FALLBACK_TRACK = `${BASE}audio/home-ambient.mp3`;
+/** Seconds of overlap between two tracks. */
+const XFADE = 3;
+/** Start downloading the next track this many seconds before the crossfade. */
+const PRELOAD_AHEAD = 15;
 
 const MASTER = 0.9;
 const MUSIC = 0.5;
 const FADE_IN = 1.2;
 const FADE_OUT = 0.6;
+
+type Deck = { el: HTMLAudioElement; gain: GainNode; track: number | null };
 
 type Graph = {
   ctx: AudioContext;
@@ -28,8 +34,16 @@ type Graph = {
   rain: GainNode;
   music: GainNode;
   noise: AudioBuffer;
-  el: HTMLAudioElement;
+  decks: [Deck, Deck];
 };
+
+// playlist state
+let active = 0; // index into graph.decks
+let queue: number[] = []; // upcoming track indices
+let last: number | undefined; // the track that started most recently
+let xfadeTimer: number | undefined;
+let xfading = false;
+let failures = 0; // consecutive load errors (stop skipping once every track has failed)
 
 let graph: Graph | null = null;
 let schedTimer: number | undefined;
@@ -100,29 +114,116 @@ function build(): Graph | null {
   bed.start();
   lfo.start();
 
-  // --- music ---
-  const el = new Audio();
-  el.preload = "none";
-  el.loop = true;
-  el.src = TRACK;
-  el.addEventListener(
-    "error",
-    () => {
-      if (!el.src.endsWith(FALLBACK_TRACK)) {
-        el.src = FALLBACK_TRACK;
-        if (isAudioPlaying()) void el.play().catch(() => {});
-      }
-    },
-    { once: true },
-  );
+  // --- music: two decks → warm lowpass → music bus ---
   const music = ctx.createGain();
   music.gain.value = MUSIC;
   const warm = ctx.createBiquadFilter();
   warm.type = "lowpass";
   warm.frequency.value = 9000; // take the edge off, like it's coming out of the console speaker
-  ctx.createMediaElementSource(el).connect(warm).connect(music).connect(master);
+  warm.connect(music).connect(master);
 
-  return { ctx, master, rain, music, noise, el };
+  const decks = [0, 1].map((i) => {
+    const el = new Audio();
+    el.preload = "none";
+    const gain = ctx.createGain();
+    gain.gain.value = 0;
+    ctx.createMediaElementSource(el).connect(gain).connect(warm);
+    const deck: Deck = { el, gain, track: null };
+    // backups for the tick-driven crossfade (e.g. timers throttled): move on when the active deck ends/fails
+    el.addEventListener("ended", () => {
+      if (active === i && !xfading) advance();
+    });
+    el.addEventListener("error", () => {
+      if (active !== i || deck.track === null) return;
+      failures++;
+      if (failures >= PLAYLIST.length) {
+        setNowPlaying(null); // nothing loads (offline?) — leave the rain on its own
+        return;
+      }
+      advance(0);
+    });
+    el.addEventListener("playing", () => {
+      if (active === i) failures = 0;
+    });
+    return deck;
+  }) as [Deck, Deck];
+
+  return { ctx, master, rain, music, noise, decks };
+}
+
+// ── playlist ────────────────────────────────────────────────────────────────
+
+/** Next track in the shuffle (refills the queue with a fresh shuffle when it runs out). */
+function peekNext() {
+  if (!queue.length) queue = shuffledOrder(PLAYLIST.length, last);
+  return queue[0];
+}
+
+function takeNext() {
+  const t = peekNext();
+  queue.shift();
+  return t;
+}
+
+function load(deck: Deck, track: number, preload: "auto" | "none") {
+  if (deck.track === track) return;
+  deck.track = track;
+  deck.el.preload = preload;
+  deck.el.src = `${BASE}${PLAYLIST[track].file}`;
+}
+
+/** Start `track` on `deck`, fading it in over `fade` seconds (0 = straight in). */
+function play(g: Graph, deck: Deck, track: number, fade: number) {
+  load(deck, track, "auto");
+  deck.el.currentTime = 0;
+  const now = g.ctx.currentTime;
+  deck.gain.gain.cancelScheduledValues(now);
+  deck.gain.gain.setValueAtTime(fade ? 0 : 1, now);
+  if (fade) deck.gain.gain.linearRampToValueAtTime(1, now + fade);
+  void deck.el.play().catch(() => {});
+  last = track;
+  setNowPlaying(PLAYLIST[track]);
+}
+
+/** Crossfade from the active deck to the next track on the other deck. */
+function advance(fade = XFADE) {
+  const g = graph;
+  if (!g) return;
+  const from = g.decks[active];
+  active = 1 - active;
+  const to = g.decks[active];
+  const now = g.ctx.currentTime;
+  from.gain.gain.cancelScheduledValues(now);
+  from.gain.gain.setValueAtTime(from.gain.gain.value, now);
+  from.gain.gain.linearRampToValueAtTime(0, now + fade);
+  window.clearTimeout(xfadeTimer);
+  xfading = fade > 0;
+  xfadeTimer = window.setTimeout(() => {
+    from.el.pause();
+    xfading = false;
+  }, fade * 1000 + 50);
+  play(g, to, takeNext(), fade);
+}
+
+/** Finish any crossfade immediately (before pausing, so nothing half-faded resumes later). */
+function settleCrossfade(g: Graph) {
+  if (!xfading) return;
+  window.clearTimeout(xfadeTimer);
+  xfading = false;
+  const old = g.decks[1 - active];
+  old.el.pause();
+  old.gain.gain.cancelScheduledValues(g.ctx.currentTime);
+  old.gain.gain.setValueAtTime(0, g.ctx.currentTime);
+}
+
+/** Called from the scheduler tick while playing: preload the next track, start the crossfade on time. */
+function watchTrack(g: Graph) {
+  const deck = g.decks[active];
+  const { duration, currentTime } = deck.el;
+  if (xfading || deck.track === null || !Number.isFinite(duration) || deck.el.paused) return;
+  const left = duration - currentTime;
+  if (left < XFADE + PRELOAD_AHEAD) load(g.decks[1 - active], peekNext(), "auto");
+  if (left <= XFADE) advance();
 }
 
 /** One drop (or, with `crackle`, one vinyl click) at time `t`. */
@@ -160,10 +261,11 @@ function schedule() {
   if (nextDropAt < g.ctx.currentTime) nextDropAt = g.ctx.currentTime + 0.02;
   while (nextDropAt < horizon) {
     blip(g, nextDropAt, false);
-    if (!g.el.paused && Math.random() < 0.18) blip(g, nextDropAt + Math.random() * 0.05, true);
+    if (!g.decks[active].el.paused && Math.random() < 0.18) blip(g, nextDropAt + Math.random() * 0.05, true);
     // ~14 drops/s on average, clumpy (exponential gaps)
     nextDropAt += -Math.log(1 - Math.random()) / 14;
   }
+  watchTrack(g);
 }
 
 function start() {
@@ -173,7 +275,9 @@ function start() {
   window.clearTimeout(stopTimer);
   // resume() and play() must be called inside the click/keypress that turned audio on
   void g.ctx.resume();
-  void g.el.play().catch(() => {});
+  const deck = g.decks[active];
+  if (deck.track === null) play(g, deck, takeNext(), 0); // first track of the visit
+  else if (failures < PLAYLIST.length) void deck.el.play().catch(() => {});
   const now = g.ctx.currentTime;
   g.master.gain.cancelScheduledValues(now);
   g.master.gain.setValueAtTime(g.master.gain.value, now);
@@ -192,7 +296,8 @@ function stop() {
   g.master.gain.linearRampToValueAtTime(0, now + FADE_OUT);
   window.clearInterval(schedTimer);
   stopTimer = window.setTimeout(() => {
-    g.el.pause();
+    settleCrossfade(g);
+    g.decks[active].el.pause();
     void g.ctx.suspend();
   }, FADE_OUT * 1000 + 50);
 }
@@ -202,7 +307,8 @@ function onVisibility() {
   if (!g || !isAudioPlaying()) return;
   if (document.hidden) {
     window.clearInterval(schedTimer);
-    g.el.pause();
+    settleCrossfade(g);
+    g.decks[active].el.pause();
     void g.ctx.suspend();
   } else {
     start();

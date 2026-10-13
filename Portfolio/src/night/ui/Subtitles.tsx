@@ -1,12 +1,15 @@
 import { focusOn, useFocus } from "../scene/focus";
 import { HOTSPOTS, openFocused, useHovered } from "../scene/hotspots";
 import { useAudioPlaying } from "../audio/audioStore";
+import { trackLine, useNowPlaying } from "../audio/playlist";
 import { usePanel } from "./panelStore";
 import { INTRO_LINES } from "./copy";
 
 /**
  * Film-style subtitles at the bottom of the hero. Idle: the intro lines, one after the other.
- * Hovering or focusing an object swaps in its line. While an object is focused, "Back to the desk"
+ * Hovering or focusing an object swaps in its line. When a new lo-fi track starts it's announced
+ * ("♪ title · artist") for a few seconds; hovering the turntable shows it too. When a new lo-fi track starts it's announced
+ * ("♪ title · artist", also the CC BY credit) for a few seconds; hovering the turntable shows it too. While an object is focused, "Back to the desk"
  * and a visible "Open ↗" (the second step, for keyboard/touch) sit under the line.
  * Decorative text is aria-hidden: the intro is also real text in the hero, and every destination is in the nav.
  */
@@ -15,22 +18,31 @@ export function Subtitles() {
   const focus = useFocus();
   const panel = usePanel();
   const playing = useAudioPlaying();
+  const now = useNowPlaying();
   const id = hovered ?? focus;
+  const nowLine = playing && now ? `♪ ${trackLine(now.track)}` : null;
 
   if (panel) return null; // the detail panel covers the room
 
   let lines: readonly string[] = INTRO_LINES;
-  if (id) {
+  let key: string = "intro";
+  if (id === "cassette" && nowLine) {
+    lines = [nowLine, "Press stop for quiet."];
+    key = `cassette:${now?.track.id}`;
+  } else if (id) {
     const info = HOTSPOTS[id];
-    const focused = focus === id;
-    lines = [id === "cassette" && playing ? "Press stop for quiet." : focused && info.focusHint ? info.focusHint : info.hint];
+    lines = [focus === id && info.focusHint ? info.focusHint : info.hint];
+    key = id;
+  } else if (nowLine && now?.fresh) {
+    lines = [nowLine];
+    key = `now:${now.track.id}`;
   }
   const openLabel = focus ? HOTSPOTS[focus].openLabel : undefined;
 
   return (
     <div className="night-subs">
       {/* key re-mounts the block so each new caption fades in like a new subtitle */}
-      <div className={`night-subs__lines${id ? "" : " is-intro"}`} key={id ?? "intro"} aria-hidden="true">
+      <div className={`night-subs__lines${key === "intro" ? " is-intro" : ""}`} key={key} aria-hidden="true">
         {lines.map((l) => (
           <p key={l}>{l}</p>
         ))}

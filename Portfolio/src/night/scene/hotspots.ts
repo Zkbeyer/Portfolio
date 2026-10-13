@@ -75,7 +75,7 @@ export const HOTSPOTS: Record<HotspotId, HotspotInfo> = {
   cassette: {
     id: "cassette",
     label: "lofi",
-    hint: "Press play for rain and lo-fi.",
+    hint: "Press play for rain and a shuffled lo-fi playlist.",
   },
 };
 
