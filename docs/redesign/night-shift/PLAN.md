@@ -25,6 +25,25 @@ Below the hero, normal HTML sections (fast, accessible, indexable):
 4. **track 04 — through the telescope**: about, taped polaroid, night window.
 5. **now playing** footer: contact links + audio state.
 
+## Round 6 — every object earns its click (Zack, 2026-10-13)
+Zack: each object needs more information / a reason to click, like the notebook (1st click → read it in the room,
+2nd click → the real PDF). Same two-step pattern for every hotspot:
+1. **First click = look closer.** Camera moves in (no page scroll anymore) and the object itself shows real, readable
+   content in the scene. Subtitle says what a second click does; a visible "Open ↗" button sits beside
+   "← Back to the desk" for keyboard/touch.
+2. **Second click (or Open) = the zoomed-in page.** A full-screen HTML detail panel over the room (`ui/DetailPanel.tsx`:
+   focus-trapped dialog, Esc/Back closes and returns to the focused shot, scrollable, readable at any size, deep-linkable
+   as `#projects` etc.). The panel bodies are the same components as the P6 sections below the hero, so content lives once.
+
+| Object | 1st click (in the room) | 2nd click (panel) |
+|---|---|---|
+| Notebook | open notebook shows the resume (done) | resume.pdf in a new tab (done) |
+| Monitor | landscape screen swaps the code shader for a real **project playlist** (canvas texture: track no., name, tagline, status); hovering/arrow keys move the highlight; portrait screen shows the highlighted project's stack | **Projects** panel: playlist left, detail right (screenshot, description, stack tags, real metric if any, live/source links); opens on the highlighted track |
+| Model plane (work) | a **boarding pass / luggage tag** card unfolds beside the plane on the sill: "MIZZOU → GARMIN · SOFTWARE ENGINEER, AVIATION DATABASES · 2027", plus the internship line (ATE Software, May–Aug 2026, return offer) | **Work** panel: boarding-pass cards for the Garmin internship (all highlights, incl. 33s→1.6s reports and 80%+ fewer queries), DataAnnotation, and "next stop" Garmin 2027 |
+| Pi (homelab) | portrait monitor turns into a terminal: `kubectl get pods`-style list built only from the real stack (k3s, Go self-heal service, Prometheus, Grafana, Tailscale, Minecraft) — no fake uptimes/metrics; sticky note "status: running"; Pi LED pulses with each "line" | **Homelab** panel: what it does (self-healing k3s on a Pi 5), a simple architecture diagram (Pi 5 → k3s → Go recovery service / Prometheus + Grafana / Tailscale + TLS / Minecraft), stack tags, ailuruslab.dev link |
+| Telescope (about) | **through the eyepiece**: circular vignette onto the night sky; a few stars are joined into small constellations named after his interests (skiing, camping, hiking, nature photography, space weather) | **About** panel: polaroid (`person.photo`), short first-person bio, education (B.E. CS + math minor, certificate, GPA 3.95, Dec 2026), interests, contact links |
+| Turntable | single click toggles sound (unchanged); while playing, subtitle shows the track name | — |
+
 ## Round 5 — type, layout, copy (Zack, 2026-10-13: "creative, professional, and clean")
 Supersedes the type choices in "Visual system" below. Applies to everything P6/P7 builds.
 - **Type** (tokens in `night.css`): `--ns-font-display` **Fraunces** (variable wght; name, section titles — a soft

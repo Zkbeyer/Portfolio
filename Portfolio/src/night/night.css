@@ -320,11 +320,8 @@ body {
   animation: night-sub-in 320ms ease-out both;
 }
 
+/* second intro line = the interaction hint, set small in mono */
 .night-subs__lines.is-intro p:nth-child(2) {
-  animation-delay: 1.4s;
-}
-
-.night-subs__lines.is-intro p:nth-child(3) {
   margin-top: 10px;
   font-family: var(--ns-font-mono);
   font-size: 12px;
@@ -332,7 +329,7 @@ body {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ns-lamp);
-  animation-delay: 3s;
+  animation-delay: 1.6s;
 }
 
 .night-subs__back {

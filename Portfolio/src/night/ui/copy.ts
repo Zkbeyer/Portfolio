@@ -2,11 +2,11 @@ import { person } from "../../content/site";
 
 /**
  * Hero copy. Facts only from `content/site.ts` (finishing at Mizzou Dec 2026, Garmin in 2027).
+ * (Zack, 2026-10-13: the "2 a.m. / cluster is fine" line was cut — it didn't make sense to visitors.)
  * Subtitles are sentence case: calm and readable, like film subtitles, not shouty.
  */
 export const INTRO_LINES = [
   "Finishing CS at Mizzou. Garmin after that.",
-  "It's 2 a.m., and the cluster is fine.",
   "Everything here is a link. Look around.",
 ] as const;
 
