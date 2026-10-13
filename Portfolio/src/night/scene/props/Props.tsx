@@ -16,6 +16,7 @@ import { useFocus } from "../focus";
 import { ModelPlane } from "./ModelPlane";
 import { BoardingPass } from "./BoardingPass";
 import { useAudioPlaying } from "../../audio/audioStore";
+import { StaticMerge } from "../StaticMerge";
 import type { Vec3 } from "../layout";
 
 const offset = (a: Vec3, dx: number, dy: number, dz: number): Vec3 => [a[0] + dx, a[1] + dy, a[2] + dz];
@@ -66,12 +67,14 @@ export function Props() {
         <ModelPlane active={planeActive} />
         <BoardingPass open={focus === "plane"} hover={planeActive} />
       </Hotspot>
-      <Lamp />
-      <Books />
+      <StaticMerge>
+        <Lamp />
+        <Books />
+        <RecordConsole />
+        <Decor />
+      </StaticMerge>
       <Plant />
       <Mug />
-      <RecordConsole />
-      <Decor />
       <AccentLamps />
     </group>
   );

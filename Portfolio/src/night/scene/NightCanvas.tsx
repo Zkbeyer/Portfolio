@@ -1,4 +1,4 @@
-import { Suspense, useMemo } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import type { Camera, Scene, WebGLRenderer } from "three";
 import { PALETTE } from "../palette";
@@ -10,6 +10,8 @@ import { Props } from "./props/Props";
 import { Lighting } from "./Lighting";
 import { Post } from "./Post";
 import { setHovered } from "./hotspots";
+import { StaticMerge } from "./StaticMerge";
+import { usePanel } from "../ui/panelStore";
 
 /**
  * `?perf` in the URL exposes the renderer + scene + camera as `window.__night` so draw calls and triangle
@@ -23,9 +25,22 @@ function exposeForPerfChecks({ gl, scene, camera }: { gl: WebGLRenderer; scene: 
 /** The single real-time 3D room behind the hero. Lazy-loaded so three.js never blocks first paint. */
 export default function NightCanvas() {
   const coarse = useMemo(() => typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches, []);
+  // Perf: stop rendering while the hero is scrolled away or a detail panel covers the room.
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const [inView, setInView] = useState(true);
+  const panel = usePanel();
+  useEffect(() => {
+    const el = canvas.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
     <Canvas
+      ref={canvas}
+      frameloop={inView && !panel ? "always" : "never"}
       className="night-canvas"
       dpr={coarse ? 1 : [1, 1.75]}
       shadows={false}
@@ -39,7 +54,9 @@ export default function NightCanvas() {
       <Suspense fallback={null}>
         <CameraRig />
         <Lighting />
-        <Room />
+        <StaticMerge>
+          <Room />
+        </StaticMerge>
         <WindowView />
         <Props />
         <Post multisampling={coarse ? 0 : 4} />
