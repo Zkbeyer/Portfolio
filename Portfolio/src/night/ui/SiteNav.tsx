@@ -1,6 +1,5 @@
 import { person } from "../../content/site";
 import { toggleAudio, useAudioPlaying } from "../audio/audioStore";
-import { trackLine, useNowPlaying } from "../audio/playlist";
 import { goToPanel } from "../scene/hotspots";
 import { PANEL_IDS } from "./panelStore";
 
@@ -16,7 +15,6 @@ const SECTION_LINKS = PANEL_IDS.map((id) => ({ id, label: id, href: `#${id}` }))
  */
 export function SiteNav() {
   const playing = useAudioPlaying();
-  const now = useNowPlaying();
   return (
     <nav className="night-nav" aria-label="Sections">
       <ul>
@@ -40,13 +38,7 @@ export function SiteNav() {
           </a>
         </li>
         <li>
-          <button
-            type="button"
-            className="night-nav__sound"
-            aria-pressed={playing}
-            onClick={toggleAudio}
-            title={playing && now ? `Now playing: ${trackLine(now.track)}` : undefined}
-          >
+          <button type="button" className="night-nav__sound" aria-pressed={playing} onClick={toggleAudio}>
             <span className="night-nav__eq" aria-hidden="true">
               <i />
               <i />

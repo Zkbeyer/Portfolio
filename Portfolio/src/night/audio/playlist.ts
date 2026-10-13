@@ -1,9 +1,7 @@
-import { useSyncExternalStore } from "react";
-
 /**
  * The turntable's lo-fi playlist (Zack, 2026-10-13). All four tracks are by Sascha Ende (ende.app).
  * His license: free to use, no credit required; terms are only "don't claim you composed it" and
- * "never register it with Content ID". The title shows in the subtitles as a now-playing line.
+ * "never register it with Content ID". No credit or now-playing line on the site (Zack, 2026-10-13).
  * Files live in `public/audio/lofi/`, re-encoded to 128 kbps stereo (~2.3–3.7 MB each).
  * To add a track: drop the mp3 in that folder and add an entry here.
  */
@@ -60,44 +58,3 @@ export function shuffledOrder(n: number, avoidFirst?: number): number[] {
   if (n > 1 && order[0] === avoidFirst) [order[0], order[n - 1]] = [order[n - 1], order[0]];
   return order;
 }
-
-// ── now playing (engine writes, UI reads) ──────────────────────────────────────
-/** `fresh` is true for the first few seconds of a track, when the subtitles announce it. */
-export type NowPlaying = { track: Track; fresh: boolean } | null;
-
-const ANNOUNCE_MS = 6000;
-let now: NowPlaying = null;
-let freshTimer: number | undefined;
-const listeners = new Set<() => void>();
-const emit = () => listeners.forEach((l) => l());
-
-export function setNowPlaying(track: Track | null) {
-  window.clearTimeout(freshTimer);
-  now = track ? { track, fresh: true } : null;
-  emit();
-  if (!track) return;
-  freshTimer = window.setTimeout(() => {
-    if (now?.track === track) {
-      now = { track, fresh: false };
-      emit();
-    }
-  }, ANNOUNCE_MS);
-}
-
-export function getNowPlaying() {
-  return now;
-}
-
-function subscribe(cb: () => void) {
-  listeners.add(cb);
-  return () => {
-    listeners.delete(cb);
-  };
-}
-
-export function useNowPlaying() {
-  return useSyncExternalStore(subscribe, getNowPlaying, () => null);
-}
-
-/** "Japan Lo-Fi Vol. 3 · Sascha Ende" */
-export const trackLine = (t: Track) => `${t.title} · ${t.artist}`;

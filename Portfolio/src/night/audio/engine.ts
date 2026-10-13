@@ -1,5 +1,5 @@
 import { isAudioPlaying, readAudioPref, setAudioPlaying, subscribeAudio } from "./audioStore";
-import { PLAYLIST, setNowPlaying, shuffledOrder } from "./playlist";
+import { PLAYLIST, shuffledOrder } from "./playlist";
 
 /**
  * The audio engine behind the turntable: procedural rain (WebAudio, no file) + a shuffled lo-fi
@@ -137,8 +137,7 @@ function build(): Graph | null {
       if (active !== i || deck.track === null) return;
       failures++;
       if (failures >= PLAYLIST.length) {
-        setNowPlaying(null); // nothing loads (offline?) — leave the rain on its own
-        return;
+        return; // nothing loads (offline?) — leave the rain on its own
       }
       advance(0);
     });
@@ -182,7 +181,6 @@ function play(g: Graph, deck: Deck, track: number, fade: number) {
   if (fade) deck.gain.gain.linearRampToValueAtTime(1, now + fade);
   void deck.el.play().catch(() => {});
   last = track;
-  setNowPlaying(PLAYLIST[track]);
 }
 
 /** Crossfade from the active deck to the next track on the other deck. */
