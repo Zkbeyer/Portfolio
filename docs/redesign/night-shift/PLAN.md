@@ -25,6 +25,23 @@ Below the hero, normal HTML sections (fast, accessible, indexable):
 4. **track 04 — through the telescope**: about, taped polaroid, night window.
 5. **now playing** footer: contact links + audio state.
 
+## Round 5 — type, layout, copy (Zack, 2026-10-13: "creative, professional, and clean")
+Supersedes the type choices in "Visual system" below. Applies to everything P6/P7 builds.
+- **Type** (tokens in `night.css`): `--ns-font-display` **Fraunces** (variable wght; name, section titles — a soft
+  70s serif that fits the MCM room), `--ns-font-body` **DM Sans** (variable; all UI/body), `--ns-font-hand` **Caveat 600**
+  (only the labels inside the room), `--ns-font-mono` **DM Mono 400** (small uppercase metadata: dates, track numbers,
+  stack tags, status). Zen Maru Gothic + Kalam removed (rounded/cartoonish, read less professional).
+- **Copy tone**: sentence case everywhere (no all-lowercase headings or body); the only lowercase is the handwritten
+  room labels. Calm, specific, first person. Name in proper case. Facts only from `content/site.ts`.
+- **Hero layout**: top bar with a soft scrim — left: name (Fraunces), "Backend & platform software engineer",
+  mono meta "MIZZOU CS ’26 · JOINING GARMIN IN 2027"; right: visible nav (Work · Projects · Homelab · About),
+  Resume pill (the one CTA), Sound toggle with a 3-bar meter. ≤760px: section links collapse to keyboard/SR only
+  (room + P7 bottom sheet carry them), Resume + sound stay; ≤420px sound is a round meter-only button.
+  Subtitles: DM Sans 500 with a soft shadow (no heavy outline); third intro line is a mono lamp-coloured hint.
+- **P6 sections**: title = Fraunces ("The day job"), kicker = mono ("TRACK 01"), body DM Sans 16–18px, max ~65ch,
+  stack tags in mono. Polaroid photo: `public/assets/zack-portrait.webp` (`person.photo`, 800×1000 crop of his
+  portfolio headshot; the original `public/assets/headshot.JPG` is a second option).
+
 ## Round 4 notes (Zack, 2026-10-12)
 - Notebook: first click moves the camera in to the open notebook, whose pages show a greeked resume (name +
   real section headings, bar text); clicking it again opens the PDF. Never leave the page on the first click.

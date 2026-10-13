@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 import { person, projects } from "../../content/site";
 import { toggleAudio } from "../audio/audioStore";
 import { focusOn, getFocus, useFocus, type FocusId } from "./focus";
+import { numberWord } from "../ui/copy";
 
 /**
  * Every clickable object in the room, shared by the 3D hotspots (scene/Hotspot.tsx), the subtitles
@@ -27,38 +28,38 @@ export const HOTSPOTS: Record<HotspotId, HotspotInfo> = {
   monitor: {
     id: "monitor",
     label: "projects",
-    hint: `on the monitor: ${projects.length} projects on the playlist.`,
+    hint: `On the monitor: ${numberWord(projects.length)} projects, queued up like a playlist.`,
     section: "projects",
   },
   pi: {
     id: "pi",
     label: "homelab",
-    hint: "the little red box on the shelf is my homelab.",
+    hint: "The little red box on the shelf runs my homelab.",
     section: "homelab",
   },
   plane: {
     id: "plane",
     label: "work",
-    hint: `the model plane is the day job. ${person.next.org.toLowerCase()} after graduation.`,
+    hint: `The model plane: where I’ve worked, and ${person.next.org} next.`,
     section: "work",
   },
   telescope: {
     id: "telescope",
     label: "about",
-    hint: "through the telescope: a bit about me.",
+    hint: "Look through the telescope for a little about me.",
     section: "about",
   },
   notebook: {
     id: "notebook",
     label: "resume",
-    hint: "my resume is in the notebook. take a look.",
-    focusHint: "click the page to open the pdf.",
-    focusLabel: "open resume (pdf) ↗",
+    hint: "My resume is open in the notebook.",
+    focusHint: "Click the page to open the PDF.",
+    focusLabel: "open the pdf ↗",
   },
   cassette: {
     id: "cassette",
     label: "lofi",
-    hint: "press play for rain and lofi.",
+    hint: "Press play for rain and lo-fi.",
   },
 };
 

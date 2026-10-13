@@ -53,7 +53,7 @@ export function Props() {
         id="cassette"
         hit={HIT.cassette}
         labelAt={offset(ANCHORS.cassette, 0, 0.2, 0.05)}
-        labelText={playing ? "lofi: on" : "lofi: off"}
+        labelText={playing ? "lo-fi: on" : "lo-fi"}
       >
         <Turntable playing={playing} />
       </Hotspot>

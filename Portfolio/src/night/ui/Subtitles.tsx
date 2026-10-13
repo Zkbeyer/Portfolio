@@ -19,7 +19,7 @@ export function Subtitles() {
   if (id) {
     const info = HOTSPOTS[id];
     const focused = focus === id;
-    lines = [id === "cassette" && playing ? "press stop for quiet." : focused && info.focusHint ? info.focusHint : info.hint];
+    lines = [id === "cassette" && playing ? "Press stop for quiet." : focused && info.focusHint ? info.focusHint : info.hint];
   }
 
   return (
@@ -31,8 +31,8 @@ export function Subtitles() {
         ))}
       </div>
       {focus && (
-        <button type="button" className="night-subs__back hand" onClick={() => focusOn(null)}>
-          ← back to the desk <kbd>esc</kbd>
+        <button type="button" className="night-subs__back" onClick={() => focusOn(null)}>
+          ← Back to the desk <kbd>Esc</kbd>
         </button>
       )}
     </div>

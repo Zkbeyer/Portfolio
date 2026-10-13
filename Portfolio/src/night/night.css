@@ -5,9 +5,18 @@
   --ns-deep-2: #1c1813;
   --ns-cream: #f3ece0;
   --ns-lilac: #d8cbb6; /* secondary text: warm linen (name kept so existing rules still apply) */
+  --ns-muted: rgba(243, 236, 224, 0.62);
+  --ns-hairline: rgba(243, 236, 224, 0.22);
   --ns-lamp: #ffc98a;
   --ns-accent: #d1492a; /* reddish orange — the one accent */
   --ns-accent-soft: #e8774f;
+
+  /* type (PLAN.md → Round 5): one serif voice, one clean sans, a hand for notes in the room,
+     a mono for small metadata. Nothing else. */
+  --ns-font-display: "Fraunces Variable", "Iowan Old Style", Georgia, serif;
+  --ns-font-body: "DM Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --ns-font-hand: "Caveat", "Segoe Print", cursive;
+  --ns-font-mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 
 html,
@@ -19,11 +28,13 @@ body {
   min-height: 100%;
   background: var(--ns-deep-2);
   color: var(--ns-cream);
-  font-family: "Zen Maru Gothic", ui-rounded, system-ui, sans-serif;
+  font-family: var(--ns-font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 .night .hand {
-  font-family: "Kalam", cursive;
+  font-family: var(--ns-font-hand);
 }
 
 .night-hero {
@@ -42,27 +53,206 @@ body {
   inset: 0;
 }
 
-.night-hero__name {
+/* ── top bar: name + nav ───────────────────────────────────────────────── */
+
+.night-top {
   position: absolute;
-  left: clamp(16px, 3.4vw, 48px);
-  top: clamp(16px, 3vw, 40px);
+  z-index: 30;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: clamp(16px, 3vw, 36px) clamp(16px, 3.4vw, 48px) 48px;
+  /* a soft scrim so the type never fights the room behind it */
+  background: linear-gradient(to bottom, rgba(18, 15, 12, 0.55), rgba(18, 15, 12, 0));
   pointer-events: none;
 }
 
-.night-hero__name h1 {
+.night-top__id h1 {
   margin: 0;
-  font-size: clamp(22px, 2.2vw, 30px);
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-family: var(--ns-font-display);
+  font-size: clamp(26px, 2.6vw, 38px);
+  font-weight: 560;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
 }
 
-.night-hero__name p {
-  margin: 4px 0 0;
-  font-size: clamp(16px, 1.4vw, 20px);
+.night-top__role {
+  margin: 6px 0 0;
+  font-size: clamp(14px, 1.1vw, 16px);
+  font-weight: 450;
   color: var(--ns-lilac);
 }
 
-/* ── P4: hotspot labels, subtitles, hidden nav ─────────────────────────── */
+.night-top__meta {
+  margin: 10px 0 0;
+  font-family: var(--ns-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ns-muted);
+}
+
+.night-nav {
+  pointer-events: auto;
+}
+
+.night-nav ul {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 1.8vw, 28px);
+  margin: 0;
+  padding: 6px 0 0;
+  list-style: none;
+}
+
+.night-nav a,
+.night-nav button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ns-cream);
+  text-decoration: none;
+  text-transform: capitalize;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.82;
+  transition: opacity 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.night-nav a:hover,
+.night-nav button:hover {
+  opacity: 1;
+  color: var(--ns-lamp);
+}
+
+.night-nav a:focus-visible,
+.night-nav button:focus-visible,
+.night-subs__back:focus-visible {
+  outline: 2px solid var(--ns-lamp);
+  outline-offset: 4px;
+  border-radius: 4px;
+  opacity: 1;
+}
+
+.night-nav .night-nav__cta {
+  padding: 0 16px;
+  border: 1px solid var(--ns-hairline);
+  border-radius: 999px;
+  opacity: 1;
+}
+
+.night-nav .night-nav__cta:hover {
+  border-color: var(--ns-lamp);
+}
+
+.night-nav__sound {
+  font-family: var(--ns-font-mono) !important;
+  font-size: 12px !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase !important;
+}
+
+/* three-bar level meter: flat when off, dancing when on */
+.night-nav__eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.night-nav__eq i {
+  width: 2px;
+  height: 3px;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+/* resting meter: uneven bars so it still reads as "sound", not an ellipsis */
+.night-nav__eq i:nth-child(1) {
+  height: 5px;
+}
+.night-nav__eq i:nth-child(2) {
+  height: 9px;
+}
+.night-nav__eq i:nth-child(3) {
+  height: 4px;
+}
+
+.night-nav__sound[aria-pressed="true"] {
+  color: var(--ns-lamp);
+  opacity: 1;
+}
+
+.night-nav__sound[aria-pressed="true"] .night-nav__eq i {
+  animation: night-eq 900ms ease-in-out infinite alternate;
+}
+
+.night-nav__sound[aria-pressed="true"] .night-nav__eq i:nth-child(2) {
+  animation-delay: -300ms;
+}
+
+.night-nav__sound[aria-pressed="true"] .night-nav__eq i:nth-child(3) {
+  animation-delay: -600ms;
+}
+
+@keyframes night-eq {
+  from {
+    height: 3px;
+  }
+  to {
+    height: 12px;
+  }
+}
+
+/* narrow screens: the room carries the sections (P7 adds a bottom sheet); keep resume + sound */
+@media (max-width: 760px) {
+  .night-top {
+    gap: 12px;
+  }
+  .night-nav ul {
+    gap: 14px;
+    padding-top: 0;
+  }
+  .night-nav__section:not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .night-nav .night-nav__cta {
+    padding: 0 14px;
+    font-size: 14px;
+  }
+  .night-top__meta {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 420px) {
+  /* meter only, in a round button; the text stays in the accessibility tree */
+  .night-nav__sound {
+    justify-content: center;
+    width: 44px;
+    font-size: 0 !important;
+    gap: 0 !important;
+    border: 1px solid var(--ns-hairline) !important;
+    border-radius: 999px;
+  }
+}
+
+/* ── hotspot labels, subtitles ─────────────────────────────────────────── */
 
 .sr-only {
   position: absolute;
@@ -84,16 +274,16 @@ body {
   /* never steal the pointer from the object underneath (the resume label sits over the notebook) */
   pointer-events: none;
   user-select: none;
-  font-family: "Kalam", cursive;
-  font-size: clamp(15px, 1.35vw, 20px);
+  font-family: var(--ns-font-hand);
+  font-weight: 600;
+  font-size: clamp(18px, 1.55vw, 24px);
   line-height: 1;
   white-space: nowrap;
   color: var(--ns-cream);
-  opacity: 0.78;
+  opacity: 0.8;
   text-shadow: 0 1px 2px rgba(20, 14, 8, 0.9), 0 0 10px rgba(20, 14, 8, 0.6);
   transform: rotate(-3deg);
   transition: opacity 180ms ease, color 180ms ease, transform 220ms ease;
-  user-select: none;
 }
 
 .night-label.is-active {
@@ -110,48 +300,70 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   text-align: center;
   pointer-events: none;
 }
 
+.night-subs__lines {
+  max-width: 34em;
+}
+
 .night-subs__lines p {
   margin: 0 0 6px;
-  font-size: clamp(17px, 1.95vw, 28px);
-  font-weight: 700;
-  color: #fff;
-  /* classic subtitle stroke */
-  text-shadow: 0 0 3px #000, 0 0 3px #000, 0 2px 0 #000;
-  animation: night-sub-in 260ms ease-out both;
+  font-size: clamp(16px, 1.55vw, 22px);
+  font-weight: 500;
+  line-height: 1.35;
+  color: #fbf6ee;
+  /* film-subtitle legibility without the heavy outline */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85), 0 0 18px rgba(0, 0, 0, 0.55);
+  animation: night-sub-in 320ms ease-out both;
 }
 
 .night-subs__lines.is-intro p:nth-child(2) {
   animation-delay: 1.4s;
 }
 
+.night-subs__lines.is-intro p:nth-child(3) {
+  margin-top: 10px;
+  font-family: var(--ns-font-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ns-lamp);
+  animation-delay: 3s;
+}
+
 .night-subs__back {
   pointer-events: auto;
-  font-size: 18px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
   color: var(--ns-cream);
   background: rgba(28, 24, 19, 0.72);
-  border: 1px solid rgba(244, 233, 216, 0.35);
+  border: 1px solid var(--ns-hairline);
   border-radius: 999px;
   padding: 10px 18px;
   min-height: 44px;
   cursor: pointer;
+  backdrop-filter: blur(6px);
 }
 
-.night-subs__back:hover,
-.night-subs__back:focus-visible {
+.night-subs__back:hover {
   color: var(--ns-lamp);
   border-color: var(--ns-lamp);
 }
 
 .night-subs__back kbd {
-  font: inherit;
-  font-size: 0.8em;
+  font-family: var(--ns-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
   opacity: 0.7;
-  margin-left: 6px;
+  margin-left: 8px;
+  padding: 2px 6px;
+  border: 1px solid var(--ns-hairline);
+  border-radius: 4px;
 }
 
 @keyframes night-sub-in {
@@ -161,63 +373,11 @@ body {
   }
 }
 
-.night-skipnav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  pointer-events: none;
-}
-
-.night-skipnav ul {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  margin: 0;
-  padding: 12px 16px;
-  list-style: none;
-}
-
-/* hidden until a link inside is focused */
-.night-skipnav:not(:focus-within) {
-  clip-path: inset(50%);
-  height: 1px;
-  overflow: hidden;
-}
-
-.night-skipnav:focus-within {
-  background: rgba(28, 24, 19, 0.94);
-}
-
-.night-skipnav a,
-.night-skipnav button {
-  pointer-events: auto;
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0 16px;
-  font-size: 19px;
-  color: var(--ns-cream);
-  background: transparent;
-  border: 1px solid rgba(244, 233, 216, 0.35);
-  border-radius: 999px;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.night-skipnav a:focus-visible,
-.night-skipnav button:focus-visible {
-  outline: 2px solid var(--ns-lamp);
-  outline-offset: 2px;
-  color: var(--ns-lamp);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .night-subs__lines p,
-  .night-label {
-    animation: none;
+  .night-label,
+  .night-nav__eq i {
+    animation: none !important;
     transition: none;
   }
 }

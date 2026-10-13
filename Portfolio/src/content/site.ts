@@ -55,6 +55,10 @@ export const person = {
     linkedin: "https://www.linkedin.com/in/zackery-beyer/",
     resume: asset("resume.pdf"),
   },
+  photo: {
+    src: asset("assets/zack-portrait.webp"),
+    alt: "Zack in an olive sweatshirt, sitting on a concrete step in front of a white garage door, smiling",
+  },
   interests: ["skiing", "camping", "hiking", "nature photography", "space weather"],
 } as const;
 
