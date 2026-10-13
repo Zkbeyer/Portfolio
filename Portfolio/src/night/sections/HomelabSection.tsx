@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { projects } from "../../content/site";
 import { Tags } from "./Tags";
 
@@ -16,13 +17,14 @@ const WORKLOADS = [
  * Static — no live status endpoint (Zack, 2026-10-12).
  */
 export function HomelabSection() {
+  const caption = useId();
   return (
     <div className="ns-lab">
       <div className="ns-prose">
         <p className="ns-lede">{lab.tagline}.</p>
         <p>{lab.description}</p>
       </div>
-      <figure className="ns-arch" aria-labelledby="arch-caption">
+      <figure className="ns-arch" aria-labelledby={caption}>
         <div className="ns-arch__node ns-arch__node--host">
           <span className="ns-meta">Hardware</span>
           <strong>Raspberry Pi 5</strong>
@@ -40,7 +42,7 @@ export function HomelabSection() {
             </li>
           ))}
         </ul>
-        <figcaption id="arch-caption" className="sr-only">
+        <figcaption id={caption} className="sr-only">
           Architecture: a Raspberry Pi 5 runs k3s, which runs a Go self-heal service, Prometheus and Grafana, secured access, and a
           Minecraft server.
         </figcaption>

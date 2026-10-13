@@ -10,6 +10,7 @@ import { Subtitles } from "./ui/Subtitles";
 import { HERO_META, HERO_ROLE, INTRO_LINES } from "./ui/copy";
 import { DetailPanel } from "./ui/DetailPanel";
 import { Eyepiece } from "./ui/Eyepiece";
+import { ScrollCue, Tracks } from "./ui/Tracks";
 import { closePanel, getPanel, isPanelId, usePanel } from "./ui/panelStore";
 import { goToPanel } from "./scene/hotspots";
 import { useRoomKeys } from "./ui/useRoomKeys";
@@ -56,7 +57,11 @@ export default function NightApp() {
         <p className="sr-only">{INTRO_LINES.join(" ")}</p>
         <Eyepiece />
         <Subtitles />
+        <ScrollCue />
       </section>
+      <div inert={panel !== null}>
+        <Tracks />
+      </div>
       <DetailPanel />
     </main>
   );

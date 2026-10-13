@@ -1,17 +1,6 @@
-import { useEffect, useRef, type ComponentType } from "react";
+import { useEffect, useRef } from "react";
 import { closePanel, usePanel, type PanelId } from "./panelStore";
-import { WorkSection } from "../sections/WorkSection";
-import { ProjectsSection } from "../sections/ProjectsSection";
-import { HomelabSection } from "../sections/HomelabSection";
-import { AboutSection } from "../sections/AboutSection";
-
-/** Kicker + title per panel. Track numbers follow the P6 "tracks". */
-const PANELS: Record<PanelId, { kicker: string; title: string; Body: ComponentType }> = {
-  work: { kicker: "Track 01 · Work", title: "The day job", Body: WorkSection },
-  projects: { kicker: "Track 02 · Projects", title: "Projects", Body: ProjectsSection },
-  homelab: { kicker: "Track 03 · Homelab", title: "The homelab", Body: HomelabSection },
-  about: { kicker: "Track 04 · About", title: "About me", Body: AboutSection },
-};
+import { TRACKS } from "../sections";
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -27,7 +16,7 @@ export function DetailPanel() {
 }
 
 function PanelDialog({ id }: { id: PanelId }) {
-  const { kicker, title, Body } = PANELS[id];
+  const { kicker, title, Body } = TRACKS[id];
   const dialog = useRef<HTMLDivElement>(null);
   const back = useRef<HTMLButtonElement>(null);
 

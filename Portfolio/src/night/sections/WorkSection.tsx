@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { experience, person, type Experience } from "../../content/site";
 
 /**
@@ -16,14 +17,15 @@ export function WorkSection() {
 }
 
 function NextStop() {
+  const id = useId();
   return (
-    <article className="ns-pass ns-pass--next" aria-labelledby="pass-next">
+    <article className="ns-pass ns-pass--next" aria-labelledby={id}>
       <div className="ns-pass__main">
         <p className="ns-pass__band">
           <span>Boarding pass</span>
           <span className="ns-pass__status">Next stop · {person.next.when}</span>
         </p>
-        <h3 id="pass-next" className="ns-pass__route">
+        <h3 id={id} className="ns-pass__route">
           <span>Mizzou</span>
           <Plane />
           <span>{person.next.org}</span>
@@ -42,14 +44,15 @@ function NextStop() {
 
 function Pass({ job }: { job: Experience }) {
   const returnOffer = /return offer/i.test(job.summary);
+  const id = useId();
   return (
-    <article className="ns-pass" aria-labelledby={`pass-${job.id}`}>
+    <article className="ns-pass" aria-labelledby={id}>
       <div className="ns-pass__main">
         <p className="ns-pass__band">
           <span>{job.period}</span>
           {returnOffer && <span className="ns-pass__status">Return offer</span>}
         </p>
-        <h3 id={`pass-${job.id}`} className="ns-pass__org">
+        <h3 id={id} className="ns-pass__org">
           {job.org}
         </h3>
         <p className="ns-pass__role">
