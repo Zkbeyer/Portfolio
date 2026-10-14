@@ -62,32 +62,8 @@ export const person = {
   },
 } as const;
 
-// Off the clock — Zack's own list (2026-10-14). Items with a `sticker` also appear in the sticker collage
-// on the telescope tube and in the About panel. Sticker art is original (no official logos or characters).
-export type StickerId =
-  | "gc"
-  | "grounded"
-  | "minecraft"
-  | "subnautica"
-  | "arc"
-  | "siege"
-  | "apex"
-  | "keeper"
-  | "volleyball"
-  | "pickleball"
-  | "gym"
-  | "bluelock"
-  | "catan"
-  | "bohnanza"
-  | "hike"
-  | "travel"
-  | "camp"
-  | "homelab"
-  | "llm"
-  | "distributed"
-  | "rice"
-  | "optimize";
-export type Interest = { name: string; note?: string; sticker?: StickerId };
+// Off the clock — Zack's own list (2026-10-14).
+export type Interest = { name: string; note?: string };
 export type InterestGroup = { id: string; label: string; items: Interest[] };
 
 export const interests: InterestGroup[] = [
@@ -95,30 +71,30 @@ export const interests: InterestGroup[] = [
     id: "gaming",
     label: "Gaming",
     items: [
-      { name: "Rocket League", note: "Grand Champion", sticker: "gc" },
-      { name: "Grounded & Grounded 2", sticker: "grounded" },
-      { name: "Minecraft", sticker: "minecraft" },
-      { name: "Subnautica", sticker: "subnautica" },
-      { name: "ARC Raiders", sticker: "arc" },
-      { name: "Rainbow Six Siege", sticker: "siege" },
-      { name: "Apex Legends", sticker: "apex" },
+      { name: "Rocket League", note: "Grand Champion" },
+      { name: "Grounded & Grounded 2" },
+      { name: "Minecraft" },
+      { name: "Subnautica" },
+      { name: "ARC Raiders" },
+      { name: "Rainbow Six Siege" },
+      { name: "Apex Legends" },
     ],
   },
   {
     id: "sports",
     label: "Sports",
     items: [
-      { name: "Soccer", note: "goalkeeper", sticker: "keeper" },
-      { name: "Volleyball", note: "middle blocker", sticker: "volleyball" },
-      { name: "Pickleball", sticker: "pickleball" },
-      { name: "Gym", sticker: "gym" },
+      { name: "Soccer", note: "goalkeeper" },
+      { name: "Volleyball", note: "middle blocker" },
+      { name: "Pickleball" },
+      { name: "Gym" },
     ],
   },
   {
     id: "shows",
     label: "Shows",
     items: [
-      { name: "Blue Lock", sticker: "bluelock" },
+      { name: "Blue Lock" },
       { name: "Attack on Titan" },
       { name: "Cyberpunk: Edgerunners" },
       { name: "Jujutsu Kaisen" },
@@ -130,29 +106,29 @@ export const interests: InterestGroup[] = [
     id: "tabletop",
     label: "Board games",
     items: [
-      { name: "Catan", sticker: "catan" },
+      { name: "Catan" },
       { name: "Root" },
-      { name: "Bohnanza", note: "the bean game", sticker: "bohnanza" },
+      { name: "Bohnanza", note: "the bean game" },
     ],
   },
   {
     id: "outdoors",
     label: "Outdoors",
     items: [
-      { name: "Hiking", sticker: "hike" },
-      { name: "Traveling", sticker: "travel" },
-      { name: "Camping", note: "next on the list", sticker: "camp" },
+      { name: "Hiking" },
+      { name: "Traveling" },
+      { name: "Camping", note: "next on the list" },
     ],
   },
   {
     id: "tech",
     label: "Tech",
     items: [
-      { name: "Homelabs & self-hosting", sticker: "homelab" },
-      { name: "AI & LLM coding agents", sticker: "llm" },
-      { name: "Distributed systems & cloud", sticker: "distributed" },
-      { name: "Linux desktops & ricing", sticker: "rice" },
-      { name: "Optimizing complex systems", sticker: "optimize" },
+      { name: "Homelabs & self-hosting" },
+      { name: "AI & LLM coding agents" },
+      { name: "Distributed systems & cloud" },
+      { name: "Linux desktops & ricing" },
+      { name: "Optimizing complex systems" },
     ],
   },
 ];

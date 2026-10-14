@@ -13,7 +13,7 @@ export const SHOTS: Record<FocusId, CameraShot> = {
   monitor: { position: [-0.3, 1.2, -0.15], target: [-0.3, 1.17, -1.34] }, // close enough to read the playlist
   pi: { position: [-1.4, 2.0, -1.0], target: [-1.4, 1.95, -1.42] }, // the Pi, its status display and the sticky note
   plane: { position: [1.74, 1.2, -0.88], target: [1.77, 1.1, -1.52] }, // plane + boarding pass on the sill
-  telescope: { position: [2.22, 1.3, -0.42], target: [2.52, 1.1, -1.0] }, // the sticker-covered tube
+  telescope: { position: [2.22, 1.3, -0.42], target: [2.52, 1.1, -1.0] }, // telescope close-up
   notebook: { position: [0.2, 1.28, -0.58], target: ANCHORS.notebook }, // close enough to read the resume
   cassette: { position: [1.35, 1.25, 0.1], target: ANCHORS.cassette },
 };

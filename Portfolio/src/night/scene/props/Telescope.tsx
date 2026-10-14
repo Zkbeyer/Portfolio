@@ -4,8 +4,6 @@ import { Group, MathUtils, Vector3 } from "three";
 import { ANCHORS, WINDOW_CENTER, type Vec3 } from "../layout";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 import { Matte, Rod } from "./parts";
-import { useDisposable } from "../../hooks/useDisposable";
-import { stickerTexture } from "./stickerTexture";
 
 const TUBE = "#E9DCC3";
 const BRASS = "#C9A25E";
@@ -17,12 +15,10 @@ const LEG_SPREAD = 0.3;
 const AIM = new Vector3(WINDOW_CENTER[0] + 0.2, WINDOW_CENTER[1] + 0.9, WINDOW_CENTER[2] - 1.5);
 
 /**
- * Floor-standing refractor on a tripod by the window (→ about), its tube covered in stickers (name tag +
- * one per interest) — the "look closer" step. It leans a little toward the cursor; `active` lets it follow
- * further; `focused` holds it still so the stickers can be read.
+ * Floor-standing refractor on a tripod by the window (→ about), the "look closer" step. It leans a little toward the cursor; `active` lets it follow
+ * further; `focused` holds it still for the close-up.
  */
 export function Telescope({ active = false, focused = false }: { active?: boolean; focused?: boolean }) {
-  const stickers = useDisposable(stickerTexture, []);
   const reduced = usePrefersReducedMotion();
   const tube = useRef<Group>(null);
   const aim = useRef(AIM.clone());
@@ -74,11 +70,6 @@ export function Telescope({ active = false, focused = false }: { active?: boolea
         <mesh position={[0, 0, 0.06]} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[0.036, 0.03, 0.44, 24]} />
           <Matte color={TUBE} roughness={0.45} />
-        </mesh>
-        {/* sticker wrap: transparent canvas around the tube, a hair proud of the paint */}
-        <mesh position={[0, 0, 0.06]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.0366, 0.0306, 0.44, 32, 1, true]} />
-          <meshStandardMaterial map={stickers} emissiveMap={stickers} emissive="#ffffff" emissiveIntensity={0.22} transparent alphaTest={0.4} roughness={0.55} />
         </mesh>
         {/* dew shield + brass rings */}
         <mesh position={[0, 0, 0.3]} rotation={[Math.PI / 2, 0, 0]}>
