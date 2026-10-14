@@ -103,15 +103,6 @@ export const interests: InterestGroup[] = [
     ],
   },
   {
-    id: "tabletop",
-    label: "Board games",
-    items: [
-      { name: "Catan" },
-      { name: "Root" },
-      { name: "Bohnanza", note: "the bean game" },
-    ],
-  },
-  {
     id: "outdoors",
     label: "Outdoors",
     items: [
