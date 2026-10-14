@@ -1,5 +1,5 @@
 import { person } from "../../content/site";
-import { Tags } from "./Tags";
+import { Interests } from "./Interests";
 
 /**
  * Track 04 — about (the telescope's panel): polaroid, a short first-person intro, education, interests
@@ -33,7 +33,7 @@ export function AboutSection() {
           <dd>{ed.graduation}</dd>
         </dl>
         <h3>Off the clock</h3>
-        <Tags items={person.interests} label="Interests" />
+        <Interests />
         <h3>Say hi</h3>
         <p className="ns-links">
           <a href={`mailto:${person.email}`}>{person.email}</a>

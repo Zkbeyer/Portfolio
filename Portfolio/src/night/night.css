@@ -629,7 +629,58 @@ html.night-panel-open body {
   font-size: 20px;
 }
 
+/* off the clock: sticker sheet + grouped list */
+.ns-sheet {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  margin: 10px 0 14px;
+  padding: 12px 10px;
+  border-radius: 10px;
+  background: rgba(243, 236, 224, 0.06);
+  border: 1px dashed var(--ns-hairline);
+}
+.ns-sticker {
+  width: 124px;
+  height: 97px;
+}
+.ns-interests__groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 24px;
+  margin: 0;
+}
+.ns-interests__group dt {
+  font-family: var(--ns-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ns-lamp);
+}
+.ns-interests__group dd {
+  margin: 4px 0 0;
+}
+.ns-interests__group ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ns-interests__group li {
+  padding: 2px 0;
+  color: var(--ns-cream);
+}
+.ns-interests__note {
+  color: var(--ns-muted);
+}
+
 @media (max-width: 640px) {
+  .ns-sticker {
+    width: 112px;
+    height: 88px;
+  }
+  .ns-interests__groups {
+    grid-template-columns: 1fr;
+  }
   .ns-about {
     grid-template-columns: 1fr;
   }

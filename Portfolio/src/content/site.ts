@@ -59,8 +59,53 @@ export const person = {
     src: asset("assets/zack-portrait.webp"),
     alt: "Zack in an olive sweatshirt, sitting on a concrete step in front of a white garage door, smiling",
   },
-  interests: ["gym", "gaming", "outdoors", "technology"], // Zack, 2026-10-13
 } as const;
+
+// Off the clock — Zack's own list (2026-10-14). Items with a `sticker` also appear on the telescope tube.
+export type StickerId = "gc" | "grounded" | "minecraft" | "keeper" | "volleyball" | "pickleball" | "bluelock";
+export type Interest = { name: string; note?: string; sticker?: StickerId };
+export type InterestGroup = { id: string; label: string; items: Interest[] };
+
+export const interests: InterestGroup[] = [
+  {
+    id: "gaming",
+    label: "Gaming",
+    items: [
+      { name: "Rocket League", note: "Grand Champion", sticker: "gc" },
+      { name: "Grounded & Grounded 2", sticker: "grounded" },
+      { name: "Minecraft", sticker: "minecraft" },
+    ],
+  },
+  {
+    id: "sports",
+    label: "Sports",
+    items: [
+      { name: "Soccer", note: "goalkeeper", sticker: "keeper" },
+      { name: "Volleyball", sticker: "volleyball" },
+      { name: "Pickleball", sticker: "pickleball" },
+      { name: "Gym" },
+    ],
+  },
+  {
+    id: "shows",
+    label: "Shows",
+    items: [
+      { name: "Blue Lock", sticker: "bluelock" },
+      { name: "Attack on Titan" },
+      { name: "Cyberpunk: Edgerunners" },
+      { name: "Jujutsu Kaisen" },
+      { name: "Black Clover" },
+      { name: "Naruto" },
+    ],
+  },
+  { id: "tabletop", label: "Board games", items: [{ name: "Catan" }, { name: "Root" }] },
+  {
+    id: "outdoors",
+    label: "Outdoors",
+    items: [{ name: "Time in nature, whenever I can get it" }, { name: "Camping", note: "next on the list" }],
+  },
+  { id: "tech", label: "Tech", items: [{ name: "State-of-the-art tech and software" }] },
+];
 
 export const experience: Experience[] = [
   {
