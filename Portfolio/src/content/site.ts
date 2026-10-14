@@ -183,7 +183,7 @@ export const projects: Project[] = [
       "Custom ASP.NET Core middleware injects controlled latency, errors and timeouts into live API traffic to test how services behave when dependencies fail. A control-plane REST API swaps fault rules at runtime, with no restart or redeploy.",
     stack: [".NET 10", "C#", "ASP.NET Core", "Docker"],
     status: "active",
-    image: asset("projects/fault-injector/1.png"),
+    image: asset("projects/fault-injector/1.webp"),
     links: [
       { label: "source", href: "https://github.com/Zkbeyer/FaultInjector" },
     ],
@@ -197,7 +197,7 @@ export const projects: Project[] = [
     stack: ["Next.js", "React", "Python", "GitHub Actions"],
     status: "live",
     metric: "100+ students",
-    image: asset("projects/mu-planner/1.png"),
+    image: asset("projects/mu-planner/1.webp"),
     links: [
       { label: "live", href: "https://mu.ailuruslab.dev" },
       { label: "source", href: "https://github.com/Zkbeyer/mu-planner" },
@@ -221,7 +221,7 @@ export const projects: Project[] = [
       "Employees, availability and role-based shift templates on a drag-and-drop weekly calendar with auto-generation and CSV import/export.",
     stack: ["Next.js", "TypeScript", "Supabase", "Stripe"],
     status: "in-development",
-    image: asset("projects/shiftforge/1.png"),
+    image: asset("projects/shiftforge/1.webp"),
     links: [{ label: "source", href: "https://github.com/Zkbeyer/shiftforge" }],
   },
   {
@@ -232,7 +232,7 @@ export const projects: Project[] = [
       "Turns your Spotify listening history into a year-in-review report with AI-written insights. Spotify only allows allowlisted accounts to sign in to apps in development mode, so the demo is the way in.",
     stack: ["React", "Node.js", "Express", "Spotify API"],
     status: "demo",
-    image: asset("projects/spotify/1.png"),
+    image: asset("projects/spotify/1.webp"),
     links: [
       { label: "live", href: "https://your-rewind.vercel.app" },
       { label: "source", href: "https://github.com/Zkbeyer/Rewind" },

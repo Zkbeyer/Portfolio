@@ -681,7 +681,7 @@ html.night-panel-open body {
 .ns-pass {
   --pass-paper: #f4eee3;
   --pass-ink: #2a2622;
-  --pass-muted: #6f655a;
+  --pass-muted: #5c5349; /* ≥4.5:1 on the stub (#ebe2d3) too */
   display: grid;
   grid-template-columns: minmax(0, 1fr) 120px;
   color: var(--pass-ink);
@@ -711,7 +711,7 @@ html.night-panel-open body {
 
 .ns-pass__status {
   color: #fff;
-  background: var(--ns-accent);
+  background: #b23a1f; /* a step darker than the accent so 11px white text passes 4.5:1 */
   padding: 2px 9px;
   border-radius: 999px;
   letter-spacing: 0.08em;
@@ -992,6 +992,9 @@ html.night-panel-open body {
   display: block;
   width: 100%;
   height: auto;
+  max-height: 340px; /* tall screenshots (FaultInjector's terminal) shouldn't push the description off-screen */
+  object-fit: cover;
+  object-position: top;
   margin: 8px 0 18px;
   border-radius: 10px;
   border: 1px solid var(--ns-hairline);
