@@ -17,7 +17,8 @@ export type Experience = {
   highlights: string[];
 };
 
-export type ProjectStatus = "running" | "live" | "active" | "in-progress" | "in-development" | "demo";
+export type ProjectStatus =
+  "running" | "live" | "active" | "in-progress" | "in-development" | "demo";
 
 export type Project = {
   id: string;
@@ -61,8 +62,31 @@ export const person = {
   },
 } as const;
 
-// Off the clock — Zack's own list (2026-10-14). Items with a `sticker` also appear on the telescope tube.
-export type StickerId = "gc" | "grounded" | "minecraft" | "keeper" | "volleyball" | "pickleball" | "bluelock";
+// Off the clock — Zack's own list (2026-10-14). Items with a `sticker` also appear in the sticker collage
+// on the telescope tube and in the About panel. Sticker art is original (no official logos or characters).
+export type StickerId =
+  | "gc"
+  | "grounded"
+  | "minecraft"
+  | "subnautica"
+  | "arc"
+  | "siege"
+  | "apex"
+  | "keeper"
+  | "volleyball"
+  | "pickleball"
+  | "gym"
+  | "bluelock"
+  | "catan"
+  | "bohnanza"
+  | "hike"
+  | "travel"
+  | "camp"
+  | "homelab"
+  | "llm"
+  | "distributed"
+  | "rice"
+  | "optimize";
 export type Interest = { name: string; note?: string; sticker?: StickerId };
 export type InterestGroup = { id: string; label: string; items: Interest[] };
 
@@ -74,6 +98,10 @@ export const interests: InterestGroup[] = [
       { name: "Rocket League", note: "Grand Champion", sticker: "gc" },
       { name: "Grounded & Grounded 2", sticker: "grounded" },
       { name: "Minecraft", sticker: "minecraft" },
+      { name: "Subnautica", sticker: "subnautica" },
+      { name: "ARC Raiders", sticker: "arc" },
+      { name: "Rainbow Six Siege", sticker: "siege" },
+      { name: "Apex Legends", sticker: "apex" },
     ],
   },
   {
@@ -81,9 +109,9 @@ export const interests: InterestGroup[] = [
     label: "Sports",
     items: [
       { name: "Soccer", note: "goalkeeper", sticker: "keeper" },
-      { name: "Volleyball", sticker: "volleyball" },
+      { name: "Volleyball", note: "middle blocker", sticker: "volleyball" },
       { name: "Pickleball", sticker: "pickleball" },
-      { name: "Gym" },
+      { name: "Gym", sticker: "gym" },
     ],
   },
   {
@@ -98,13 +126,35 @@ export const interests: InterestGroup[] = [
       { name: "Naruto" },
     ],
   },
-  { id: "tabletop", label: "Board games", items: [{ name: "Catan" }, { name: "Root" }] },
+  {
+    id: "tabletop",
+    label: "Board games",
+    items: [
+      { name: "Catan", sticker: "catan" },
+      { name: "Root" },
+      { name: "Bohnanza", note: "the bean game", sticker: "bohnanza" },
+    ],
+  },
   {
     id: "outdoors",
     label: "Outdoors",
-    items: [{ name: "Time in nature, whenever I can get it" }, { name: "Camping", note: "next on the list" }],
+    items: [
+      { name: "Hiking", sticker: "hike" },
+      { name: "Traveling", sticker: "travel" },
+      { name: "Camping", note: "next on the list", sticker: "camp" },
+    ],
   },
-  { id: "tech", label: "Tech", items: [{ name: "State-of-the-art tech and software" }] },
+  {
+    id: "tech",
+    label: "Tech",
+    items: [
+      { name: "Homelabs & self-hosting", sticker: "homelab" },
+      { name: "AI & LLM coding agents", sticker: "llm" },
+      { name: "Distributed systems & cloud", sticker: "distributed" },
+      { name: "Linux desktops & ricing", sticker: "rice" },
+      { name: "Optimizing complex systems", sticker: "optimize" },
+    ],
+  },
 ];
 
 export const experience: Experience[] = [
@@ -115,7 +165,8 @@ export const experience: Experience[] = [
     team: "Automated Test Equipment (ATE) Software",
     location: "Olathe, KS",
     period: "May – Aug 2026",
-    summary: "Owned projects end to end on an established team and earned a full-time return offer.",
+    summary:
+      "Owned projects end to end on an established team and earned a full-time return offer.",
     highlights: [
       "Traced the main bottleneck on a high-traffic test-report platform and restructured its SQL: large reports went from 33s to 1.6s (~95%), and a targeted step-name lookup cut query volume 80%+.",
       "Built a fault-tolerant PC provisioning tool: install steps live as data in SQL Server, a PyQt5 client runs them with per-step retry/skip and checkpointed reboot-and-resume.",
@@ -130,7 +181,8 @@ export const experience: Experience[] = [
     team: "AI Coding Evaluation",
     location: "Remote",
     period: "2026 – present",
-    summary: "Evaluate code from frontier LLM coding agents and design tasks that expose where they break.",
+    summary:
+      "Evaluate code from frontier LLM coding agents and design tasks that expose where they break.",
     highlights: [
       "Review AI-generated code for correctness, edge cases, security and maintainability, documenting the failure mode behind each rejection.",
       "Design adversarial coding and Docker tasks against real open-source codebases such as pandas.",
@@ -145,7 +197,14 @@ export const projects: Project[] = [
     tagline: "A self-healing k3s cluster on a Raspberry Pi 5",
     description:
       "Migrated from Docker Compose to declarative Kubernetes (k3s). A custom Go service handles health checks, backups and automated recovery with no operator in the loop. Prometheus and Grafana handle monitoring and alerting; access is hardened with automated TLS, Tailscale and key-only SSH. It also hosts a Minecraft server for friends.",
-    stack: ["Kubernetes (k3s)", "Go", "Docker", "Prometheus", "Grafana", "Linux"],
+    stack: [
+      "Kubernetes (k3s)",
+      "Go",
+      "Docker",
+      "Prometheus",
+      "Grafana",
+      "Linux",
+    ],
     status: "running",
     links: [{ label: "ailuruslab.dev", href: "https://ailuruslab.dev" }],
   },
@@ -158,7 +217,9 @@ export const projects: Project[] = [
     stack: [".NET 10", "C#", "ASP.NET Core", "Docker"],
     status: "active",
     image: asset("projects/fault-injector/1.png"),
-    links: [{ label: "source", href: "https://github.com/Zkbeyer/FaultInjector" }],
+    links: [
+      { label: "source", href: "https://github.com/Zkbeyer/FaultInjector" },
+    ],
   },
   {
     id: "mu-planner",
@@ -213,8 +274,37 @@ export const projects: Project[] = [
 ];
 
 export const skills = {
-  Languages: ["Python", "Go", "C#", "C++", "C", "SQL", "TypeScript", "JavaScript"],
-  Infrastructure: ["Docker", "Kubernetes (k3s)", "Linux", "Prometheus", "Grafana", "GitHub Actions"],
-  Data: ["PostgreSQL", "SQL Server", "MongoDB", "schema design", "query optimization", "ETL"],
-  Practice: ["code review", "testing", "technical documentation", "CI/CD", "fault-injection testing"],
+  Languages: [
+    "Python",
+    "Go",
+    "C#",
+    "C++",
+    "C",
+    "SQL",
+    "TypeScript",
+    "JavaScript",
+  ],
+  Infrastructure: [
+    "Docker",
+    "Kubernetes (k3s)",
+    "Linux",
+    "Prometheus",
+    "Grafana",
+    "GitHub Actions",
+  ],
+  Data: [
+    "PostgreSQL",
+    "SQL Server",
+    "MongoDB",
+    "schema design",
+    "query optimization",
+    "ETL",
+  ],
+  Practice: [
+    "code review",
+    "testing",
+    "technical documentation",
+    "CI/CD",
+    "fault-injection testing",
+  ],
 } as const;

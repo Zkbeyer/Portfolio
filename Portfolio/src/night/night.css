@@ -630,19 +630,11 @@ html.night-panel-open body {
 }
 
 /* off the clock: sticker sheet + grouped list */
-.ns-sheet {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px 6px;
-  margin: 10px 0 14px;
-  padding: 12px 10px;
-  border-radius: 10px;
-  background: rgba(243, 236, 224, 0.06);
-  border: 1px dashed var(--ns-hairline);
-}
-.ns-sticker {
-  width: 124px;
-  height: 97px;
+.ns-collage {
+  display: block;
+  width: 100%;
+  height: clamp(260px, 30vw, 360px);
+  margin: 6px 0 16px;
 }
 .ns-interests__groups {
   display: grid;
@@ -674,9 +666,8 @@ html.night-panel-open body {
 }
 
 @media (max-width: 640px) {
-  .ns-sticker {
-    width: 112px;
-    height: 88px;
+  .ns-collage {
+    height: 420px;
   }
   .ns-interests__groups {
     grid-template-columns: 1fr;

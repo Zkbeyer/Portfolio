@@ -1,48 +1,49 @@
 import { useEffect, useRef } from "react";
-import { interests, type StickerId } from "../../content/site";
-import { paintSticker, whenStickerFontsReady } from "../scene/props/stickerTexture";
+import { interests } from "../../content/site";
+import {
+  drawCollage,
+  panelLayout,
+  whenStickerFontsReady,
+} from "../scene/props/stickerTexture";
 
-/** One sticker from the telescope, drawn with the same painter into a small canvas. Decorative. */
-function Sticker({ id, tilt }: { id: StickerId; tilt: number }) {
+/** The telescope's stickers as one overlapping collage, sized to its box. Decorative. */
+function StickerCollage() {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const c = ref.current;
     if (!c) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const W = 140;
-    const H = 110;
-    c.width = W * dpr;
-    c.height = H * dpr;
     const draw = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = c.clientWidth;
+      const h = c.clientHeight;
+      if (!w || !h) return;
+      c.width = Math.round(w * dpr);
+      c.height = Math.round(h * dpr);
       const ctx = c.getContext("2d");
       if (!ctx) return;
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, c.width, c.height);
-      ctx.translate(c.width / 2, c.height / 2);
-      ctx.scale(0.5 * dpr, 0.5 * dpr);
-      paintSticker(ctx, id);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      const layout = panelLayout(w, h);
+      const res = Math.min(1, (layout[0].size * dpr) / 320);
+      drawCollage(ctx, layout, res);
     };
     draw();
     whenStickerFontsReady(draw);
-  }, [id]);
-  return <canvas ref={ref} className="ns-sticker" style={{ transform: `rotate(${tilt}deg)` }} aria-hidden="true" />;
+    const ro = new ResizeObserver(draw);
+    ro.observe(c);
+    return () => ro.disconnect();
+  }, []);
+  return <canvas ref={ref} className="ns-collage" aria-hidden="true" />;
 }
 
-const TILTS = [-4, 3, -2, 5, -3];
-
 /**
- * "Off the clock" in the About panel: the telescope's stickers as a sticker sheet, then every interest
- * grouped as text (the text carries the content; the stickers are decoration).
+ * "Off the clock" in the About panel: the sticker collage, then every interest grouped as text
+ * (the text carries the content; the stickers are decoration).
  */
 export function Interests() {
-  const stickers = interests.flatMap((g) => g.items.filter((i) => i.sticker).map((i) => i.sticker!));
   return (
     <div className="ns-interests">
-      <div className="ns-sheet" aria-hidden="true">
-        {stickers.map((id, i) => (
-          <Sticker key={id} id={id} tilt={TILTS[i % TILTS.length]} />
-        ))}
-      </div>
+      <StickerCollage />
       <dl className="ns-interests__groups">
         {interests.map((g) => (
           <div key={g.id} className="ns-interests__group">
@@ -52,7 +53,9 @@ export function Interests() {
                 {g.items.map((it) => (
                   <li key={it.name}>
                     {it.name}
-                    {it.note ? <span className="ns-interests__note"> · {it.note}</span> : null}
+                    {it.note ? (
+                      <span className="ns-interests__note"> · {it.note}</span>
+                    ) : null}
                   </li>
                 ))}
               </ul>
