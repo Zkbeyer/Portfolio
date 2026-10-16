@@ -43,8 +43,8 @@ body {
   height: 100svh;
   min-height: 520px;
   overflow: hidden;
-  /* flat backdrop that matches the room while the 3D chunk loads */
-  background: radial-gradient(ellipse at 18% 55%, #5a2a1a 0%, transparent 50%), var(--ns-wall);
+  /* the room with the lights off while the 3D chunk loads (the lamps flicker on once it's ready) */
+  background: #0c0a09;
 }
 
 .night-hero__stage,
@@ -59,6 +59,39 @@ body {
   background-size: cover;
   background-position: 42% 50%;
   background-repeat: no-repeat;
+}
+
+/* loading: a handwritten line in the dark until the lamps start flickering on */
+.night-boot {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  margin: 0;
+  transform: translate(-50%, -50%) rotate(-2deg);
+  font-family: var(--ns-font-hand);
+  font-size: clamp(20px, 2vw, 28px);
+  color: var(--ns-cream);
+  opacity: 0;
+  animation: night-boot-in 600ms ease 400ms forwards, night-boot-pulse 1.6s ease-in-out 1s infinite alternate;
+  pointer-events: none;
+}
+@keyframes night-boot-in {
+  to { opacity: 0.55; }
+}
+@keyframes night-boot-pulse {
+  from { opacity: 0.55; }
+  to { opacity: 0.3; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .night-boot { animation: none; opacity: 0.5; }
+}
+
+.night-nav__bulb {
+  flex: none;
+}
+.night-nav__lights[aria-pressed="false"] {
+  color: var(--ns-lamp);
+  opacity: 1;
 }
 
 /* ── top bar: name + nav ───────────────────────────────────────────────── */

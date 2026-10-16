@@ -8,6 +8,7 @@ import { Room } from "./Room";
 import { WindowView } from "./WindowView";
 import { Props } from "./props/Props";
 import { Lighting } from "./Lighting";
+import { LightDriver } from "./LightDriver";
 import { Post } from "./Post";
 import { setHovered } from "./hotspots";
 import { StaticMerge } from "./StaticMerge";
@@ -53,6 +54,7 @@ export default function NightCanvas() {
       <color attach="background" args={[PALETTE.deep]} />
       <Suspense fallback={null}>
         <CameraRig />
+        <LightDriver />
         <Lighting />
         <StaticMerge>
           <Room />

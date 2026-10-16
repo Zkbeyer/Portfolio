@@ -15,6 +15,7 @@ import { ScrollCue, Tracks } from "./ui/Tracks";
 import { closePanel, getPanel, isPanelId, usePanel } from "./ui/panelStore";
 import { goToPanel } from "./scene/hotspots";
 import { useRoomKeys } from "./ui/useRoomKeys";
+import { useIntroState } from "./scene/lights";
 import "./night.css";
 
 // three.js + the scene load in their own chunk after the HTML shell paints.
@@ -41,10 +42,17 @@ export default function NightApp() {
   const panel = usePanel();
   // No WebGL (or the room crashed): the poster stays as a still of the room and the nav carries the site.
   const [room, setRoom] = useState(hasWebGL);
+  const intro = useIntroState();
   return (
     <main className="night">
       <section className="night-hero" aria-label="Intro" inert={panel !== null}>
-        <div className="night-hero__stage" aria-hidden="true" style={{ backgroundImage: `url(${asset("night/poster.webp")})` }}>
+        {/* With WebGL the room starts dark and the lamps flicker on once it has loaded (the dark room is the
+            loading screen). The poster is only for browsers without WebGL. */}
+        <div
+          className="night-hero__stage"
+          aria-hidden="true"
+          style={room ? undefined : { backgroundImage: `url(${asset("night/poster.webp")})` }}
+        >
           {room && (
             <CanvasBoundary onFail={() => setRoom(false)}>
               <Suspense fallback={null}>
@@ -52,6 +60,7 @@ export default function NightApp() {
               </Suspense>
             </CanvasBoundary>
           )}
+          {room && intro === "waiting" && <p className="night-boot hand">finding the light switch…</p>}
         </div>
         <header className="night-top">
           <div className="night-top__id">

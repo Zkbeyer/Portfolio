@@ -7,8 +7,9 @@ import { useSceneTime } from "../../hooks/useSceneTime";
 import { useDisposable } from "../../hooks/useDisposable";
 import { setUniform } from "./uniforms";
 import { SKY_FRAG, UV_VERT } from "./shaders";
+import { skyNow } from "../timeOfDay";
 
-/** Sky backdrop: gradient, twinkling stars, moon with halo. */
+/** Sky backdrop: gradient, twinkling stars, moon with halo — coloured by the visitor's local time (timeOfDay.ts). */
 export function Sky() {
   const time = useSceneTime();
   const { center, size } = OUTSIDE.sky;
@@ -38,12 +39,20 @@ export function Sky() {
         uAspect: { value: w / h },
         uBand: { value: new Vector2(vAt(WINDOW.y0), vAt(WINDOW.y1)) },
         uTime: { value: 0 },
+        uStars: { value: 1 },
+        uMoonAmt: { value: 1 },
       },
     });
   }, [center, size]);
 
   useFrame(() => {
     setUniform(material, "uTime", time.current);
+    const { sky } = skyNow();
+    (material.uniforms.uTop.value as Color).copy(sky.top);
+    (material.uniforms.uMid.value as Color).copy(sky.mid);
+    (material.uniforms.uLow.value as Color).copy(sky.low);
+    setUniform(material, "uStars", sky.stars);
+    setUniform(material, "uMoonAmt", sky.moon);
   });
 
   return (

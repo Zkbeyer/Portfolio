@@ -1,4 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import { skyNow } from "../timeOfDay";
+import { assign } from "./uniforms";
 import { BufferAttribute, BufferGeometry, Color, MeshBasicMaterial, PointsMaterial } from "three";
 import { PALETTE } from "../../palette";
 import { OUTSIDE } from "../layout";
@@ -115,9 +118,21 @@ function RidgeLayer({ ridge }: { ridge: Ridge }) {
         size: ridge.z < -4 ? 0.016 : 0.022,
         sizeAttenuation: true,
         toneMapped: false,
+        transparent: true,
       }),
     [ridge],
   );
+  // follow the time of day: more haze toward the horizon colour by day, village lights fade out
+  const seen = useRef(-1);
+  const base = useMemo(() => new Color(ridge.color), [ridge]);
+  useFrame(() => {
+    const { sky, version } = skyNow();
+    if (version === seen.current) return;
+    seen.current = version;
+    const haze = Math.min(1, ridge.haze + sky.hillHaze * (0.25 + ridge.haze));
+    material.color.copy(base).lerp(sky.low, haze);
+    assign(lightMat, { opacity: sky.town, visible: sky.town > 0.02 });
+  });
   return (
     <group position={[0, 0, ridge.z]}>
       <mesh geometry={geometry} material={material} />

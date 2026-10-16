@@ -45,6 +45,8 @@ uniform float uMoonR;
 uniform float uAspect;
 uniform vec2 uBand; // v range that is actually visible through the window
 uniform float uTime;
+uniform float uStars;   // 0 by day, 1 at night (timeOfDay.ts)
+uniform float uMoonAmt; // moon + halo strength
 varying vec2 vUv;
 ${HASH_GLSL}
 void main() {
@@ -62,16 +64,16 @@ void main() {
   float size = mix(0.05, 0.11, hash21(id + 5.3));
   float twinkle = 0.55 + 0.45 * sin(uTime * (0.6 + 2.2 * hash21(id + 9.1)) + h * 40.0);
   float star = smoothstep(size, 0.0, length(f - o)) * step(0.94, h) * twinkle;
-  col += vec3(1.0, 0.92, 0.82) * star * smoothstep(0.3, 0.75, t) * 1.3;
+  col += vec3(1.0, 0.92, 0.82) * star * smoothstep(0.3, 0.75, t) * 1.3 * uStars;
 
   // moon + halo
   vec2 mp = (vUv - uMoonPos) * vec2(uAspect, 1.0);
   float md = length(mp);
   float halo = exp(-md * 16.0) * 0.12 + exp(-md * 55.0) * 0.4;
-  col += uMoon * halo;
+  col += uMoon * halo * uMoonAmt;
   float disc = smoothstep(uMoonR, uMoonR * 0.94, md);
   float maria = 1.0 - 0.14 * smoothstep(0.45, 0.75, valueNoise(mp / uMoonR * 2.2 + 3.0));
-  col = mix(col, uMoon * 1.6 * maria, disc);
+  col = mix(col, uMoon * 1.6 * maria, disc * uMoonAmt);
 
   gl_FragColor = vec4(col, 1.0);
 }

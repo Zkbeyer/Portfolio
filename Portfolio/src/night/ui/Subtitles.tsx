@@ -5,6 +5,8 @@ import { usePanel } from "./panelStore";
 import { INTRO_LINES, STILL_INTRO_LINES } from "./copy";
 import { useCallback, useState } from "react";
 import { RoomSheet } from "./RoomSheet";
+import { useLightsOn } from "../scene/lights";
+import { flipLights } from "./actions";
 
 /**
  * Film-style subtitles at the bottom of the hero. Idle: the intro lines, one after the other.
@@ -17,6 +19,7 @@ export function Subtitles({ still = false }: { still?: boolean }) {
   const focus = useFocus();
   const panel = usePanel();
   const playing = useAudioPlaying();
+  const lights = useLightsOn();
   const id = hovered ?? focus;
   const [sheet, setSheet] = useState(false);
   const [coarse] = useState(() => typeof window !== "undefined" && !!window.matchMedia?.("(pointer: coarse)").matches);
@@ -25,6 +28,7 @@ export function Subtitles({ still = false }: { still?: boolean }) {
   if (panel) return null; // the detail panel covers the room
 
   let lines: readonly string[] = still ? STILL_INTRO_LINES : INTRO_LINES;
+  if (!lights && !id) lines = [coarse ? "Lights out. Tap the button to bring them back." : "Lights out. Click a lamp or press L to bring them back."];
   if (id) {
     const info = HOTSPOTS[id];
     const focused = focus === id;
@@ -36,12 +40,17 @@ export function Subtitles({ still = false }: { still?: boolean }) {
   return (
     <div className="night-subs">
       {/* key re-mounts the block so each new caption fades in like a new subtitle */}
-      <div className={`night-subs__lines${id ? "" : " is-intro"}`} key={id ?? "intro"} aria-hidden="true">
+      <div className={`night-subs__lines${id ? "" : " is-intro"}`} key={id ?? (lights ? "intro" : "dark")} aria-hidden="true">
         {lines.map((l) => (
           <p key={l}>{l}</p>
         ))}
       </div>
-      {!focus && (
+      {!lights && (
+        <button type="button" className="night-subs__back night-subs__open night-subs__lights" onClick={flipLights}>
+          Turn the lights back on <kbd>L</kbd>
+        </button>
+      )}
+      {!focus && lights && (
         <button type="button" className="night-subs__back night-subs__explore" onClick={() => setSheet(true)}>
           Look around <span aria-hidden="true">↑</span>
         </button>

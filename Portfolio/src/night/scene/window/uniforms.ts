@@ -4,3 +4,8 @@ import type { ShaderMaterial } from "three";
 export function setUniform(material: ShaderMaterial, name: string, value: unknown) {
   material.uniforms[name].value = value;
 }
+
+/** Set plain properties on a three.js object from useFrame (same reason as setUniform). */
+export function assign<T extends object>(target: T, patch: Partial<T>) {
+  Object.assign(target, patch);
+}

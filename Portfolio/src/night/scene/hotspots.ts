@@ -4,6 +4,10 @@ import { toggleAudio } from "../audio/audioStore";
 import { focusOn, getFocus, useFocus, type FocusId } from "./focus";
 import { numberWord } from "../ui/copy";
 import { openPanel, type PanelId } from "../ui/panelStore";
+import { playSfx, type Sfx } from "../audio/engine";
+
+/** The little sound each object makes when you look closer (only with sound on). */
+const FOCUS_SFX: Partial<Record<HotspotId, Sfx>> = { notebook: "paper", plane: "paper", pi: "beep", telescope: "ratchet", monitor: "keys" };
 
 /**
  * Every clickable object in the room, shared by the 3D hotspots (scene/Hotspot.tsx), the subtitles
@@ -94,7 +98,11 @@ export function activateHotspot(id: HotspotId) {
     return;
   }
   if (getFocus() === id) openFocused(id);
-  else focusOn(id);
+  else {
+    focusOn(id);
+    const sfx = FOCUS_SFX[id];
+    if (sfx) playSfx(sfx);
+  }
 }
 
 /** The second step for a focused object: its panel, or the resume PDF for the notebook. */

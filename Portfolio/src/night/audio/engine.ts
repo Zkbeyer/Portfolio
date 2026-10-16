@@ -1,5 +1,6 @@
 import { isAudioPlaying, readAudioPref, setAudioPlaying, subscribeAudio } from "./audioStore";
 import { PLAYLIST, shuffledOrder } from "./playlist";
+import { isLightsOn, subscribeLights } from "../scene/lights";
 
 /**
  * The audio engine behind the turntable: procedural rain (WebAudio, no file) + a shuffled lo-fi
@@ -27,6 +28,9 @@ const PRELOAD_AHEAD = 15;
 const SILENCE = "data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YZABAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA";
 
 const MASTER = 0.9;
+/** Rain level with the lights off: the room goes quiet, so the rain seems louder. */
+const RAIN_DARK = 1.7;
+const SFX = 0.55;
 const MUSIC = 0.5;
 const FADE_IN = 1.2;
 const FADE_OUT = 0.6;
@@ -41,6 +45,8 @@ type Graph = {
   music: GainNode;
   noise: AudioBuffer;
   decks: [Deck, Deck];
+  /** One-shot sound effects (switch, paper, needle…) — straight to the speakers, not faded with the music. */
+  sfx: GainNode;
 };
 
 // playlist state
@@ -84,7 +90,7 @@ function build(): Graph | null {
 
   // --- rain bed ---
   const rain = ctx.createGain();
-  rain.gain.value = 1;
+  rain.gain.value = isLightsOn() ? 1 : RAIN_DARK;
   rain.connect(master);
 
   const noise = makeNoise(ctx, 4);
@@ -153,7 +159,11 @@ function build(): Graph | null {
     return deck;
   }) as [Deck, Deck];
 
-  return { ctx, master, rain, music, noise, decks };
+  const sfx = ctx.createGain();
+  sfx.gain.value = SFX;
+  sfx.connect(ctx.destination);
+
+  return { ctx, master, rain, music, noise, decks, sfx };
 }
 
 // ── playlist ────────────────────────────────────────────────────────────────
@@ -320,6 +330,7 @@ function start() {
   void g.ctx.resume();
   const deck = g.decks[active];
   unlockDecks(g);
+  playSfx("needle-drop");
   if (deck.track === null) play(g, deck, takeNext(), 0); // first track of the visit
   else if (failures < PLAYLIST.length) void deck.el.play().catch(() => {});
   const now = g.ctx.currentTime;
@@ -334,6 +345,7 @@ function start() {
 function stop() {
   const g = graph;
   if (!g) return;
+  sfxNow(g, "needle-lift");
   const now = g.ctx.currentTime;
   g.master.gain.cancelScheduledValues(now);
   g.master.gain.setValueAtTime(g.master.gain.value, now);
@@ -370,6 +382,13 @@ export function initAudioEngine() {
   if (started || typeof window === "undefined") return;
   started = true;
   subscribeAudio(() => (isAudioPlaying() ? start() : stop()));
+  subscribeLights(() => {
+    const g = graph;
+    if (!g) return;
+    const now = g.ctx.currentTime;
+    g.rain.gain.cancelScheduledValues(now);
+    g.rain.gain.setTargetAtTime(isLightsOn() ? 1 : RAIN_DARK, now, 0.35);
+  });
   document.addEventListener("visibilitychange", onVisibility);
 
   if (!readAudioPref()) return;
@@ -386,4 +405,97 @@ export function initAudioEngine() {
   // bubble phase: runs after the canvas/turntable and button handlers for the same event
   window.addEventListener("click", resumeOnGesture);
   window.addEventListener("keydown", resumeOnGesture);
+}
+
+// ── sound effects ────────────────────────────────────────────────────────────
+// All synthesized here (no files, nothing to license): short noise bursts through filters + a few
+// sine/square blips. They only play while sound is on.
+
+export type Sfx = "switch" | "paper" | "needle-drop" | "needle-lift" | "beep" | "ratchet" | "keys";
+
+/** One filtered noise burst. */
+function burst(g: Graph, t: number, o: { dur: number; gain: number; type: BiquadFilterType; freq: number; q?: number; pan?: number; to?: AudioNode }) {
+  const { ctx, noise } = g;
+  const src = ctx.createBufferSource();
+  src.buffer = noise;
+  const f = ctx.createBiquadFilter();
+  f.type = o.type;
+  f.frequency.value = o.freq;
+  if (o.q) f.Q.value = o.q;
+  const env = ctx.createGain();
+  env.gain.setValueAtTime(0, t);
+  env.gain.linearRampToValueAtTime(o.gain, t + 0.002);
+  env.gain.setTargetAtTime(0, t + 0.002, o.dur / 3);
+  const pan = ctx.createStereoPanner();
+  pan.pan.value = o.pan ?? 0;
+  src.connect(f).connect(env).connect(pan).connect(o.to ?? g.sfx);
+  src.start(t, Math.random() * (noise.duration - 1), o.dur + 0.2);
+  return f;
+}
+
+/** A short pitched blip (sine/square) — thumps and beeps. */
+function tone(g: Graph, t: number, o: { freq: number; to?: number; dur: number; gain: number; type?: OscillatorType }) {
+  const { ctx } = g;
+  const osc = ctx.createOscillator();
+  osc.type = o.type ?? "sine";
+  osc.frequency.setValueAtTime(o.freq, t);
+  if (o.to) osc.frequency.exponentialRampToValueAtTime(o.to, t + o.dur);
+  const env = ctx.createGain();
+  env.gain.setValueAtTime(0, t);
+  env.gain.linearRampToValueAtTime(o.gain, t + 0.004);
+  env.gain.exponentialRampToValueAtTime(0.0001, t + o.dur);
+  osc.connect(env).connect(g.sfx);
+  osc.start(t);
+  osc.stop(t + o.dur + 0.05);
+}
+
+function sfxNow(g: Graph, name: Sfx) {
+  const t = g.ctx.currentTime + 0.01;
+  const r = Math.random;
+  switch (name) {
+    case "switch": // rocker switch: two clicks and a little body
+      burst(g, t, { dur: 0.008, gain: 0.55, type: "highpass", freq: 2600 });
+      tone(g, t, { freq: 160, to: 90, dur: 0.05, gain: 0.18 });
+      burst(g, t + 0.038, { dur: 0.006, gain: 0.25, type: "highpass", freq: 3400 });
+      break;
+    case "paper": // a page lifted: a few soft grains of rustle
+      for (let i = 0; i < 7; i++)
+        burst(g, t + r() * 0.32, { dur: 0.03 + r() * 0.05, gain: 0.05 + r() * 0.09, type: "bandpass", freq: 2200 + r() * 2600, q: 0.8, pan: (r() - 0.5) * 0.5 });
+      break;
+    case "needle-drop": // the arm lands: a soft thump, then some crackle
+      tone(g, t + 0.05, { freq: 70, to: 40, dur: 0.28, gain: 0.32 });
+      burst(g, t + 0.05, { dur: 0.03, gain: 0.18, type: "lowpass", freq: 900 });
+      for (let i = 0; i < 14; i++)
+        burst(g, t + 0.08 + r() * 0.5, { dur: 0.004, gain: 0.05 + r() * 0.08, type: "highpass", freq: 2500 + r() * 3000, pan: (r() - 0.5) * 0.3 });
+      break;
+    case "needle-lift": { // a short scratch as the stylus leaves the groove
+      const f = burst(g, t, { dur: 0.12, gain: 0.12, type: "bandpass", freq: 1600, q: 2 });
+      f.frequency.exponentialRampToValueAtTime(380, t + 0.12);
+      burst(g, t + 0.13, { dur: 0.006, gain: 0.12, type: "highpass", freq: 3000 });
+      break;
+    }
+    case "beep": // the Pi's status display waking up
+      tone(g, t, { freq: 1180, dur: 0.07, gain: 0.05, type: "square" });
+      tone(g, t + 0.11, { freq: 1580, dur: 0.09, gain: 0.05, type: "square" });
+      break;
+    case "ratchet": // telescope focuser: a few ticks
+      for (let i = 0; i < 5; i++) burst(g, t + i * 0.045, { dur: 0.004, gain: 0.28 - i * 0.04, type: "bandpass", freq: 4200, q: 4 });
+      break;
+    case "keys": { // a quick burst of typing
+      let k = t;
+      for (let i = 0; i < 6; i++) {
+        burst(g, k, { dur: 0.012, gain: 0.16 + r() * 0.1, type: "bandpass", freq: 2000 + r() * 1400, q: 1.5, pan: (r() - 0.5) * 0.4 });
+        tone(g, k, { freq: 260 + r() * 80, dur: 0.025, gain: 0.05 });
+        k += 0.06 + r() * 0.08;
+      }
+      break;
+    }
+  }
+}
+
+/** Play a sound effect if sound is on (never creates audio by itself). */
+export function playSfx(name: Sfx) {
+  const g = graph;
+  if (!g || !isAudioPlaying() || g.ctx.state === "closed") return;
+  sfxNow(g, name);
 }

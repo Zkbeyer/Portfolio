@@ -19,6 +19,8 @@ import { useAudioPlaying } from "../../audio/audioStore";
 import { StaticMerge } from "../StaticMerge";
 import { AccentChair, HangingPlant, PaperFloorLamp } from "./BoardExtras";
 import type { Vec3 } from "../layout";
+import { Dimmable } from "../LightDriver";
+import { LightSwitch } from "./LightSwitch";
 
 const offset = (a: Vec3, dx: number, dy: number, dz: number): Vec3 => [a[0] + dx, a[1] + dy, a[2] + dz];
 
@@ -69,17 +71,24 @@ export function Props() {
         <BoardingPass open={focus === "plane"} hover={planeActive} />
       </Hotspot>
       <StaticMerge>
-        <Lamp />
+        <Dimmable group="desk">
+          <Lamp />
+        </Dimmable>
         <Books />
         <RecordConsole />
         <Decor />
         <AccentChair />
         <HangingPlant />
       </StaticMerge>
-      <PaperFloorLamp />
+      <Dimmable group="floor">
+        <PaperFloorLamp />
+      </Dimmable>
+      <LightSwitch />
       <Plant />
       <Mug />
-      <AccentLamps />
+      <Dimmable group="accent">
+        <AccentLamps />
+      </Dimmable>
     </group>
   );
 }
